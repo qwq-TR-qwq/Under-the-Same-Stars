@@ -2,6 +2,32 @@
 
 本项目从 v1 到 v11 的完整迭代记录，按时间顺序排列。
 
+## [v11.2] - 2026-10-25
+
+### 修复（关键）
+- **视口修复**：`width=1280` → `device-width`，激活全部移动端断点样式（此前手机上访问的只是"缩小的桌面版"，移动端 CSS 从未生效）
+
+### 无障碍（新增维度）
+- 导航链接 / 品牌区补 `role="button"` + `tabindex="0"`，支持键盘 Tab 聚焦与回车/空格触发
+- 新增 focus-visible 金色焦点环；图标按钮（📷 发图 / 🎤 语音）补 aria-label
+
+### 工程质量
+- **JS 模块化拆分**：单文件 3400 行内联脚本解包并拆分为 `js/` 下 8 个功能模块（boot/book/chat/ai-core/sensory/tests/site-shell/nav-community），HTML 降至 0.19MB
+- **密钥安全升级**：新增 `serverless/` 后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 `.env.example` 模板；AI 设置面板新增「后端中转」服务商——真实 Key 只存服务端，前端零泄露
+
+### 性能
+- 15 张大图转 WebP（2805KB → 2047KB）并清理无引用旧 JPG，images 目录 6.7MB → 5MB
+
+### 体验与传播
+- 补齐 Open Graph / Twitter Card 分享元信息与 og:image 分享封面图
+- **PWA**：新增 manifest.json + Service Worker（静态资源缓存优先、HTML 网络优先），可安装、断网可演示
+- 新增全局错误兜底：未捕获异常 / Promise 拒绝 → 友好 toast（节流），杜绝演示白屏
+- 新增 AI 接口域名 preconnect / dns-prefetch 预连接
+
+### 文档
+- 新增《演示视频分镜脚本.md》（6.5 分钟逐镜头拍摄/剪辑指引与提交清单）
+- README 技术栈 / 目录结构同步 v11.2
+
 ## [v11.1] - 2026-10-25
 
 ### 优化

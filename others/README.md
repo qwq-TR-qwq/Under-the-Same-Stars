@@ -16,14 +16,17 @@
 
 | 类别 | 技术 |
 |---|---|
-| 前端 | 原生 HTML5 + CSS3 + JavaScript（ES6+），单文件交付 |
-| AI 集成 | 多服务商大模型接入（DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口，OpenAI 兼容协议），SSE 流式输出，Function Calling 工具调用 |
+| 前端 | 原生 HTML5 + CSS3 + JavaScript（ES6+），JS 按功能模块化拆分（js/ 下 8 个模块） |
+| AI 集成 | 多服务商大模型接入（后端中转 / DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口，OpenAI 兼容协议），SSE 流式输出，Function Calling 工具调用 |
 | 多模态 | Web Speech API 语音识别 + TTS 朗读；图片上传 + 视觉模型看图理解（glm-4v-flash / qwen-vl-plus 自动切换） |
 | RAG | 站内科普知识库：字符二元组向量化 + 余弦相似度检索，与计分制关键词匹配混合排序；本地 REPLY_BANK 120+ 条兜底 + 17 个科普话题专门回答 |
-| AI 安全 | 危机干预关键词兜底（自伤/轻生 → 热线卡片优先响应）、接口失败自动降级本地应答并明示 |
+| AI 安全 | 危机干预关键词兜底（自伤/轻生 → 热线卡片优先响应）、接口失败自动降级本地应答并明示、全局错误兜底 toast |
 | 数据可视化 | 原生 Canvas 2D 自绘（折线图 + 双饼图，零依赖、离线可用） |
-| 资源 | 图片/视频/音频全部外置独立文件 + 懒加载（HTML 体积从 40MB 降至 0.45MB） |
-| 响应式 | PC / 移动端自适应，分组下拉导航 + 移动端汉堡菜单 |
+| 资源 | 图片/视频/音频全部外置独立文件 + 懒加载 + WebP 格式（HTML 体积从 40MB 降至 0.19MB，媒体约 17MB） |
+| PWA | manifest + Service Worker 离线缓存（静态资源缓存优先、HTML 网络优先），可安装、断网可演示 |
+| 无障碍 | 键盘可达导航（Tab/回车/空格）、focus-visible 焦点环、图标按钮 aria-label、大字模式 |
+| 响应式 | device-width 视口，PC / 移动端自适应，分组下拉导航 + 移动端汉堡菜单 |
+| 密钥安全 | 源码零密钥；提供 serverless/ 后端中转代理（Vercel / Cloudflare Workers）+ .env.example 模板 |
 
 ---
 
@@ -125,17 +128,30 @@
 
 ```
 星夜入眠/
-├── index.html            # 主程序（单文件应用，约 0.45MB）
-├── images/               # 图片资源（外置，懒加载）
+├── index.html            # 主程序（结构 + 样式，约 0.19MB）
+├── js/                   # JS 模块（按功能拆分，按序加载）
+│   ├── 00-boot.js             # 全局错误兜底 + Service Worker 注册
+│   ├── 01-book.js             # 星空书页翻页 / 悬停提示音 / 背景音乐
+│   ├── 02-chat.js             # 星语对话 UI / 心理科普
+│   ├── 03-ai-core.js          # AI 设置 / SSE 流式调用 / Function Calling / TTS / 危机兜底 / 寄语生成
+│   ├── 04-sensory.js          # 感官体验模拟
+│   ├── 05-tests-community.js  # 心理测评 / MBTI
+│   ├── 06-site-shell.js       # 视图切换 / 导航（键盘可达）
+│   └── 07-nav-community.js    # 留言墙 / 数据看板 / 寄语卡片 / 问卷 / 证书 / PWA 外围
+├── serverless/           # AI 后端中转代理（Vercel / Cloudflare Workers）
+├── manifest.json         # PWA 清单
+├── sw.js                 # Service Worker（离线缓存）
+├── .env.example          # 环境变量模板（真实 Key 不入库）
+├── images/               # 图片资源（外置 + WebP + 懒加载）
 ├── videos/               # 公益短片（外置）
 ├── audio/                # 背景音乐
-├── 公益短片-封面.jpg
 ├── html/                 # 技术文档 / 作品介绍（网页版）
 └── others/               # 参赛材料
     ├── README.md              # 本文件
     ├── 技术文档.md / .pdf      # 技术文档
     ├── 作品介绍文档.md / .pdf  # 作品介绍
     ├── 环境配置说明.md          # 运行说明
+    ├── 演示视频分镜脚本.md      # 演示视频拍摄/剪辑指引
     ├── CHANGELOG.md           # 更新日志
     ├── LICENSE
     └── .gitignore

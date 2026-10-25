@@ -1,0 +1,17 @@
+{
+  "name": "星夜入眠 · 关爱自闭症儿童",
+  "short_name": "星夜入眠",
+  "description": "面向社会公众的关爱自闭症儿童公益科普互动网站：科学认识、家庭支持、AI 心理陪伴与公益参与。",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05081c",
+  "theme_color": "#05081c",
+  "icons": [
+    { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
