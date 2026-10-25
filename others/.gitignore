@@ -13,6 +13,7 @@ Desktop.ini
 # 临时文件
 *.log
 *.tmp
+*.bak
 .cache/
 
 # API Key 敏感文件
@@ -23,6 +24,8 @@ config.local.js
 # 文档临时
 技术文档.html
 
-# 大文件（HTML 主文件已单独提交）
-# *.mp4
-# *.avi
+# 大体积演示视频（通过大赛官方渠道单独提交，不入代码仓库）
+*.mp4
+*.avi
+.workbuddy/
+_extract_assets.py
