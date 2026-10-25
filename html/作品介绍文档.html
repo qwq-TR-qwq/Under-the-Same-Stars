@@ -1,161 +1,103 @@
-<html><head><meta charset='utf-8'>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>星夜入眠 · 作品介绍文档</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body{font-family:'Microsoft YaHei',sans-serif;max-width:800px;margin:40px auto;line-height:1.8;padding:20px;color:#333}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;max-width:860px;margin:40px auto;line-height:1.85;padding:0 20px;color:#2b2f3a;background:#fff}
 h1{font-size:26px;border-bottom:2px solid #333;padding-bottom:10px}
-h2{font-size:20px;color:#444;margin-top:28px}
-h3{font-size:16px;color:#666}
+h2{font-size:20px;color:#1f2430;margin-top:30px;border-bottom:1px solid #e3e6ee;padding-bottom:6px}
+h3{font-size:17px;color:#39415a;margin-top:24px}
+h4{font-size:15px;color:#5a6480}
 li{margin:6px 0}
-hr{border:none;border-top:1px solid #ddd;margin:20px 0}
-pre{background:#f5f5f5;padding:15px;border-radius:5px;overflow-x:auto;font-size:13px}
-</style></head><body><h1>星夜入眠 · 关爱自闭症儿童公益科普网站 —— 作品介绍文档</h1>
-
-<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛</p>
-<p><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统</p>
-<p><strong>版本</strong>：v10.0（正式参赛版）</p>
-
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+th,td{border:1px solid #ccd2e0;padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#f2f4fa}
+tr:nth-child(even) td{background:#fafbfd}
+hr{border:none;border-top:1px solid #ddd;margin:24px 0}
+pre{background:#f5f6fa;padding:15px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.6;border:1px solid #e3e6ee}
+code{background:#f0f2f8;padding:1px 5px;border-radius:3px;font-size:13px}
+pre code{background:none;padding:0}
+blockquote{border-left:4px solid #c9d4f2;margin:12px 0;padding:4px 14px;color:#5a6480;background:#f8f9fd}
+strong{color:#1f2430}
+</style>
+</head>
+<body>
+<h1>星夜入眠 · 关爱自闭症儿童公益科普网站 —— 作品介绍文档</h1>
+<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v11.2（正式参赛版）</p>
 <hr>
-
 <h2>一、项目详情及使用方式</h2>
-
 <h3>1.1 项目背景</h3>
-
 <p>自闭症（自闭症谱系障碍）是一种神经发育差异，国内患者数量超千万。社会大众对自闭症存在大量误解：以为是性格内向、是家庭教育不当、是"天才病"。同时，自闭症儿童家长、特教老师、医护人员等长期处于高压状态，缺乏情绪出口。</p>
-
 <p>本项目以"理解、包容、希望"为基调，构建一个公益科普 Web 应用，面向普通市民、学生、志愿者、企业、自闭症儿童家长等多类人群，通过科普知识、真实故事、数据可视化、感官体验和 AI 心理陪伴，消除社会对自闭症的误解。</p>
-
 <h3>1.2 使用方式</h3>
-
-<p>本项目为<strong>单文件 HTML 应用</strong>，无需安装、无需构建：</p>
-
-<p>1. 双击打开 `星夜入眠.html`</p>
-<p>2. 浏览器自动加载，即可浏览全部内容</p>
-<p>3. 点击导航栏切换板块：首页、科普、故事、数据、体验、对话、家庭、公益、关于</p>
-<p>4. 点击"星语对话"进入 AI 心理陪伴，输入文字即可获得共情回答</p>
-<p>5. 点击"进入星星的视角"观看自闭症儿童视角的公益视频</p>
-<p>6. 支持 PC 端和手机端自适应浏览</p>
-
+<p>本项目为<strong>纯静态免构建网站</strong>，无需安装、无需构建：</p>
+<ol><li>双击打开 <code>index.html</code>（保持与 <code>css/</code>、<code>js/</code>、<code>images/</code>、<code>videos/</code>、<code>audio/</code> 目录同级）</li><li>浏览器自动加载，即可浏览全部内容；也可访问线上地址 https://starry-night-autism-care.app.workbuddy.host/</li><li>点击导航栏切换板块：首页、科普、故事、数据、体验、对话、家庭、公益、关于</li><li>点击"星语对话"进入 AI 心理陪伴，输入文字即可获得共情回答（支持流式输出、图片理解、语音输入与朗读）</li><li>点击"进入星星的视角"观看自闭症儿童视角的公益视频</li><li>支持 PC 端和手机端自适应浏览；支持安装为 PWA 应用，断网可离线演示</li></ol>
 <hr>
-
 <h2>二、项目亮点</h2>
-
 <h3>2.1 双链路 AI 心理陪伴（核心亮点）</h3>
-
-<li>**在线模式**：接入 DeepSeek Chat API，支持流式输出、打字机效果</li>
-<li>**本地兜底**：内置 120+ 条共情回答，覆盖 12 类人群 60+ 细分场景，比赛现场断网也能演示</li>
-<li>**17 个科普话题专门回答**：自闭症、ADHD、抑郁、焦虑、失眠、压力等话题精确匹配长回答，问什么答什么</li>
-<li>**计分制匹配**：统计用户输入命中几个关键词，选最贴合的条目，避免单关键词误判</li>
-<li>**共情式回答**：每条回答先共情再展开，结尾引导用户继续说，不公式化、不预设身份年龄</li>
-<li>**对话稳定**：全程不自动跳转站内板块，页面稳定</li>
-
+<ul><li><strong>多服务商在线模式</strong>：支持后端中转 / DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口（OpenAI 兼容协议），SSE 流式输出、打字机效果</li><li><strong>真 Function Calling</strong>：通过 OpenAI tools 协议定义 3 个站内工具（板块跳转 / 知识库检索 / 感官体验），大模型自主决策调用后二次请求生成回复</li><li><strong>RAG 知识库</strong>：站内科普条目字符二元组向量化 + 余弦相似度与关键词计分混合排序，Top3 注入 System Prompt，检索过程可视化</li><li><strong>本地兜底</strong>：内置 120+ 条共情回答，覆盖 12 类人群 60+ 细分场景，比赛现场断网也能演示</li><li><strong>17 个科普话题专门回答</strong>：自闭症、ADHD、抑郁、焦虑、失眠、压力等话题精确匹配长回答，问什么答什么</li><li><strong>多模态交互</strong>：图片上传看图理解（视觉模型自动切换）、语音输入、TTS 朗读回复</li><li><strong>AI 安全兜底</strong>：自伤 / 轻生等危机关键词优先触发 12356 热线卡片；接口失败自动降级本地应答并明示</li><li><strong>共情式回答</strong>：每条回答先共情再展开，结尾引导用户继续说，不公式化、不预设身份年龄</li><li><strong>密钥安全</strong>：源码零密钥，个人使用密钥存本机 localStorage，正式部署可走 serverless 后端中转，真实 Key 不落前端</li></ul>
 <h3>2.2 感官体验模拟</h3>
-
 <p>嵌入 B 站公益视频，让普通人直观感受自闭症儿童眼中的世界，用体验替代说教。视频带封面、点击暂停/继续，离开页面自动停止，下方黄色超链接可跳转 B 站原视频观看。</p>
-
 <h3>2.3 数据可视化</h3>
-
 <p>三张 Canvas 自绘图表（折线图 + 两个饼图），零依赖、离线可用，全部支持 hover 双向联动高亮，折线图 2016 年双数据分色标注，直观展示国内自闭症患病率趋势、国际对比、年龄分布。</p>
-
 <h3>2.4 星空治愈视觉</h3>
-
 <p>二次元星空动画背景 + 温暖配色，把沉重话题做温暖，不卖惨、不渲染悲情。</p>
-
 <h3>2.5 隐私保护</h3>
-
 <p>所有故事用插画代替真人照片，不使用患儿真实人脸。</p>
-
-<h3>2.6 演示稳定性</h3>
-
-<p>针对比赛现场环境做了大量稳定化处理：全站视频不自动播放、离开页面即暂停；背景音乐一键总开关；移除不可靠的 TTS 朗读；心理量表大字体显示。</p>
-
+<h3>2.6 演示稳定性与工程质量</h3>
+<p>针对比赛现场环境做了大量稳定化处理：全站视频不自动播放、离开页面即暂停；背景音乐一键总开关；TTS 朗读为用户主动触发；心理量表大字体显示；全局错误兜底 toast 杜绝白屏；PWA 离线缓存让断网也能完整演示。工程上 HTML / CSS / JS 分层（HTML 0.07MB + css/style.css 0.09MB + js/ 8 个功能模块），免构建、双击即用。</p>
 <hr>
-
 <h2>三、Web 网页使用情况概述</h2>
-
 <h3>3.1 板块结构</h3>
-
-<p style='font-family:monospace;font-size:13px'>| 板块 | 功能 |</p>
-<p style='font-family:monospace;font-size:13px'>|---|---|</p>
-<p style='font-family:monospace;font-size:13px'>| 首页 | 主视觉、数据卡片、快捷入口、互动小问卷 |</p>
-<p style='font-family:monospace;font-size:13px'>| 认识自闭症 | 科普翻页动画、常见误区、如何相处、科普公益视频 |</p>
-<p style='font-family:monospace;font-size:13px'>| 看见他们 | 孩子视角、家长故事、老师视角、成长案例 |</p>
-<p style='font-family:monospace;font-size:13px'>| 数据看板 | 折线图 + 两个饼图，支持 hover 交互 |</p>
-<p style='font-family:monospace;font-size:13px'>| 体验视角 | 自闭症儿童视角公益视频（带封面，可跳转 B 站） |</p>
-<p style='font-family:monospace;font-size:13px'>| 星语对话 | AI 心理陪伴（在线 + 本地兜底，17 话题精确回答） |</p>
-<p style='font-family:monospace;font-size:13px'>| 家庭支持 | 家长疏导、早期干预、资源指引、电子证书 |</p>
-<p style='font-family:monospace;font-size:13px'>| 公益参与 | 志愿登记、官方网站跳转链接（新标签页） |</p>
-<p style='font-family:monospace;font-size:13px'>| 关于我们 | 项目介绍、免责声明、反馈表单 |</p>
-
+<table>
+<tr><th>板块</th><th>功能</th></tr>
+<tr><td>首页</td><td>主视觉、数据卡片、快捷入口、互动小问卷</td></tr>
+<tr><td>认识自闭症</td><td>科普翻页动画、常见误区、如何相处、科普公益视频</td></tr>
+<tr><td>看见他们</td><td>孩子视角、家长故事、老师视角、成长案例</td></tr>
+<tr><td>数据看板</td><td>折线图 + 两个饼图，支持 hover 交互</td></tr>
+<tr><td>体验视角</td><td>自闭症儿童视角公益视频（带封面，可跳转 B 站）</td></tr>
+<tr><td>星语对话</td><td>AI 心理陪伴（多服务商流式 + Function Calling + RAG + 本地兜底，支持图片理解 / 语音 / 朗读）</td></tr>
+<tr><td>家庭支持</td><td>家长疏导、早期干预、资源指引、电子证书</td></tr>
+<tr><td>公益参与</td><td>志愿登记、官方网站跳转链接（新标签页）</td></tr>
+<tr><td>关于我们</td><td>项目介绍、免责声明、反馈表单</td></tr>
+</table>
 <h3>3.2 响应式</h3>
-
-<li>PC 端：多栏布局，完整展示</li>
-<li>手机端：自适应单栏，支持手势缩放</li>
-<li>所有按钮、图表、视频在手机端正常显示</li>
-
+<ul><li>PC 端：多栏布局，完整展示</li><li>手机端：自适应单栏，支持手势缩放</li><li>所有按钮、图表、视频在手机端正常显示</li></ul>
 <hr>
-
 <h2>四、关键技术</h2>
-
 <h3>4.1 前端技术</h3>
-
-<li>**原生 HTML5 + CSS3 + JavaScript（ES6+）**：单文件交付，无框架依赖</li>
-<li>**原生 Canvas 2D 图表**：数据可视化，折线图 + 饼图，支持 hover 交互，零依赖</li>
-<li>**响应式设计**：CSS 媒体查询 + 自适应布局</li>
-<li>**视频内嵌**：MP4 base64 编码，离线可播放</li>
-
+<ul><li><strong>原生 HTML5 + CSS3 + JavaScript（ES6+）</strong>：免构建零依赖；HTML / CSS（css/style.css）/ JS（js/ 8 个功能模块）分层，双击即用</li><li><strong>原生 Canvas 2D 图表</strong>：数据可视化，折线图 + 饼图，支持 hover 交互，零依赖</li><li><strong>响应式设计</strong>：device-width 视口 + CSS 媒体查询断点，移动端汉堡导航，键盘可达 + focus-visible 焦点环</li><li><strong>资源外置 + 懒加载 + WebP</strong>：图片/视频/音频独立文件，<code>loading="lazy"</code>，HTML 仅 0.07MB，媒体约 17MB</li><li><strong>PWA</strong>：manifest + Service Worker 离线缓存，可安装、断网可演示</li></ul>
 <h3>4.2 AI 技术</h3>
-
-<li>**大模型集成**：DeepSeek Chat API（OpenAI 兼容格式）</li>
-<li>**RAG 本地知识库**：120+ 条人工撰写的共情回答，计分制关键词匹配</li>
-<li>**17 话题精确回答**：科普站固定话题精确匹配长回答</li>
-<li>**流式输出**：打字机效果逐字渲染</li>
-<li>**四层降级**：在线 API → 17 话题 → 本地知识库 → 通用兜底</li>
-<li>**System Prompt 工程**：先共情再展开、不机械分点、不预设身份、结尾引导</li>
-
+<ul><li><strong>多服务商大模型集成</strong>：后端中转 / DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口（OpenAI 兼容协议，可切换）</li><li><strong>SSE 流式输出</strong>：逐 token 打字机渲染</li><li><strong>真 Function Calling</strong>：OpenAI tools 协议 3 个站内工具，流式解析 tool_calls 并二次请求</li><li><strong>RAG 混合检索</strong>：字符二元组向量化 + 余弦相似度 + 关键词计分混合排序，Top3 注入 Prompt，检索可视化</li><li><strong>多模态</strong>：语音输入（Web Speech API）+ TTS 朗读 + 图片上传看图理解（glm-4v-flash / qwen-vl-plus 自动切换）</li><li><strong>RAG 本地知识库</strong>：120+ 条人工撰写的共情回答 + 17 个科普话题精确回答，计分制关键词匹配</li><li><strong>四层降级</strong>：在线 API → 17 话题 → 本地知识库 → 通用兜底</li><li><strong>AI 安全</strong>：危机干预关键词兜底（12356 热线卡片优先响应）、降级明示</li><li><strong>System Prompt 工程</strong>：先共情再展开、不机械分点、不预设身份、结尾引导</li></ul>
 <h3>4.3 交互技术</h3>
-
-<li>**打字机效果**：AI 回答逐字显示</li>
-<li>**思考态**："星语正在思考..."状态提示</li>
-<li>**图表联动**：hover 图形和图例双向高亮</li>
-<li>**视频控制**：点击暂停/继续，离开页面自动暂停并回到开头</li>
-<li>**音乐总开关**：一键关闭背景音乐</li>
-
+<ul><li><strong>打字机效果</strong>：AI 回答逐字显示</li><li><strong>思考态</strong>："星语正在思考..."状态提示 + 检索命中可视化</li><li><strong>图表联动</strong>：hover 图形和图例双向高亮</li><li><strong>视频控制</strong>：点击暂停/继续，离开页面自动暂停并回到开头</li><li><strong>音乐总开关</strong>：一键关闭背景音乐</li><li><strong>AI 星空寄语卡片</strong>：LLM 生成寄语 + Canvas 绘制可保存贺卡</li></ul>
 <hr>
-
 <h2>五、项目相关图片/照片</h2>
-
 <p>项目视觉素材：</p>
-<li>星空动画背景（CSS + Canvas 实现）</li>
-<li>故事插图（AI 生成，二次元风格，无水印）</li>
-<li>电子证书背景（AI 生成，含两个比心小孩）</li>
-<li>数据图表（原生 Canvas 渲染）</li>
-<li>公益视频（嵌入 B 站公开视频，带封面）</li>
-
+<ul><li>星空动画背景（CSS + Canvas 实现）</li><li>故事插图（AI 生成，二次元风格，无水印）</li><li>电子证书背景（AI 生成，含两个比心小孩）</li><li>数据图表（原生 Canvas 渲染）</li><li>公益视频（嵌入 B 站公开视频，带封面）</li></ul>
 <p>所有视觉素材均为原创或使用公开授权素材，不涉及患儿真实照片。</p>
-
 <hr>
-
 <h2>六、项目是否发表过或获奖</h2>
-
 <p>本项目为<strong>原创作品</strong>，首次参加 2026 传智杯 AI WEB 网页开发挑战赛，之前未发表、未参加过其他比赛。</p>
-
 <hr>
-
 <h2>七、是否在其他项目基础上优化</h2>
-
-<p>本项目从 v1 初版星空动画开始，历经 v1→v10 共 10 个版本迭代：</p>
-
-<p style='font-family:monospace;font-size:13px'>| 版本 | 主要优化 |</p>
-<p style='font-family:monospace;font-size:13px'>|---|---|</p>
-<p style='font-family:monospace;font-size:13px'>| v1-v3 | 基础星空动画、首页框架、关于我们板块 |</p>
-<p style='font-family:monospace;font-size:13px'>| v4-v5 | 动态背景、科普内容、FAQ 展示、移动端适配 |</p>
-<p style='font-family:monospace;font-size:13px'>| v6-v7 | 视频内嵌、数据图表、故事插图、电子证书 |</p>
-<p style='font-family:monospace;font-size:13px'>| v8 | RAG 对话模块、流式输出、感官体验模拟 |</p>
-<p style='font-family:monospace;font-size:13px'>| v9 | DeepSeek API 接入、本地知识库扩充到 120+ 条、计分匹配 |</p>
-<p style='font-family:monospace;font-size:13px'>| v10 | 公益官网链接、术语统一、视频管控、量表大字体、取消对话自动跳转、17 话题回答、音乐开关 |</p>
-
+<p>本项目从 v1 初版星空动画开始，历经 v1→v11.2 共 11 个大版本迭代：</p>
+<table>
+<tr><th>版本</th><th>主要优化</th></tr>
+<tr><td>v1-v3</td><td>基础星空动画、首页框架、关于我们板块</td></tr>
+<tr><td>v4-v5</td><td>动态背景、科普内容、FAQ 展示、移动端适配</td></tr>
+<tr><td>v6-v7</td><td>视频内嵌、数据图表、故事插图、电子证书</td></tr>
+<tr><td>v8</td><td>RAG 对话模块、流式输出、感官体验模拟</td></tr>
+<tr><td>v9</td><td>DeepSeek API 接入、本地知识库扩充到 120+ 条、计分匹配</td></tr>
+<tr><td>v10</td><td>公益官网链接、术语统一、视频管控、量表大字体、取消对话自动跳转、17 话题回答、音乐开关</td></tr>
+<tr><td>v11</td><td>安全合规（移除硬编码 Key）、资源外置性能优化、SSE 流式重写、真 Function Calling、向量 RAG、图片理解与 TTS 多模态、危机干预兜底、导航分组重构、AI 星空寄语卡片</td></tr>
+<tr><td>v11.1</td><td>Open Graph / Twitter Card 分享元信息与封面图、AI 接口预连接、15 张大图 WebP 化</td></tr>
+<tr><td>v11.2</td><td>视口修复激活移动端断点、键盘无障碍与焦点环、JS 拆分 8 模块 + CSS 分离（HTML+CSS 0.16MB）、serverless 后端中转密钥安全、PWA 离线缓存、全局错误兜底</td></tr>
+</table>
 <p>所有优化均为本项目自主完成，未基于任何开源项目二次开发。</p>
-
 <hr>
-
 <p><strong>星夜入眠，愿每一颗星星都被温柔看见。</strong></p>
-</body></html>
+</body>
+</html>

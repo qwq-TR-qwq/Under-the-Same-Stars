@@ -12,8 +12,10 @@
 - 新增 focus-visible 金色焦点环；图标按钮（📷 发图 / 🎤 语音）补 aria-label
 
 ### 工程质量
-- **JS 模块化拆分**：单文件 3400 行内联脚本解包并拆分为 `js/` 下 8 个功能模块（boot/book/chat/ai-core/sensory/tests/site-shell/nav-community），HTML 降至 0.19MB
-- **密钥安全升级**：新增 `serverless/` 后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 `.env.example` 模板；AI 设置面板新增「后端中转」服务商——真实 Key 只存服务端，前端零泄露
+- **JS 模块化拆分**：单文件 3400 行内联脚本解包并拆分为 `js/` 下 8 个功能模块（boot/book/chat/ai-core/sensory/tests/site-shell/nav-community），HTML 降至 0.07MB
+- **CSS 分离**：1500 行内联样式提取为 `css/style.css`（约 91KB），结构 / 样式 / 行为彻底分层
+- **目录规范化**：根目录收敛为 `css / html / images / others / index.html`（+ 运行必需的 js/videos/audio/manifest/sw）；`serverless/` 代理示例与 `.env.example` 移入 `others/`
+- **密钥安全升级**：新增后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 `.env.example` 模板；AI 设置面板新增「后端中转」服务商——真实 Key 只存服务端，前端零泄露
 
 ### 性能
 - 15 张大图转 WebP（2805KB → 2047KB）并清理无引用旧 JPG，images 目录 6.7MB → 5MB
@@ -27,6 +29,7 @@
 ### 文档
 - 新增《演示视频分镜脚本.md》（6.5 分钟逐镜头拍摄/剪辑指引与提交清单）
 - README 技术栈 / 目录结构同步 v11.2
+- 参赛资料全面同步当前版本：技术文档 / 作品介绍更新至 v11.2（多服务商 AI、Function Calling、向量 RAG、PWA、无障碍等），网页版 HTML 与 PDF 重新导出（UTF-8 无乱码）
 
 ## [v11.1] - 2026-10-25
 
