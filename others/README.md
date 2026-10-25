@@ -16,14 +16,14 @@
 
 | 类别 | 技术 |
 |---|---|
-| 前端 | 原生 HTML5 + CSS3 + JavaScript（ES6+），JS 按功能模块化拆分（js/ 下 8 个模块） |
+| 前端 | 原生 HTML5 + CSS3 + JavaScript（ES6+），JS 按功能模块化拆分（others/js/ 下 8 个模块） |
 | AI 集成 | 多服务商大模型接入（后端中转 / DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口，OpenAI 兼容协议），SSE 流式输出，Function Calling 工具调用 |
 | 多模态 | Web Speech API 语音识别 + TTS 朗读；图片上传 + 视觉模型看图理解（glm-4v-flash / qwen-vl-plus 自动切换） |
 | RAG | 站内科普知识库：字符二元组向量化 + 余弦相似度检索，与计分制关键词匹配混合排序；本地 REPLY_BANK 120+ 条兜底 + 17 个科普话题专门回答 |
 | AI 安全 | 危机干预关键词兜底（自伤/轻生 → 热线卡片优先响应）、接口失败自动降级本地应答并明示、全局错误兜底 toast |
 | 数据可视化 | 原生 Canvas 2D 自绘（折线图 + 双饼图，零依赖、离线可用） |
 | 资源 | 图片/视频/音频全部外置独立文件 + 懒加载 + WebP 格式（HTML+CSS 从 40MB 降至 0.16MB：HTML 0.07MB + css/style.css 0.09MB，媒体约 17MB） |
-| PWA | manifest + Service Worker 离线缓存（静态资源缓存优先、HTML 网络优先），可安装、断网可演示 |
+| PWA | manifest + Service Worker（按大赛目录规范归档于 others/，离线缓存是否生效取决于托管环境） |
 | 无障碍 | 键盘可达导航（Tab/回车/空格）、focus-visible 焦点环、图标按钮 aria-label、大字模式 |
 | 响应式 | device-width 视口，PC / 移动端自适应，分组下拉导航 + 移动端汉堡菜单 |
 | 密钥安全 | 源码零密钥；提供 others/serverless/ 后端中转代理（Vercel / Cloudflare Workers）+ others/.env.example 模板 |
@@ -131,22 +131,22 @@
 ├── index.html            # 主程序（页面结构，约 0.07MB）
 ├── css/
 │   └── style.css              # 全部样式（自内联样式提取，约 91KB）
-├── js/                   # JS 模块（按功能拆分，按序加载）
-│   ├── 00-boot.js             # 全局错误兜底 + Service Worker 注册
-│   ├── 01-book.js             # 星空书页翻页 / 悬停提示音 / 背景音乐
-│   ├── 02-chat.js             # 星语对话 UI / 心理科普
-│   ├── 03-ai-core.js          # AI 设置 / SSE 流式调用 / Function Calling / TTS / 危机兜底 / 寄语生成
-│   ├── 04-sensory.js          # 感官体验模拟
-│   ├── 05-tests-community.js  # 心理测评 / MBTI
-│   ├── 06-site-shell.js       # 视图切换 / 导航（键盘可达）
-│   └── 07-nav-community.js    # 留言墙 / 数据看板 / 寄语卡片 / 问卷 / 证书 / PWA 外围
 ├── images/               # 图片资源（外置 + WebP + 懒加载）
-├── videos/               # 公益短片（外置）
-├── audio/                # 背景音乐
-├── manifest.json         # PWA 清单
-├── sw.js                 # Service Worker（离线缓存）
 ├── html/                 # 技术文档 / 作品介绍（网页版，PDF 的源文件）
-└── others/               # 参赛材料与配套资料
+└── others/               # 参赛材料 + 站点运行资源（js / 媒体 / PWA）
+    ├── js/                     # JS 模块（按功能拆分，按序加载）
+    │   ├── 00-boot.js               # 全局错误兜底 + Service Worker 注册
+    │   ├── 01-book.js               # 星空书页翻页 / 悬停提示音 / 背景音乐
+    │   ├── 02-chat.js               # 星语对话 UI / 心理科普
+    │   ├── 03-ai-core.js            # AI 设置 / SSE 流式 / Function Calling / TTS / 危机兜底
+    │   ├── 04-sensory.js            # 感官体验模拟
+    │   ├── 05-tests-community.js    # 心理测评 / MBTI
+    │   ├── 06-site-shell.js         # 视图切换 / 导航（键盘可达）
+    │   └── 07-nav-community.js      # 留言墙 / 数据看板 / 寄语卡片 / 问卷 / 证书
+    ├── videos/                 # 公益短片（外置）
+    ├── audio/                  # 背景音乐
+    ├── manifest.json           # PWA 清单
+    ├── sw.js                   # Service Worker（离线缓存，视托管环境生效）
     ├── 技术文档.md / .pdf      # 技术文档
     ├── 作品介绍文档.md / .pdf  # 作品介绍
     ├── 环境配置说明.md          # 运行说明

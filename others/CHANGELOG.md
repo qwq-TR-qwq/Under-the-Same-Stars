@@ -14,7 +14,7 @@
 ### 工程质量
 - **JS 模块化拆分**：单文件 3400 行内联脚本解包并拆分为 `js/` 下 8 个功能模块（boot/book/chat/ai-core/sensory/tests/site-shell/nav-community），HTML 降至 0.07MB
 - **CSS 分离**：1500 行内联样式提取为 `css/style.css`（约 91KB），结构 / 样式 / 行为彻底分层
-- **目录规范化**：根目录收敛为 `css / html / images / others / index.html`（+ 运行必需的 js/videos/audio/manifest/sw）；`serverless/` 代理示例与 `.env.example` 移入 `others/`
+- **目录规范化**：根目录收敛为 `css / html / images / others / index.html` 五项，与大赛提交示例一致；js/、videos/、audio/、manifest.json、sw.js、serverless/、.env.example 全部归入 `others/`，站点内引用路径同步更新
 - **密钥安全升级**：新增后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 `.env.example` 模板；AI 设置面板新增「后端中转」服务商——真实 Key 只存服务端，前端零泄露
 
 ### 性能
@@ -22,7 +22,7 @@
 
 ### 体验与传播
 - 补齐 Open Graph / Twitter Card 分享元信息与 og:image 分享封面图
-- **PWA**：新增 manifest.json + Service Worker（静态资源缓存优先、HTML 网络优先），可安装、断网可演示
+- **PWA**：新增 manifest.json + Service Worker（静态资源缓存优先、HTML 网络优先）；随目录规范化归档于 others/，离线缓存视托管环境生效
 - 新增全局错误兜底：未捕获异常 / Promise 拒绝 → 友好 toast（节流），杜绝演示白屏
 - 新增 AI 接口域名 preconnect / dns-prefetch 预连接
 

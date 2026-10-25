@@ -168,7 +168,7 @@
       if(tries >= 2) return;
       tries++;
       // 降级：换备用视频文件
-      vd0.src = 'videos/asset_01.mp4';
+      vd0.src = 'others/videos/asset_01.mp4';
       if(vd0.paused){ vd0.play().catch(function(){}); }
     }, false);
   })();

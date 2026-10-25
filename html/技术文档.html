@@ -51,7 +51,7 @@ strong{color:#1f2430}
 <h3>2.1 功能需求</h3>
 <ul><li>科普知识板块（什么是自闭症、误区、如何相处）</li><li>真实故事板块（孩子视角、家长故事、老师视角）</li><li>数据可视化（患病率趋势、国际对比、年龄分布）</li><li>感官体验模拟（自闭症儿童视角体验视频）</li><li>AI 心理对话（在线 + 本地兜底）</li><li>家庭支持站（资源指引、电子证书）</li><li>公益参与（官方网站跳转、志愿登记）</li><li>无障碍适配（大字模式、量表大字体）</li></ul>
 <h3>2.2 非功能需求</h3>
-<ul><li><strong>免构建模块化交付</strong>：纯静态文件，双击即可运行；HTML / CSS / JS 按职责分离</li><li><strong>离线可用</strong>：PWA + Service Worker 缓存，断网时本地兜底仍能对话</li><li><strong>响应式</strong>：PC / 移动端均可用（device-width 视口 + 完整移动端断点）</li><li><strong>无障碍</strong>：键盘可达导航、focus-visible 焦点环、图标按钮 aria-label、大字模式</li><li><strong>隐私保护</strong>：不使用患儿真实照片</li><li><strong>基调正向</strong>：不卖惨、不渲染悲情</li><li><strong>密钥安全</strong>：源码零密钥，支持后端中转代理，真实 Key 不落前端</li><li><strong>演示稳定</strong>：不依赖现场网络（本地兜底 + 离线缓存双保险）</li></ul>
+<ul><li><strong>免构建模块化交付</strong>：纯静态文件，双击即可运行；HTML / CSS / JS 按职责分离</li><li><strong>离线可用</strong>：本地知识库兜底，断网时仍能对话（PWA 文件归档于 others/，离线缓存视托管环境生效）</li><li><strong>响应式</strong>：PC / 移动端均可用（device-width 视口 + 完整移动端断点）</li><li><strong>无障碍</strong>：键盘可达导航、focus-visible 焦点环、图标按钮 aria-label、大字模式</li><li><strong>隐私保护</strong>：不使用患儿真实照片</li><li><strong>基调正向</strong>：不卖惨、不渲染悲情</li><li><strong>密钥安全</strong>：源码零密钥，支持后端中转代理，真实 Key 不落前端</li><li><strong>演示稳定</strong>：不依赖现场网络（本地兜底 + 离线缓存双保险）</li></ul>
 <hr>
 <h2>3. 系统架构设计</h2>
 <h3>3.1 整体架构</h3>
@@ -61,7 +61,7 @@ strong{color:#1f2430}
 ├─────────────────────────────────────────┤
 │  index.html（结构，0.07MB）              │
 │  css/style.css（全部样式）               │
-│  js/ 8 个功能模块（按序加载）             │
+│  others/js/ 8 个功能模块（按序加载）      │
 │  首页 / 科普 / 故事 / 数据 / 体验 / 对话 │
 │  / 家庭 / 公益 / 关于                   │
 ├─────────────────────────────────────────┤
@@ -82,7 +82,7 @@ strong{color:#1f2430}
 │  安全层：危机干预兜底 / 降级明示 / 免责    │
 │  密钥层：后端中转代理（others/serverless/）│
 ├─────────────────────────────────────────┤
-│  PWA：manifest.json + sw.js 离线缓存     │
+│  PWA：others/manifest.json + others/sw.js│
 │  存储：localStorage（配置 / 留言 / 历史） │
 └─────────────────────────────────────────┘
 </code></pre>
@@ -93,7 +93,7 @@ strong{color:#1f2430}
 <tr><td>AI 模型</td><td>多服务商可切换（后端中转 / DeepSeek / 智谱 / 通义 / 免费体验接口）</td><td>中文共情能力强、含免费额度、API 稳定</td></tr>
 <tr><td>图表</td><td>原生 Canvas 2D 自绘</td><td>零依赖、完全离线可用、交互式强、移动端适配好</td></tr>
 <tr><td>视频/图片/音频</td><td>外置独立文件 + 懒加载 + WebP</td><td>HTML 从 40MB 降至 0.07MB（另有 CSS 0.09MB），首屏加载大幅提升</td></tr>
-<tr><td>PWA</td><td>manifest.json + Service Worker</td><td>可安装、断网可完整演示</td></tr>
+<tr><td>PWA</td><td>manifest.json + Service Worker（归档于 others/）</td><td>断网演示兜底；作用域受目录规范限制</td></tr>
 </table>
 <hr>
 <h2>4. AI 技术方案</h2>
@@ -241,13 +241,13 @@ function replyFor(text) {
 <p><strong>v11.1（10/25）</strong></p>
 <ul><li>分享传播：补齐 Open Graph / Twitter Card 元信息与 1200×675 分享封面图</li><li>预连接：AI 接口域名 preconnect / dns-prefetch，降低首字延迟</li><li>资源瘦身：15 张大图转 WebP（2805KB → 2047KB），images 目录 6.7MB → 5MB</li></ul>
 <p><strong>v11.2（10/25，当前版本：HTML 0.07MB + CSS 91KB + JS 8 模块）</strong></p>
-<ul><li><strong>视口修复</strong>：<code>width=1280</code> → <code>device-width</code>，激活全部移动端断点（此前手机端只是"缩小的桌面版"）</li><li><strong>无障碍</strong>：导航链接 / 品牌区补 <code>role="button"</code> + <code>tabindex="0"</code>；focus-visible 金色焦点环；图标按钮补 aria-label</li><li><strong>JS 模块化</strong>：单文件 3400 行内联脚本拆分为 js/ 下 8 个功能模块，HTML 降至 0.07MB</li><li><strong>CSS 分离</strong>：内联样式提取为 css/style.css（约 91KB），结构 / 样式 / 行为彻底分层</li><li><strong>密钥安全升级</strong>：新增 others/serverless/ 后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 others/.env.example 模板；AI 设置面板新增「后端中转」服务商</li><li><strong>PWA</strong>：新增 manifest.json + Service Worker（静态资源缓存优先、HTML 网络优先），可安装、断网可演示</li><li><strong>稳定兜底</strong>：全局错误兜底 toast（未捕获异常 / Promise 拒绝 → 友好提示），杜绝演示白屏</li></ul>
+<ul><li><strong>视口修复</strong>：<code>width=1280</code> → <code>device-width</code>，激活全部移动端断点（此前手机端只是"缩小的桌面版"）</li><li><strong>无障碍</strong>：导航链接 / 品牌区补 <code>role="button"</code> + <code>tabindex="0"</code>；focus-visible 金色焦点环；图标按钮补 aria-label</li><li><strong>JS 模块化</strong>：单文件 3400 行内联脚本拆分为 js/ 下 8 个功能模块，HTML 降至 0.07MB</li><li><strong>CSS 分离</strong>：内联样式提取为 css/style.css（约 91KB），结构 / 样式 / 行为彻底分层</li><li><strong>密钥安全升级</strong>：新增 others/serverless/ 后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 others/.env.example 模板；AI 设置面板新增「后端中转」服务商</li><li><strong>PWA</strong>：新增 manifest.json + Service Worker（静态资源缓存优先、HTML 网络优先）；最终目录规范下归档于 others/</li><li><strong>稳定兜底</strong>：全局错误兜底 toast（未捕获异常 / Promise 拒绝 → 友好提示），杜绝演示白屏</li></ul>
 <h3>6.2 测试覆盖</h3>
 <ul><li>✅ PC 端 Chrome / Edge 主流分辨率</li><li>✅ 移动端浏览器（device-width 视口、响应式断点、手势缩放）</li><li>✅ 离线状态：Service Worker 缓存 + 本地对话兜底，断网可完整演示</li><li>✅ API Key 失效 / 接口失败时自动降级到本地兜底（界面明示）</li><li>✅ 视频离开页面自动暂停并回到开头</li><li>✅ 对话时页面稳定，不自动跳转站内板块</li><li>✅ 键盘 Tab 可达全部导航，回车 / 空格可触发</li><li>✅ 音乐总开关可一键关闭</li><li>✅ 量表字体在手机端正常显示</li><li>✅ 所有按钮点击正常；全局错误兜底避免白屏</li></ul>
 <h3>6.3 部署</h3>
-<ul><li><strong>本地运行</strong>：双击 index.html 即可（保持 css/ js/ images/ videos/ audio/ 同级）</li><li><strong>线上地址</strong>：https://starry-night-autism-care.app.workbuddy.host/</li><li><strong>GitHub Pages / Vercel / Cloudflare Pages</strong>：静态文件直接部署即可</li><li><strong>密钥安全</strong>：源码零密钥；个人使用在网页设置面板配置（存 localStorage）；正式部署建议使用 others/serverless/ 后端中转代理（Vercel Functions / Cloudflare Workers），真实 Key 只存服务端环境变量</li></ul>
+<ul><li><strong>本地运行</strong>：双击 index.html 即可（保持 css/ images/ others/ 同级）</li><li><strong>线上地址</strong>：https://starry-night-autism-care.app.workbuddy.host/</li><li><strong>GitHub Pages / Vercel / Cloudflare Pages</strong>：静态文件直接部署即可</li><li><strong>密钥安全</strong>：源码零密钥；个人使用在网页设置面板配置（存 localStorage）；正式部署建议使用 others/serverless/ 后端中转代理（Vercel Functions / Cloudflare Workers），真实 Key 只存服务端环境变量</li></ul>
 <h3>6.4 已知限制</h3>
-<ul><li>在线 AI 需联网，断网时走本地兜底（界面明示降级状态）</li><li>图片理解需切换到支持视觉模型的服务商（智谱 / 通义）</li><li>体验视频跳转 B 站需联网</li><li>PWA 离线缓存需先在线访问一次完成安装</li></ul>
+<ul><li>在线 AI 需联网，断网时走本地兜底（界面明示降级状态）</li><li>图片理解需切换到支持视觉模型的服务商（智谱 / 通义）</li><li>体验视频跳转 B 站需联网</li><li>Service Worker 按大赛目录规范位于 others/ 子目录，作用域受限：本地兜底对话不受影响，离线整站缓存取决于托管环境是否配置 Service-Worker-Allowed</li></ul>
 <hr>
 <h2>7. 创新点</h2>
 <h3>7.1 技术创新</h3>
@@ -259,7 +259,7 @@ function replyFor(text) {
 <hr>
 <h2>8. 性能与安全</h2>
 <h3>8.1 性能优化</h3>
-<ul><li><strong>资源全部外置</strong>：图片 / 视频 / 背景音乐从 base64 内嵌外置为独立文件，HTML 从 40MB 降至 0.07MB</li><li><strong>CSS / JS 分离</strong>：样式提取为 css/style.css，脚本拆分为 js/ 下 8 个模块，浏览器可并行下载与缓存</li><li><strong>图片懒加载</strong>：全部 <code>&lt;img&gt;</code> 添加 <code>loading="lazy" decoding="async"</code>，首屏只加载首屏资源</li><li><strong>图片 WebP 化</strong>：15 张大图转 WebP（2805KB → 2047KB），images 目录 6.7MB → 5MB</li><li><strong>重复资源去重</strong>：校验 md5 后删除重复视频文件，节省约 10MB</li><li><strong>预连接</strong>：AI 接口域名 preconnect / dns-prefetch，降低首字延迟</li><li><strong>图表按需渲染</strong>：Canvas 图表在页面初始化时绘制，数据看板折叠为 <code>&lt;details&gt;</code> 不占首屏</li><li><strong>流式渲染</strong>：SSE 逐 token 更新 DOM，替代一次性大段插入，避免长回复卡顿</li><li><strong>打字机节流</strong>：避免高频 DOM 操作卡顿</li></ul>
+<ul><li><strong>资源全部外置</strong>：图片 / 视频 / 背景音乐从 base64 内嵌外置为独立文件，HTML 从 40MB 降至 0.07MB</li><li><strong>CSS / JS 分离</strong>：样式提取为 css/style.css，脚本拆分为 others/js/ 下 8 个模块，浏览器可并行下载与缓存</li><li><strong>图片懒加载</strong>：全部 <code>&lt;img&gt;</code> 添加 <code>loading="lazy" decoding="async"</code>，首屏只加载首屏资源</li><li><strong>图片 WebP 化</strong>：15 张大图转 WebP（2805KB → 2047KB），images 目录 6.7MB → 5MB</li><li><strong>重复资源去重</strong>：校验 md5 后删除重复视频文件，节省约 10MB</li><li><strong>预连接</strong>：AI 接口域名 preconnect / dns-prefetch，降低首字延迟</li><li><strong>图表按需渲染</strong>：Canvas 图表在页面初始化时绘制，数据看板折叠为 <code>&lt;details&gt;</code> 不占首屏</li><li><strong>流式渲染</strong>：SSE 逐 token 更新 DOM，替代一次性大段插入，避免长回复卡顿</li><li><strong>打字机节流</strong>：避免高频 DOM 操作卡顿</li></ul>
 <h3>8.2 安全性</h3>
 <ul><li><strong>源码零密钥</strong>：API Key 不入库；个人使用通过设置面板配置（localStorage），正式部署使用 others/serverless/ 后端中转代理（Vercel Functions / Cloudflare Workers 示例 + .env.example 模板），真实 Key 只存服务端</li><li>本地兜底回答人工撰写，无安全风险</li><li>严重心理问题自动提示就医与 12356 热线（危机干预关键词优先于大模型响应）</li><li>不收集用户隐私数据（对话仅在浏览器内存）</li><li>公益链接使用 <code>target="_blank" rel="noopener"</code>，防钓鱼反向攻击</li><li>全局错误兜底：未捕获异常只展示友好提示，不泄露技术细节</li></ul>
 <hr>

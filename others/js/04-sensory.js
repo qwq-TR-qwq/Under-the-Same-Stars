@@ -7,7 +7,7 @@
     ov.id = 'sensoryOv';
     ov.style.cssText = 'position:fixed; inset:0; z-index:99999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:5vh; padding-bottom:80px; overflow-y:auto;';
     ov.innerHTML = '<div style="width:100%; max-width:520px;">'
-      + '<video src="videos/asset_02.mp4" controls playsinline style="width:100%; border-radius:12px; background:#000;"></video>'
+      + '<video src="others/videos/asset_02.mp4" controls playsinline style="width:100%; border-radius:12px; background:#000;"></video>'
       + '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">'
       + '<span style="color:#c9d3f2; font-size:14px;">自闭症儿童眼中的世界 · 75秒短片</span>'
       + '<button id="sensoryExit" style="background:rgba(255,217,100,.15); color:#ffd964; border:1px solid rgba(255,217,100,.4); border-radius:20px; padding:8px 22px; cursor:pointer; font-size:14px;">关闭</button>'
