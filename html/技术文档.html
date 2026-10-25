@@ -1,0 +1,464 @@
+<html><head><meta charset='utf-8'>
+<style>
+body{font-family:'Microsoft YaHei',sans-serif;max-width:800px;margin:40px auto;line-height:1.8;padding:20px;color:#333}
+h1{font-size:26px;border-bottom:2px solid #333;padding-bottom:10px}
+h2{font-size:20px;color:#444;margin-top:28px}
+h3{font-size:16px;color:#666}
+li{margin:6px 0}
+hr{border:none;border-top:1px solid #ddd;margin:20px 0}
+pre{background:#f5f5f5;padding:15px;border-radius:5px;overflow-x:auto;font-size:13px}
+</style></head><body><h1>星夜入眠 —— 关爱自闭症儿童公益科普网站技术文档</h1>
+
+<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛</p>
+<p><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统</p>
+<p><strong>版本</strong>：v10.0（正式参赛版）</p>
+
+<hr>
+
+<h2>目录</h2>
+
+<p>1. 项目概述</p>
+<p>2. 需求分析</p>
+<p>3. 系统架构设计</p>
+<p>4. AI 技术方案</p>
+<p>5. 核心功能实现</p>
+<p>6. 测试与部署</p>
+<p>7. 创新点</p>
+<p>8. 总结与展望</p>
+
+<hr>
+
+<h2>1. 项目概述</h2>
+
+<h3>1.1 背景</h3>
+
+<p>自闭症（自闭症谱系障碍）是一种神经发育差异，国内患者数量超千万。社会大众对自闭症存在大量误解：以为是性格内向、是家庭教育不当、是"天才病"。同时，自闭症儿童家长、特教老师、医护人员等长期处于高压状态，缺乏情绪出口。</p>
+
+<h3>1.2 目标</h3>
+
+<p>本项目以"理解、包容、希望"为基调，构建一个公益科普 Web 应用：</p>
+
+<li>**科普消除误解**：用通俗语言和互动体验，让普通大众真正理解自闭症</li>
+<li>**看见患儿与家庭**：通过故事和数据，让社会看见这群人和他们的家庭</li>
+<li>**心理陪伴**：用 AI 对话提供共情支持，缓解家长、老师、患者的情绪压力</li>
+<li>**呼吁社会包容**：给出普通人能做的小事，降低参与门槛</li>
+
+<h3>1.3 目标用户</h3>
+
+<p style='font-family:monospace;font-size:13px'>| 人群 | 需求 |</p>
+<p style='font-family:monospace;font-size:13px'>|---|---|</p>
+<p style='font-family:monospace;font-size:13px'>| 普通社会人士 | 了解自闭症，知道如何正确对待 |</p>
+<p style='font-family:monospace;font-size:13px'>| 自闭症儿童家长 | 心理疏导、资源指引、互助渠道 |</p>
+<p style='font-family:monospace;font-size:13px'>| 特教老师 / 医护 | 情绪出口、职业压力缓解 |</p>
+<p style='font-family:monospace;font-size:13px'>| 自闭症青少年 | 被理解、被接纳 |</p>
+<p style='font-family:monospace;font-size:13px'>| 大学生 / 职场人 | 通用心理陪伴 |</p>
+<p style='font-family:monospace;font-size:13px'>| 企业 / 志愿者 | 参与公益的入口 |</p>
+
+<hr>
+
+<h2>2. 需求分析</h2>
+
+<h3>2.1 功能需求</h3>
+
+<li>科普知识板块（什么是自闭症、误区、如何相处）</li>
+<li>真实故事板块（孩子视角、家长故事、老师视角）</li>
+<li>数据可视化（患病率趋势、国际对比、年龄分布）</li>
+<li>感官体验模拟（自闭症儿童视角体验视频）</li>
+<li>AI 心理对话（在线 + 本地兜底）</li>
+<li>家庭支持站（资源指引、电子证书）</li>
+<li>公益参与（官方网站跳转、志愿登记）</li>
+<li>无障碍适配（大字模式、量表大字体）</li>
+
+<h3>2.2 非功能需求</h3>
+
+<li>**单文件交付**：便于比赛提交，双击即可运行</li>
+<li>**离线可用**：断网时本地兜底仍能对话</li>
+<li>**响应式**：PC / 移动端均可用</li>
+<li>**隐私保护**：不使用患儿真实照片</li>
+<li>**基调正向**：不卖惨、不渲染悲情</li>
+<li>**演示稳定**：不依赖现场网络（TTS 等不可靠功能全部移除）</li>
+
+<hr>
+
+<h2>3. 系统架构设计</h2>
+
+<h3>3.1 整体架构</h3>
+
+<pre><code>
+┌─────────────────────────────────────────┐
+│           浏览器（单文件 HTML）           │
+├─────────────────────────────────────────┤
+│  首页 / 科普 / 故事 / 数据 / 体验 / 对话 │
+│  / 家庭 / 公益 / 关于                   │
+├─────────────────────────────────────────┤
+│  渲染层：Canvas 自绘图表 + 内嵌视频       │
+│  交互层：打字机 / 翻页动画 / 手势缩放     │
+├─────────────────────────────────────────┤
+│  AI 对话层                              │
+│  ├─ 在线：DeepSeek Chat API            │
+│  ├─ 本地：TOPIC_REPLIES（17 话题精确回答）│
+│  └─ 本地：REPLY_BANK 计分匹配兜底       │
+├─────────────────────────────────────────┤
+│  存储：localStorage（配置 / 留言）       │
+└─────────────────────────────────────────┘
+</code></pre>
+
+<h3>3.2 技术选型</h3>
+
+<p style='font-family:monospace;font-size:13px'>| 模块 | 选型 | 理由 |</p>
+<p style='font-family:monospace;font-size:13px'>|---|---|---|</p>
+<p style='font-family:monospace;font-size:13px'>| 前端 | 原生 HTML/CSS/JS | 单文件交付、无构建、比赛友好 |</p>
+<p style='font-family:monospace;font-size:13px'>| AI 模型 | DeepSeek Chat | 中文共情能力强、成本低、API 稳定 |</p>
+<p style='font-family:monospace;font-size:13px'>| 图表 | 原生 Canvas 2D 自绘 | 零依赖、完全离线可用、交互式强、移动端适配好 |</p>
+<p style='font-family:monospace;font-size:13px'>| 视频 | MP4 base64 内嵌 + B 站外链 | 单文件离线可播、原视频可跳转 |</p>
+
+<hr>
+
+<h2>4. AI 技术方案</h2>
+
+<h3>4.1 双链路对话架构</h3>
+
+<pre><code>
+用户输入
+   │
+   ├── 尝试 DeepSeek API（60s 超时）
+   │       │
+   │       ├── 成功 → 流式返回 → 打字机渲染
+   │       │
+   │       └── 失败/超时/余额不足
+   │             │
+   │             ▼
+   ├── 本地 TOPIC_REPLIES（17 个科普话题精确回答）
+   │             │
+   │             ▼
+   ├── 本地 REPLY_BANK 计分匹配
+   │       │
+   │       ├── 命中条目 → 返回对应回答 + 引导语
+   │       │
+   │       └── 未命中 → 通用 FALLBACKS
+   │
+   └── 全程：思考态提示 + 错误友好处理
+</code></pre>
+
+<h3>4.2 本地知识库（RAG 兜底）</h3>
+
+<p>考虑到比赛现场可能断网、API 不可用，我们构建了<strong>本地兜底知识库</strong>：</p>
+
+<li>**REPLY_BANK 条目数**：120+ 条</li>
+<li>**覆盖人群**：12 类</li>
+<p>  - 特教老师、医护、单亲家长、退休老人、中小学教师</p>
+<p>  - 应届生、焦虑抑郁人群、亲密关系困扰者、留守儿童</p>
+<p>  - 普通社会人士、自闭症青少年、自闭症儿童家人</p>
+<p>  - 压力大学生、职场人</p>
+<li>**覆盖场景**：60+ 细分情绪与问题</li>
+
+<p>#### 4.2.1 TOPIC_REPLIES：17 个科普话题精确回答</p>
+
+<p>针对左侧科普站发起的固定话题，内置 17 个<strong>精确匹配长回答</strong>，不走关键词计分，保证"问什么答什么"：</p>
+
+<p style='font-family:monospace;font-size:13px'>| 话题 | 关键词 |</p>
+<p style='font-family:monospace;font-size:13px'>|---|---|</p>
+<p style='font-family:monospace;font-size:13px'>| 自闭症科普 | 我想了解一下自闭症 |</p>
+<p style='font-family:monospace;font-size:13px'>| ADHD | 坐不住、走神、多动 |</p>
+<p style='font-family:monospace;font-size:13px'>| 抽动障碍 | 眨眼、清嗓、抽动 |</p>
+<p style='font-family:monospace;font-size:13px'>| 抑郁 | 开心不起来、低落 |</p>
+<p style='font-family:monospace;font-size:13px'>| 焦虑 | 紧张、焦虑 |</p>
+<p style='font-family:monospace;font-size:13px'>| 双相 | 情绪忽高忽低 |</p>
+<p style='font-family:monospace;font-size:13px'>| 惊恐发作 | 心慌、喘不上气 |</p>
+<p style='font-family:monospace;font-size:13px'>| 失眠 | 睡不着、失眠 |</p>
+<p style='font-family:monospace;font-size:13px'>| 压力 | 压力大、撑不住 |</p>
+<p style='font-family:monospace;font-size:13px'>| 考试焦虑 | 考试、考前焦虑 |</p>
+<p style='font-family:monospace;font-size:13px'>| 社交 | 不会相处、社交 |</p>
+<p style='font-family:monospace;font-size:13px'>| 感情 | 面对感情、迷茫 |</p>
+<p style='font-family:monospace;font-size:13px'>| 安慰朋友 | 朋友难过、怎么安慰 |</p>
+<p style='font-family:monospace;font-size:13px'>| 失恋 | 失恋、走不出来 |</p>
+<p style='font-family:monospace;font-size:13px'>| 拖延 | 拖到最后一刻 |</p>
+<p style='font-family:monospace;font-size:13px'>| 手机成瘾 | 刷手机停不下来 |</p>
+<p style='font-family:monospace;font-size:13px'>| 亲子沟通 | 和父母吵架 |</p>
+
+<p>每个话题的回答都是"有共情 → 讲清楚 → 给建议 → 引导继续说"的完整长回答，不公式化、不预设身份年龄。</p>
+
+<p>#### 4.2.2 计分制匹配算法</p>
+
+<pre><code>
+function replyFor(text) {
+  var tl = text.toLowerCase();
+  // 1. 先做 17 话题精确匹配
+  for(var key in TOPIC_REPLIES){
+    if(text === key){ return TOPIC_REPLIES[key]; }
+  }
+  // 2. 测评结果特殊处理（MBTI / 量表得分）
+  if(/测评结果|帮我分析|分析一下/.test(tl)){
+    // ... 返回对应结果解读
+  }
+  // 3. 计分制匹配 REPLY_BANK
+  var bestBank = null, bestScore = 0;
+  for (var i = 0; i &lt; REPLY_BANK.length; i++) {
+    var bank = REPLY_BANK[i];
+    var score = 0;
+    for (var k = 0; k &lt; bank.keys.length; k++) {
+      if (tl.indexOf(bank.keys[k].toLowerCase()) &gt;= 0) score++;
+    }
+    if (score &gt; bestScore) { bestScore = score; bestBank = bank; }
+  }
+  if (bestBank) return pickOne(bestBank.replies);
+  // 4. 兜底
+  return pickOne(FALLBACKS);
+}
+</code></pre>
+
+<p><strong>设计要点</strong>：</p>
+<li>**多关键词匹配**：不依赖唯一关键词，统计命中关键词总数，选命中最多的条目，避免"用户说 A 却匹配到 B"</li>
+<li>**身份判断**：回答内容根据问题场景判断用户身份，未确定身份时不使用"二十多岁""学习压力"等预设词</li>
+<li>**精确话题优先**：科普站发起的话题直接精确命中，保证回答与问题完全对应</li>
+<li>**测评结果解读**：用户分享 MBTI 或量表得分时给出温和解读，不贴标签</li>
+<li>每条回答末尾随机追加引导语（"愿意多说说吗""现在感觉怎么样"等），避免对话一句话结束</li>
+
+<h3>4.3 System Prompt 设计</h3>
+
+<pre><code>
+你是"星语"，一个温暖、共情的心理陪伴助手。
+要求：
+1. 先共情，再展开
+2. 不要机械分点，像朋友聊天，回答要有足够篇幅
+3. 针对用户说的具体事情回答，不要泛泛而谈
+4. 不要预设用户身份、年龄（不知道对方是谁时不要说"二十多岁"这类词）
+5. 信息不够时反问细节
+6. 结尾引导用户继续说
+7. 不做医疗诊断，严重问题建议就医或拨打 12356
+</code></pre>
+
+<h3>4.4 流式输出与思考态</h3>
+
+<li>调用 API 时显示"星语正在思考..."</li>
+<li>收到响应后逐字打字机渲染</li>
+<li>错误时友好提示，不白屏</li>
+
+<h3>4.5 对话稳定性设计</h3>
+
+<li>**取消自动跳转**：早期版本在对话命中"政策/志愿者/压力大/画展/家庭"等关键词后会自动跳转到对应站内板块，造成"对话时突然跳转页面"。正式版**移除全部自动跳转逻辑**，AI 只在对话页内回答，页面保持稳定</li>
+<li>输入框自动聚焦恢复：进入对话页与 AI 回答完自动聚焦，便于连续输入</li>
+
+<h3>4.6 AI 安全与可控性</h3>
+
+<li>System Prompt 限制：不诊断、不开药、不鼓励自残</li>
+<li>严重心理问题自动提示就医与 12356 热线</li>
+<li>本地兜底回答均经过人工撰写，安全可控</li>
+
+<hr>
+
+<h2>5. 核心功能实现</h2>
+
+<h3>5.1 数据可视化</h3>
+
+<p>三张 Canvas 自绘图表（折线图 + 两个饼图），零依赖、离线可用，全部支持 hover 交互：</p>
+
+<p>1. <strong>折线图</strong>：2013–2025 年国内自闭症患者人数与儿童患病率双轴折线（年份节点：2013 / 2015 / 2016 / 2020 / 2022 / 2025）</p>
+<p>   - 黄色线：中国患者人数（左轴，1000万→1300万）</p>
+<p>   - 蓝色线：儿童患病率（右轴，2015 年 3.5‰、2016 年 7‰、2020 年 18‰）</p>
+<p>   - 2016 年双数据重叠，分色标注（黄色框内标注黄蓝两个数据）</p>
+<p>   - 蓝色数据用蓝色方框标注，2015 年蓝色数据标注在圆点下方</p>
+<p>   - 仅 2016 年两组数据同时显示，其他年份仅 hover 时高亮当前数据点</p>
+<p>2. <strong>饼图 1</strong>：各国患者数量对比（中国 1300 万、印度 1000 万、美国 550 万、巴西 240 万、日本 230 万、英国 70 万、其他国家 3310 万）</p>
+<p>   - hover 图形和图例双向联动高亮</p>
+<p>3. <strong>饼图 2</strong>：各年龄段发现比例（0-6 岁 150 万、7-12 岁 220 万、13-18 岁 180 万、18 岁以上 750 万）</p>
+<p>   - 同样支持图例 hover 联动</p>
+
+<h3>5.2 感官体验模拟</h3>
+
+<li>**体验视频**：嵌入 B 站公益视频（自闭症儿童视角的真实场景），让普通人直观感受他们眼中的世界</li>
+<li>体验视频给出封面图，点击视频可暂停/继续（不跳转页面）</li>
+<li>两个视频下方提示"点击黄色字体跳转哔哩哔哩网页观看"，黄色文字为超链接，新标签页打开原视频</li>
+<li>**视频管控**：全站视频不自动播放；离开当前页面时立即暂停并回到开头（科普视频、体验视频全覆盖），杜绝后台出声</li>
+
+<h3>5.3 故事板块</h3>
+
+<li>四个视角：孩子独白、家长故事、干预老师、成长案例</li>
+<li>每个故事配二次元风格插图（AI 生成，无水印）</li>
+<li>插图放在两个故事中间，对称排版</li>
+
+<h3>5.4 电子公益证书</h3>
+
+<li>完成科普打卡后生成证书</li>
+<li>证书背景为二次元星空 + 两个比心的小孩</li>
+<li>人物在右下角，不遮挡文字</li>
+
+<h3>5.5 背景音乐控制</h3>
+
+<li>全局音乐总开关按钮，点击一键开/关背景音乐</li>
+<li>关闭时同时静音（volume=0 双保险），防止浏览器自动播放限制导致按钮无反应</li>
+<li>按钮加大（PC 56px / 手机 64px），便于点击</li>
+
+<h3>5.6 无障碍</h3>
+
+<li>大字模式：真实字体放大（不只调行距），不破坏排版</li>
+<li>心理量表题目字体 36px、选项 25px，保证可读性</li>
+<li>高对比模式已按需求移除</li>
+
+<hr>
+
+<h2>6. 测试与部署</h2>
+
+<h3>6.1 开发历程（从 v1 到 v10 完整迭代）</h3>
+
+<p>项目从最初版本到 v10 共经历 10 个大版本，持续迭代打磨：</p>
+
+<p><strong>v1 初版（9/30，10.6MB）</strong></p>
+<li>基础星空动画 + 交互动画背景</li>
+<li>首页主视觉、导航栏</li>
+<li>初版科普内容框架</li>
+
+<p><strong>v2（9/30，10.6MB）</strong></p>
+<li>优化星空背景效果</li>
+<li>调整首页排版与配色</li>
+
+<p><strong>v3（9/30，10.7MB）</strong></p>
+<li>新增"关于我们"、"反馈支持"板块</li>
+<li>基础数据看板</li>
+
+<p><strong>v4（10/7，12MB）</strong></p>
+<li>动态背景版命名，整体视觉升级</li>
+<li>完善科普内容（认识自闭症、如何相处）</li>
+<li>手机端适配初版</li>
+
+<p><strong>v5（10/8，12MB）</strong></p>
+<li>FAQ 答案直接展示，取消点击展开</li>
+<li>修复运营数据看板小字与文本框重叠</li>
+<li>移动端布局适配，支持手势缩放</li>
+<li>网站标语移到底部，删除快捷入口</li>
+
+<p><strong>v6（10/8，29.6MB）</strong></p>
+<li>科普视频改为网页内嵌直接播放（base64）</li>
+<li>新增折线图、国家对比饼图、年龄分布饼图</li>
+<li>故事部分扩写并配二次元插图</li>
+<li>电子证书加入两个比心小孩</li>
+<li>修复视频离开页面仍有声、遮挡 UI 等问题</li>
+
+<p><strong>v7（10/8，29.6MB）</strong></p>
+<li>数据图表 hover 交互高亮</li>
+<li>折线图 tooltip 分色、2016 年数据重叠处理</li>
+<li>体验视频改为 B 站公益视频内嵌</li>
+<li>无障碍大字模式修复（真实字体放大）</li>
+<li>导航排版调整</li>
+
+<p><strong>v8（10/10，29.6MB）</strong></p>
+<li>接入 RAG 知识库对话</li>
+<li>流式输出 + 思考态</li>
+<li>感官体验模拟（自闭症视角体验视频）</li>
+<li>故事插图对称排版优化</li>
+
+<p><strong>v9（10/11，40.7MB）</strong></p>
+<li>接入 DeepSeek API 作为在线回答引擎</li>
+<li>System Prompt 多次迭代：先共情再展开、不机械分点、不预设身份、结尾引导</li>
+<li>本地 REPLY_BANK 扩充到 120+ 条，覆盖 12 类人群</li>
+<li>匹配逻辑从"顺序命中"升级为"计分制"（选命中关键词最多的条目）</li>
+<li>每条回答末尾追加引导语，避免一句话结束</li>
+<li>修复大量匹配错误案例（多关键词匹配、身份判断、测评结果解读）</li>
+<li>移除不可靠的 TTS 朗读功能</li>
+<li>视频离开页面自动暂停</li>
+<li>图表 hover 双向联动、tooltip 分色</li>
+
+<p><strong>v10（10/12，40.7MB）</strong></p>
+<li>公益参与板块添加官方网站跳转链接（中国精协、中国残疾人福利基金会），新标签页打开</li>
+<li>术语全站统一为"自闭症"</li>
+<li>视频全面禁用自动播放，离开当前页面立即暂停并回到开头</li>
+<li>心理量表题目字体增大到 36px</li>
+<li>对话时取消自动跳转站内板块（页面保持稳定）</li>
+<li>17 个科普话题专门长回答</li>
+<li>背景音乐全局总开关修复</li>
+<li>视频下方黄色文字改为真正超链接</li>
+<li>体验视频加封面</li>
+
+<h3>6.2 测试覆盖</h3>
+
+<li>✅ PC 端 Chrome / Edge 主流分辨率</li>
+<li>✅ 移动端浏览器（手势缩放、响应式）</li>
+<li>✅ 离线状态：本地对话、图表、视频、故事均可运行</li>
+<li>✅ API Key 失效时自动降级到本地兜底</li>
+<li>✅ 视频离开页面自动暂停并回到开头</li>
+<li>✅ 对话时页面稳定，不自动跳转站内板块</li>
+<li>✅ 音乐总开关可一键关闭</li>
+<li>✅ 量表字体在手机端正常显示</li>
+<li>✅ 所有按钮点击正常</li>
+
+<h3>6.3 部署</h3>
+
+<li>**本地运行**：双击 HTML 即可</li>
+<li>**GitHub Pages**：将 HTML 上传到公开仓库，开启 Pages 即可公网访问</li>
+<li>**API Key**：不硬编码在公开仓库，通过网页设置面板配置，保存在 localStorage</li>
+
+<h3>6.4 已知限制</h3>
+
+<li>DeepSeek API 需联网，断网时走本地兜底</li>
+<li>视频内嵌 base64 导致文件较大（约 39MB），首次加载稍慢</li>
+<li>体验视频跳转 B 站需联网</li>
+
+<hr>
+
+<h2>7. 创新点</h2>
+
+<h3>7.1 技术创新</h3>
+
+<p>1. <strong>双链路 RAG 对话</strong>：在线大模型 + 本地计分制知识库兜底，比赛现场断网也能演示</p>
+<p>2. <strong>计分制关键词匹配</strong>：从"顺序命中"升级为"命中最多者胜出"、多关键词联合判断，大幅降低误匹配</p>
+<p>3. <strong>17 话题精确回答</strong>：科普站固定话题精确匹配长回答，保证问题与回答完全对应</p>
+<p>4. <strong>共情式回答设计</strong>：每条本地回答都先共情再展开，结尾引导继续说，不公式化</p>
+<p>5. <strong>完整降级链路</strong>：在线 API → 17 话题 → 本地知识库 → 通用兜底，四层保障</p>
+
+<h3>7.2 应用创新</h3>
+
+<p>1. <strong>感官体验模拟</strong>：用真实场景视频让普通人"体会"自闭症儿童的世界</p>
+<p>2. <strong>多人群共情知识库</strong>：覆盖 12 类人群 60+ 场景，不只是家长</p>
+<p>3. <strong>星空治愈视觉</strong>：二次元风格 + 星空动画，把沉重话题做温暖</p>
+<p>4. <strong>隐私优先</strong>：不用患儿真实照片，全部用插画和故事</p>
+
+<h3>7.3 社会价值</h3>
+
+<li>消除偏见：用互动体验替代说教</li>
+<li>看见家庭：真实故事 + 数据，让社会理解</li>
+<li>低门槛参与：普通人不用捐钱也能帮忙</li>
+<li>心理支持：AI 对话 24 小时在线，给家长和老师情绪出口</li>
+
+<hr>
+
+<h2>8. 性能与安全</h2>
+
+<h3>8.1 性能优化</h3>
+
+<li>**视频懒加载**：滚动到可视区域才加载</li>
+<li>**资源内嵌**：单文件交付，减少网络请求</li>
+<li>**图表按需渲染**：Canvas 图表在进入对应板块时初始化</li>
+<li>**打字机节流**：避免高频 DOM 操作卡顿</li>
+
+<h3>8.2 安全性</h3>
+
+<li>API Key 不硬编码在公开仓库，通过设置面板配置</li>
+<li>本地兜底回答人工撰写，无安全风险</li>
+<li>严重心理问题自动提示就医与 12356 热线</li>
+<li>不收集用户隐私数据（对话仅在浏览器内存）</li>
+<li>公益链接使用 `target="_blank" rel="noopener"`，防钓鱼反向攻击</li>
+
+<hr>
+
+<h2>9. 总结与展望</h2>
+
+<h3>9.1 已完成</h3>
+
+<li>完整的公益科普网站（科普 / 故事 / 数据 / 体验 / 对话 / 家庭 / 公益）</li>
+<li>AI 心理对话（在线 + 本地兜底双链路）</li>
+<li>数据可视化三图</li>
+<li>感官体验模拟</li>
+<li>响应式 + 无障碍</li>
+<li>全站演示稳定（视频管控、音乐开关、无自动跳转）</li>
+
+<h3>9.2 未来工作</h3>
+
+<li>接入更专业的心理干预资源</li>
+<li>增加用户留言墙的后端持久化</li>
+<li>多语言支持</li>
+<li>结合更多多模态能力（AI 生成个性化故事）</li>
+
+<hr>
+
+<p><strong>星夜入眠，愿每一颗星星都被温柔看见。</strong></p>
+</body></html>

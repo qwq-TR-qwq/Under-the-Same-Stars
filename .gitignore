@@ -1,0 +1,17 @@
+# 备份与临时文件
+*.bak
+*.tmp
+.workbuddy/
+_extract_assets.py
+
+# 大体积演示视频（通过大赛官方渠道单独提交，不入代码仓库）
+others/*.mp4
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/

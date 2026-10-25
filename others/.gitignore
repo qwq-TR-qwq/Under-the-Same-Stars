@@ -1,0 +1,28 @@
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.log
+*.tmp
+.cache/
+
+# API Key 敏感文件
+.env
+.env.local
+config.local.js
+
+# 文档临时
+技术文档.html
+
+# 大文件（HTML 主文件已单独提交）
+# *.mp4
+# *.avi
