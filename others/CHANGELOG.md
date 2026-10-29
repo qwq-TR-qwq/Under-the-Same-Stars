@@ -20,7 +20,14 @@
 ### 工程
 - `others/js/08-policy.js` 数据与渲染分离：`PROV[]` + `CITY{}` 紧凑存储，新增城市只需追加一项
 - 状态存储由字符串升级为 `{p, c}` 对象，`loadState()` 兼容旧格式并校验城市有效性
-- `sw.js` 缓存版本升至 v4，预缓存政策模块
+- `sw.js` 缓存版本升至 v5，预缓存政策模块
+
+### 复查修正（发布前自检）
+- 修正 2 处市级链接错配：吉林市原指向吉林省人民政府（jl.gov.cn）→ `www.jlcity.gov.cn`；阿勒泰地区原指向阿勒泰市人民政府（县级市，alt.gov.cn）→ 地区行署 `www.xjalt.gov.cn`
+- 无障碍修正：搜索框补齐 `role="combobox"` / `aria-autocomplete`，展开状态实时回写 `aria-expanded`，键盘高亮项回写 `aria-activedescendant` 与 `aria-selected`
+- 建议项由 `<button role="option">` 改为规范的可点击 `div[role=option]`，无匹配提示移出 listbox（改为 `role="status"` 独立提示层），消除非法 ARIA 嵌套
+- 搜索建议文案修正：直辖市由「省级 · 全省」改为「直辖市 · 全市」
+- 历史记录加载增加校验：省份/城市已不存在时自动过滤或退化为全省，重复项去重，避免脏数据导致下拉空白
 
 ## [v11.3] - 2026-10-29
 

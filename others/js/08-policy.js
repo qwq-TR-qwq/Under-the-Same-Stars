@@ -57,7 +57,7 @@
     '湖南':['长沙市|https://www.changsha.gov.cn/','株洲市|https://www.zhuzhou.gov.cn/','湘潭市|https://www.xiangtan.gov.cn/','衡阳市|https://www.hengyang.gov.cn/','邵阳市|https://www.shaoyang.gov.cn/','岳阳市|https://www.yueyang.gov.cn/','常德市|https://www.changde.gov.cn/','张家界市|https://www.zjj.gov.cn/','益阳市|https://www.yiyang.gov.cn/','郴州市|','永州市|','怀化市|https://www.huaihua.gov.cn/','娄底市|','湘西土家族苗族自治州|'],
     '江苏':['南京市|https://www.nanjing.gov.cn/','无锡市|https://www.wuxi.gov.cn/','徐州市|https://www.xz.gov.cn/','常州市|https://www.changzhou.gov.cn/','苏州市|https://www.suzhou.gov.cn/','南通市|https://www.nantong.gov.cn/','连云港市|https://www.lyg.gov.cn/','淮安市|https://www.huaian.gov.cn/','盐城市|https://www.yancheng.gov.cn/','扬州市|https://www.yangzhou.gov.cn/','镇江市|https://www.zhenjiang.gov.cn/','泰州市|https://www.taizhou.gov.cn/','宿迁市|https://www.suqian.gov.cn/'],
     '江西':['南昌市|https://www.nc.gov.cn/','景德镇市|https://www.jdz.gov.cn/','萍乡市|','九江市|https://www.jiujiang.gov.cn/','新余市|https://www.xinyu.gov.cn/','鹰潭市|http://www.yingtan.gov.cn/','赣州市|https://www.ganzhou.gov.cn/','吉安市|https://www.jian.gov.cn/','宜春市|https://www.yichun.gov.cn/','抚州市|','上饶市|'],
-    '吉林':['长春市|http://www.changchun.gov.cn/','吉林市|https://www.jl.gov.cn/','四平市|http://www.siping.gov.cn/','辽源市|https://www.liaoyuan.gov.cn/','通化市|https://www.tonghua.gov.cn/','白山市|','松原市|','白城市|','延边朝鲜族自治州|'],
+    '吉林':['长春市|http://www.changchun.gov.cn/','吉林市|https://www.jlcity.gov.cn/','四平市|http://www.siping.gov.cn/','辽源市|https://www.liaoyuan.gov.cn/','通化市|https://www.tonghua.gov.cn/','白山市|','松原市|','白城市|','延边朝鲜族自治州|'],
     '辽宁':['沈阳市|https://www.shenyang.gov.cn/','大连市|https://www.dl.gov.cn/','鞍山市|http://www.anshan.gov.cn/','抚顺市|https://www.fushun.gov.cn/','本溪市|https://www.benxi.gov.cn/','丹东市|https://www.dandong.gov.cn/','锦州市|https://www.jz.gov.cn/','营口市|https://www.yingkou.gov.cn/','阜新市|https://www.fuxin.gov.cn/','辽阳市|http://www.liaoyang.gov.cn/','盘锦市|https://www.panjin.gov.cn/','铁岭市|https://www.tieling.gov.cn/','朝阳市|','葫芦岛市|https://www.hld.gov.cn/'],
     '内蒙古':['呼和浩特市|','包头市|https://www.baotou.gov.cn/','乌海市|http://www.wuhai.gov.cn/','赤峰市|https://www.chifeng.gov.cn/','通辽市|https://www.tongliao.gov.cn/','鄂尔多斯市|','呼伦贝尔市|https://www.hlbe.gov.cn/','巴彦淖尔市|','乌兰察布市|https://www.wulanchabu.gov.cn/','兴安盟|','锡林郭勒盟|','阿拉善盟|'],
     '宁夏':['银川市|https://www.yinchuan.gov.cn/','石嘴山市|https://www.shizuishan.gov.cn/','吴忠市|https://www.wuzhong.gov.cn/','固原市|','中卫市|'],
@@ -66,7 +66,7 @@
     '山西':['太原市|https://www.taiyuan.gov.cn/','大同市|','阳泉市|','长治市|','晋城市|','朔州市|http://www.shuozhou.gov.cn/','晋中市|','运城市|https://www.yuncheng.gov.cn/','忻州市|','临汾市|http://www.linfen.gov.cn/','吕梁市|https://www.lvliang.gov.cn/'],
     '陕西':['西安市|https://www.xa.gov.cn/','铜川市|https://www.tongchuan.gov.cn/','宝鸡市|https://www.baoji.gov.cn/','咸阳市|https://www.xianyang.gov.cn/','渭南市|https://www.weinan.gov.cn/','延安市|https://www.yanan.gov.cn/','汉中市|https://www.hanzhong.gov.cn/','榆林市|','安康市|https://www.ankang.gov.cn/','商洛市|https://www.shangluo.gov.cn/'],
     '四川':['成都市|https://www.chengdu.gov.cn/','自贡市|https://www.zg.gov.cn/','攀枝花市|http://www.panzhihua.gov.cn/','泸州市|https://www.luzhou.gov.cn/','德阳市|https://www.deyang.gov.cn/','绵阳市|https://www.my.gov.cn/','广元市|','遂宁市|https://www.suining.gov.cn/','内江市|https://www.neijiang.gov.cn/','乐山市|https://www.leshan.gov.cn/','南充市|https://www.nanchong.gov.cn/','眉山市|https://www.ms.gov.cn/','宜宾市|https://www.yibin.gov.cn/','广安市|','达州市|https://www.dazhou.gov.cn/','雅安市|https://www.yaan.gov.cn/','巴中市|','资阳市|https://www.ziyang.gov.cn/','阿坝藏族羌族自治州|','甘孜藏族自治州|','凉山彝族自治州|'],
-    '新疆':['乌鲁木齐市|https://www.wlmq.gov.cn/','克拉玛依市|https://www.klmy.gov.cn/','吐鲁番市|https://www.tlf.gov.cn/','哈密市|https://www.hami.gov.cn/','昌吉回族自治州|','博尔塔拉蒙古自治州|','巴音郭楞蒙古自治州|','阿克苏地区|','克孜勒苏柯尔克孜自治州|','喀什地区|https://www.kashi.gov.cn/','和田地区|','伊犁哈萨克自治州|','塔城地区|','阿勒泰地区|https://www.alt.gov.cn/'],
+    '新疆':['乌鲁木齐市|https://www.wlmq.gov.cn/','克拉玛依市|https://www.klmy.gov.cn/','吐鲁番市|https://www.tlf.gov.cn/','哈密市|https://www.hami.gov.cn/','昌吉回族自治州|','博尔塔拉蒙古自治州|','巴音郭楞蒙古自治州|','阿克苏地区|','克孜勒苏柯尔克孜自治州|','喀什地区|https://www.kashi.gov.cn/','和田地区|','伊犁哈萨克自治州|','塔城地区|','阿勒泰地区|https://www.xjalt.gov.cn/'],
     '西藏':['拉萨市|https://www.lasa.gov.cn/','日喀则市|http://www.rikaze.gov.cn/','昌都市|','林芝市|https://www.linzhi.gov.cn/','山南市|https://www.shannan.gov.cn/','那曲市|','阿里地区|'],
     '云南':['昆明市|https://www.km.gov.cn/','曲靖市|https://www.qj.gov.cn/','玉溪市|https://www.yuxi.gov.cn/','保山市|https://www.baoshan.gov.cn/','昭通市|https://www.zt.gov.cn/','丽江市|https://www.lijiang.gov.cn/','普洱市|','临沧市|http://lincang.gov.cn/','楚雄彝族自治州|','红河哈尼族彝族自治州|','文山壮族苗族自治州|','西双版纳傣族自治州|','大理白族自治州|','德宏傣族景颇族自治州|','怒江傈僳族自治州|','迪庆藏族自治州|'],
     '浙江':['杭州市|https://www.hangzhou.gov.cn/','宁波市|https://www.ningbo.gov.cn/','温州市|https://www.wenzhou.gov.cn/','嘉兴市|https://www.jiaxing.gov.cn/','湖州市|https://www.huzhou.gov.cn/','绍兴市|https://www.sx.gov.cn/','金华市|https://www.jinhua.gov.cn/','衢州市|https://www.qz.gov.cn/','舟山市|https://www.zhoushan.gov.cn/','台州市|','丽水市|https://www.lishui.gov.cn/'],
@@ -95,6 +95,15 @@
   }
 
   function citiesOf(k) { return CITY[k] || []; }
+
+  function hasCity(k, name) {
+    if (!name) return false;
+    var arr = citiesOf(k);
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].slice(0, arr[i].indexOf('|')) === name) return true;
+    }
+    return false;
+  }
 
   function cityUrl(k, name) {
     var arr = citiesOf(k);
@@ -280,7 +289,18 @@
   function loadHistory() {
     try {
       var raw = JSON.parse(localStorage.getItem(HK) || '[]');
-      history = Array.isArray(raw) ? raw.filter(function (x) { return x && x.p; }).slice(0, MAX_HIS) : [];
+      if (!Array.isArray(raw)) { history = []; return; }
+      history = [];
+      raw.forEach(function (x) {
+        if (!x || !x.p || x.p === '全国') return;
+        if (provOf(x.p).k !== x.p) return;                 // 省份已不存在
+        var c = x.c || '';
+        if (c && !hasCity(x.p, c)) c = '';                 // 城市已不存在则退化为全省
+        var key = x.p + '|' + c;
+        var dup = false;
+        history.forEach(function (y) { if (y.p + '|' + (y.c || '') === key) dup = true; });
+        if (!dup && history.length < MAX_HIS) history.push({ p: x.p, c: c });
+      });
     } catch (e) { history = []; }
   }
 
@@ -323,7 +343,7 @@
     var out = [], seen = {};
     PROV.forEach(function (p) {
       if (p.k.indexOf(q) >= 0 || p.gn.indexOf(q) >= 0) {
-        out.push({ p: p.k, c: '', label: p.gn.replace('人民政府', ''), t: '省级 · 全省', rank: 0 });
+        out.push({ p: p.k, c: '', label: p.gn.replace('人民政府', ''), t: p.m === 0 ? '直辖市 · 全市' : '省级 · 全省', rank: 0 });
         seen[p.k + '|'] = 1;
       }
     });
@@ -349,36 +369,54 @@
   var sugItems = [];
   var sugIdx = -1;
 
+  function setExpanded(on) {
+    var inp = $('policySearch');
+    if (inp) inp.setAttribute('aria-expanded', on ? 'true' : 'false');
+  }
+
   function renderSuggest(items, q) {
     var box = $('policySuggest');
     if (!box) return;
+    var empty = $('policySugEmpty');
     sugItems = items;
     sugIdx = -1;
     box.innerHTML = '';
-    if (!q) { box.hidden = true; return; }
+    if (empty) empty.hidden = true;
+    if (!q) { box.hidden = true; setExpanded(false); return; }
     if (!items.length) {
-      box.hidden = false;
-      box.innerHTML = '<div class="pp-sug-empty">没有匹配的地区，试试"杭州""成都""新疆"</div>';
+      box.hidden = true;
+      setExpanded(false);
+      if (empty) empty.hidden = false;
       return;
     }
     items.forEach(function (it, i) {
-      var b = el('button', 'pp-sug');
-      b.type = 'button';
+      var b = el('div', 'pp-sug');
       b.setAttribute('role', 'option');
+      b.setAttribute('aria-selected', 'false');
+      b.id = 'policySug' + i;
       b.setAttribute('data-idx', i);
       b.innerHTML = '<b>' + (it.label || it.c || it.p) + '</b><span>' + it.t + '</span>';
       b.addEventListener('click', function () { pick(it); });
       box.appendChild(b);
     });
+    var inp = $('policySearch');
+    if (inp) inp.removeAttribute('aria-activedescendant');
     box.hidden = false;
+    setExpanded(true);
   }
 
   function markSuggest() {
     var box = $('policySuggest');
     if (!box) return;
     var all = box.querySelectorAll('.pp-sug');
+    var inp = $('policySearch');
     for (var i = 0; i < all.length; i++) {
       all[i].classList.toggle('on', i === sugIdx);
+      all[i].setAttribute('aria-selected', i === sugIdx ? 'true' : 'false');
+      if (i === sugIdx) {
+        if (inp) inp.setAttribute('aria-activedescendant', all[i].id);
+        if (all[i].scrollIntoView) all[i].scrollIntoView({ block: 'nearest' });
+      }
     }
   }
 
@@ -412,11 +450,7 @@
     var pv = provOf(s.p);
     if (pv.k !== '全国' && pv.k !== s.p) return { p: '全国', c: '' };
     var c = s.c || '';
-    if (c && !cityUrl(pv.k, c) && citiesOf(pv.k).indexOf(c + '|') < 0) {
-      var ok = false;
-      citiesOf(pv.k).forEach(function (x) { if (x.slice(0, x.indexOf('|')) === c) ok = true; });
-      if (!ok) c = '';
-    }
+    if (c && !hasCity(pv.k, c)) c = '';
     return { p: pv.k, c: c };
   }
 
