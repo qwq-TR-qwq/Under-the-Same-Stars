@@ -563,17 +563,53 @@
 
     <!-- ① 地区选择 -->
     <div class="site-block">
-      <h4>第一步 · 选择你所在的地区</h4>
+      <h4>第一步 · 选择你所在的地区（精确到市）</h4>
       <div class="policy-picker">
+
+        <!-- 搜索 + 最近记录 -->
+        <div class="pp-search">
+          <div class="pp-search-box">
+            <span class="pp-search-ico" aria-hidden="true">⌕</span>
+            <input id="policySearch" type="search" autocomplete="off" spellcheck="false"
+                   placeholder="搜索省或市，如：杭州 / 成都 / 新疆" aria-label="搜索省份或城市"
+                   aria-controls="policySuggest" aria-expanded="false">
+            <button class="pp-search-clear" id="policySearchClear" type="button" aria-label="清空搜索">×</button>
+          </div>
+          <div class="pp-suggest" id="policySuggest" role="listbox" aria-label="搜索建议" hidden></div>
+          <div class="pp-history" id="policyHistory" hidden>
+            <span class="pp-history-label">最近搜索</span>
+            <div class="pp-history-list" id="policyHistoryList"></div>
+            <button class="pp-history-clear" id="policyHistoryClear" type="button">清除</button>
+          </div>
+        </div>
+
+        <!-- 省 + 市 -->
         <div class="pp-row">
-          <label class="pp-label" for="policyRegion">省 / 自治区 / 直辖市</label>
+          <label class="pp-label" for="policyRegion">省份</label>
           <div class="pp-selectwrap">
-            <select id="policyRegion" aria-label="选择所在省、自治区或直辖市"></select>
+            <select id="policyRegion" aria-label="选择省、自治区或直辖市"></select>
             <span class="pp-caret" aria-hidden="true">▾</span>
           </div>
-          <div class="pp-chips" id="policyChips" role="group" aria-label="常用地区快捷选择"></div>
+          <label class="pp-label" for="policyCity">城市</label>
+          <div class="pp-selectwrap">
+            <select id="policyCity" aria-label="选择城市" disabled>
+              <option value="">先选省份</option>
+            </select>
+            <span class="pp-caret" aria-hidden="true">▾</span>
+          </div>
         </div>
-        <div class="pp-hint">当前地区：<b id="policyRegionNow">全国</b>　·　切换后下方官方入口会同步更新，本页信息不构成政策依据。</div>
+
+        <!-- 直辖市第一排，热门省份第二排 -->
+        <div class="pp-quick">
+          <span class="pp-quick-label">直辖市</span>
+          <div class="pp-chips" id="policyChips" role="group" aria-label="直辖市快捷选择"></div>
+        </div>
+        <div class="pp-quick">
+          <span class="pp-quick-label">热门</span>
+          <div class="pp-chips" id="policyHotChips" role="group" aria-label="热门省份快捷选择"></div>
+        </div>
+
+        <div class="pp-hint">当前地区：<b id="policyRegionNow">全国</b>　·　省份按拼音首字母排序，直辖市单独一组；切换省市后下方官方入口同步更新，本页信息不构成政策依据。</div>
       </div>
     </div>
 
