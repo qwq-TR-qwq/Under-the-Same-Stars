@@ -25,7 +25,7 @@ strong{color:#1f2430}
 </head>
 <body>
 <h1>星夜入眠 —— 关爱自闭症儿童公益科普网站技术文档</h1>
-<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v11.2（正式参赛版）</p>
+<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v11.3（正式参赛版）</p>
 <hr>
 <h2>目录</h2>
 <ol><li>项目概述</li><li>需求分析</li><li>系统架构设计</li><li>AI 技术方案</li><li>核心功能实现</li><li>测试与部署</li><li>创新点</li><li>总结与展望</li></ol>
@@ -210,7 +210,13 @@ function replyFor(text) {
 <ul><li>完成科普打卡后生成证书</li><li>证书背景为二次元星空 + 两个比心的小孩</li><li>人物在右下角，不遮挡文字</li></ul>
 <h3>5.5 背景音乐控制</h3>
 <ul><li>全局音乐总开关按钮，点击一键开/关背景音乐</li><li>关闭时同时静音（volume=0 双保险），防止浏览器自动播放限制导致按钮无反应</li><li>按钮加大（PC 56px / 手机 64px），便于点击</li></ul>
-<h3>5.6 无障碍</h3>
+<h3>5.6 政策与救助：地区联动导航</h3>
+<p>政策信息地域差异大，静态罗列会让家长无从下手。该模块把"信息展示"改为"路径导航"：</p>
+<p><strong>四段式结构</strong>（按用户决策顺序排布）</p>
+<ol><li><strong>选择地区</strong>：<code>&lt;select&gt;</code> + <code>&lt;optgroup&gt;</code> 按 7 大区分组，覆盖全国 31 个省级行政区；另设 6 个常用地区芯片（button）</li><li><strong>三步办理路径</strong>：评估与办证 → 备齐材料 → 提交申请与年度随访，每步写明门槛、材料清单与续期节点</li><li><strong>官方入口</strong>：随地区联动生成卡片（省残联、省政府门户、12345 热线；全国模式为 中国残联 / 中国政府网政策文件库 / 国家政务服务平台）</li><li><strong>全国通用政策</strong>：康复救助制度、医保补助、教育安置、全生涯支持（原内容保留）</li></ol>
+<p><strong>实现要点</strong></p>
+<ul><li>数据结构：<code>GROUPS[]</code>（7 组 × 省）+ <code>find(key)</code> 线性查找，31 省链接集中在一处维护；新增省份只需加一行</li><li>渲染：<code>render(key)</code> 重建卡片区（<code>aria-live="polite"</code> 播报），<code>apply(key)</code> 同步 select / 芯片高亮 / localStorage</li><li>链接安全：全部 <code>target="_blank" rel="noopener"</code>，仅导航不代理任何政务数据</li><li>无障碍：原生 select 支持方向键与输入首字定位；芯片具备 <code>aria-pressed</code> 状态；焦点环 <code>:focus-visible</code></li><li>链接治理：省级残联域名逐条比对官方来源 + HTTP 实测，修正了上海（新站 shdpf.org.cn）、陕西（仅 http）、新疆（www 前缀）等失效配置</li></ul>
+<h3>5.7 无障碍</h3>
 <ul><li>大字模式：真实字体放大（不只调行距），不破坏排版</li><li>心理量表题目字体 36px、选项 25px，保证可读性</li><li>高对比模式已按需求移除</li></ul>
 <hr>
 <h2>6. 测试与部署</h2>
@@ -240,7 +246,9 @@ function replyFor(text) {
 <ul><li><strong>安全</strong>：移除源码硬编码 API Key，默认切换免费体验接口（无需 Key）</li><li><strong>性能</strong>：全部 base64 资源外置 + 懒加载 + 大图压缩 + 重复视频去重，HTML 从 40.7MB 降至 0.45MB</li><li><strong>AI 升级</strong>：SSE 流式输出重写；真 Function Calling（tools 协议 + tool_calls 流式解析 + 二次请求）；RAG 向量检索（bigram 余弦 + 关键词混合）与检索可视化；知识库扩充至 21 条</li><li><strong>多模态</strong>：📷 图片上传看图理解（glm-4v-flash / qwen-vl-plus 自动切换）；🔊 TTS 朗读回复</li><li><strong>AI 安全</strong>：危机干预关键词兜底（12356 热线卡片优先响应）；降级明示</li><li><strong>交互</strong>：导航收敛为 5 个下拉分组 + 移动端汉堡菜单；数据看板折叠；问卷计分结果页</li><li><strong>创新</strong>：AI 星空寄语卡片（LLM 生成寄语 + Canvas 绘制可保存贺卡）</li></ul>
 <p><strong>v11.1（10/25）</strong></p>
 <ul><li>分享传播：补齐 Open Graph / Twitter Card 元信息与 1200×675 分享封面图</li><li>预连接：AI 接口域名 preconnect / dns-prefetch，降低首字延迟</li><li>资源瘦身：15 张大图转 WebP（2805KB → 2047KB），images 目录 6.7MB → 5MB</li></ul>
-<p><strong>v11.2（10/25，当前版本：HTML 0.07MB + CSS 91KB + JS 8 模块）</strong></p>
+<p><strong>v11.3（10/29，当前版本：新增 policy 模块）</strong></p>
+<ul><li>政策与救助板块重构为「地区选择 → 三步办理路径 → 官方入口 → 全国通用政策」四段式</li><li>新增 31 省官方入口联动（省残联 / 省政府门户 / 12345），60+ 链接逐条核验；<code>others/js/08-policy.js</code> 独立模块承载数据与渲染</li><li>localStorage 记忆上次选择；select / 芯片 / aria-live 全套无障碍支持</li></ul>
+<p><strong>v11.2（10/25，HTML 0.07MB + CSS 91KB + JS 8 模块）</strong></p>
 <ul><li><strong>视口修复</strong>：<code>width=1280</code> → <code>device-width</code>，激活全部移动端断点（此前手机端只是"缩小的桌面版"）</li><li><strong>无障碍</strong>：导航链接 / 品牌区补 <code>role="button"</code> + <code>tabindex="0"</code>；focus-visible 金色焦点环；图标按钮补 aria-label</li><li><strong>JS 模块化</strong>：单文件 3400 行内联脚本拆分为 js/ 下 8 个功能模块，HTML 降至 0.07MB</li><li><strong>CSS 分离</strong>：内联样式提取为 css/style.css（约 91KB），结构 / 样式 / 行为彻底分层</li><li><strong>密钥安全升级</strong>：新增 others/serverless/ 后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 others/.env.example 模板；AI 设置面板新增「后端中转」服务商</li><li><strong>PWA</strong>：新增 manifest.json + Service Worker（静态资源缓存优先、HTML 网络优先）；最终目录规范下归档于 others/</li><li><strong>稳定兜底</strong>：全局错误兜底 toast（未捕获异常 / Promise 拒绝 → 友好提示），杜绝演示白屏</li></ul>
 <h3>6.2 测试覆盖</h3>
 <ul><li>✅ PC 端 Chrome / Edge 主流分辨率</li><li>✅ 移动端浏览器（device-width 视口、响应式断点、手势缩放）</li><li>✅ 离线状态：Service Worker 缓存 + 本地对话兜底，断网可完整演示</li><li>✅ API Key 失效 / 接口失败时自动降级到本地兜底（界面明示）</li><li>✅ 视频离开页面自动暂停并回到开头</li><li>✅ 对话时页面稳定，不自动跳转站内板块</li><li>✅ 键盘 Tab 可达全部导航，回车 / 空格可触发</li><li>✅ 音乐总开关可一键关闭</li><li>✅ 量表字体在手机端正常显示</li><li>✅ 所有按钮点击正常；全局错误兜底避免白屏</li></ul>

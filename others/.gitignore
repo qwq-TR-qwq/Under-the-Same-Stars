@@ -29,3 +29,6 @@ config.local.js
 *.avi
 .workbuddy/
 _extract_assets.py
+
+# 开发预览（不提交）
+_preview-*.html

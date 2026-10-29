@@ -558,16 +558,70 @@
     <div class="site-sec-head">
       <span class="kicker">POLICY & SUPPORT</span>
       <h2>政策与救助信息</h2>
-      <p>政策能实实在在减轻家庭负担。这里汇总国家层面的基本救助方向，具体标准以你所在地区残联、民政的最新政策为准。</p>
+      <p>政策能实实在在减轻家庭负担。先选择你所在的地区，直达对应官方入口；具体年龄上限、补贴标准以<strong>户籍所在地</strong>残联、民政部门的最新政策为准。</p>
     </div>
+
+    <!-- ① 地区选择 -->
     <div class="site-block">
-      <h4>国家层面的基本救助方向</h4>
+      <h4>第一步 · 选择你所在的地区</h4>
+      <div class="policy-picker">
+        <div class="pp-row">
+          <label class="pp-label" for="policyRegion">省 / 自治区 / 直辖市</label>
+          <div class="pp-selectwrap">
+            <select id="policyRegion" aria-label="选择所在省、自治区或直辖市"></select>
+            <span class="pp-caret" aria-hidden="true">▾</span>
+          </div>
+          <div class="pp-chips" id="policyChips" role="group" aria-label="常用地区快捷选择"></div>
+        </div>
+        <div class="pp-hint">当前地区：<b id="policyRegionNow">全国</b>　·　切换后下方官方入口会同步更新，本页信息不构成政策依据。</div>
+      </div>
+    </div>
+
+    <!-- ② 办理路径 -->
+    <div class="site-block">
+      <h4>第二步 · 救助怎么申请：三步走</h4>
+      <div class="policy-steps">
+        <div class="ps-item">
+          <span class="ps-num">01</span>
+          <div class="ps-body">
+            <b>评估与办证</b>
+            <p>到二级以上医院儿童保健科或精神科做发育行为评估，凭诊断材料向<strong>户籍地县（区）残联</strong>申请残疾人证——这是多数康复救助项目的申请门槛。</p>
+          </div>
+        </div>
+        <div class="ps-item">
+          <span class="ps-num">02</span>
+          <div class="ps-body">
+            <b>备齐材料再跑窗口</b>
+            <p>常见材料：户口簿、残疾人证、诊断证明、监护人身份证、低保证明（如适用）。各地清单不同，先拨打 <strong>12345</strong> 或查省残联官网确认，避免反复跑腿。</p>
+          </div>
+        </div>
+        <div class="ps-item">
+          <span class="ps-num">03</span>
+          <div class="ps-body">
+            <b>提交申请并年度随访</b>
+            <p>向户籍地残联提交康复救助申请、选择定点康复机构，按年度接受训练；救助资格通常每年审核一次，注意续期与复评时间。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 地方官方入口（随地区联动） -->
+    <div class="site-block">
+      <h4>第三步 · 直达官方入口（<span id="policyRegionTitle">全国</span>）</h4>
+      <div class="policy-links" id="policyLinks" aria-live="polite"></div>
+      <div class="site-note" id="policyLinksNote">提示：以上链接均为官方门户，具体救助项目请在站内搜索"残疾儿童康复救助"或咨询户籍地残联；政策会随时间调整，请以最新发布为准。</div>
+    </div>
+
+    <!-- ④ 全国通用政策 -->
+    <div class="site-block">
+      <h4>全国通用 · 国家层面的基本救助方向</h4>
       <div class="site-cards">
         <div class="site-c"><b>残疾儿童康复救助制度</b><p>国家为符合条件的 0-6 岁残疾儿童提供康复救助（部分地区扩展至更大年龄段），涵盖康复训练、辅助器具适配等项目，向当地残联申请。</p><span class="star">2018 年起实施</span></div>
         <div class="site-c"><b>医保与专项补助</b><p>部分地区将自闭症康复训练纳入医保或残联补助范围，另有生活补贴、无障碍改造等项目，各地差异较大。</p><span class="star">以当地为准</span></div>
         <div class="site-c"><b>教育安置支持</b><p>学龄儿童可依法接受义务教育，可选择普通学校随班就读（资源教室支持）、特教学校或送教上门等安置形式。</p><span class="star">融合教育</span></div>
       </div>
     </div>
+
     <div class="site-block">
       <h4>全生涯支持 · 从儿童到成年（呼应 2026 关注日主题）</h4>
       <div class="site-cards">
@@ -1219,6 +1273,7 @@
   <script src="others/js/05-tests-community.js"></script>
   <script src="others/js/06-site-shell.js"></script>
   <script src="others/js/07-nav-community.js"></script>
+  <script src="others/js/08-policy.js"></script>
 
 <!-- 短片已外置为 videos/ 下独立 mp4 文件 -->
 </body>
