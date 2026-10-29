@@ -456,7 +456,9 @@
     '这个问题没有标准答案。不妨先想想：眼下能迈出的最小的一步是什么？',
     '你刚才说的，我在认真听。除了这些，还有别的想和我聊的吗？'
   ];
+  var _replyUncovered = false;   // 本地应答是否"没覆盖到这个问题"（03 据此在末尾提示接入大模型）
   function replyFor(text){
+    _replyUncovered = false;
     var t = String(text || '').replace(/[，。！？、,.!?~～…\s]/g, '');
     var tl = t.toLowerCase();
     if(/自杀|想死|不想活|轻生|活不下去|结束生命|伤害自己|自残|了断|撑不下去/.test(tl)){
@@ -518,6 +520,7 @@
       '嗯，我在听。想继续说就往下说，不想说也没关系，我都在。',
       '我在呢，想说什么都可以，慢慢来。'
     ]);
+    _replyUncovered = true;
     return pickOne(FALLBACKS);
   }
 
@@ -568,7 +571,7 @@
     if(buttons && buttons.length){
       for(var bi = 0; bi < buttons.length; bi++) addChatBubbleBtn(bubble, buttons[bi]);
     }
-    addTTSBtn(bubble, text);
+    addTTSBtn(bubble, text, spd * Math.min(text.length, 420) + 350);
   }
   function sendMsg(){
     var text = chatInput.value.replace(/^\s+|\s+$/g, '');

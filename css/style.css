@@ -942,6 +942,30 @@ body{
 .set-test-status.ok{ color:#b8f2c9; }
 .set-test-status.err{ color:#ffb3a0; }
 
+/* ===== 星语声音个性化（AI 设置面板 · 默认温柔女声） ===== */
+.voice-box{ padding-top:22px; border-top:1px solid rgba(255,255,255,.09); }
+.voice-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.voice-sliders{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:2px; }
+.voice-slider{ display:flex; align-items:center; gap:12px; font-size:16px; letter-spacing:1px; color:#c9d4f2; }
+.voice-slider > span{ flex:none; width:38px; }
+.voice-slider input[type=range]{
+  flex:1; height:4px; border-radius:3px; accent-color:#FFD964; cursor:pointer;
+  background:rgba(255,255,255,.18);
+}
+.voice-slider b{
+  flex:none; min-width:54px; text-align:right; font-size:14px; font-weight:500;
+  color:#ffd964; font-variant-numeric:tabular-nums;
+}
+.voice-foot{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.voice-foot .set-check{ font-size:16px; letter-spacing:.8px; }
+.voice-foot .ui-close{ font-size:15px; padding:10px 22px; }
+.voice-note{ margin:0; font-size:13.5px; line-height:1.8; color:#93a0cf; letter-spacing:.6px; }
+.voice-note::before{ content:"✦ "; color:rgba(255,217,100,.75); }
+@media (max-width:760px){
+  .voice-grid, .voice-sliders{ grid-template-columns:1fr; }
+  .voice-slider b{ min-width:48px; }
+}
+
 /* MBTI 维度倾向条 */
 .mbti-dims{ margin:30px auto 8px; max-width:860px; display:flex; flex-direction:column; gap:14px; }
 .mbti-dim{ display:flex; align-items:center; gap:14px; }

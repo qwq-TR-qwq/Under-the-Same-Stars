@@ -241,27 +241,42 @@
     }, false);
     bubble.appendChild(b);
   }
-  // ===== TTS 朗读（Web Speech API） =====
-  function addTTSBtn(bubble, text){
+  // ===== TTS 朗读（Web Speech API，声线由 09-voice.js 统一管理：默认温柔女声） =====
+  function addTTSBtn(bubble, text, delay){
     if(!bubble || !('speechSynthesis' in window)) return;
+    var V = window.__starVoice || null;
     var b = document.createElement('button');
     b.className = 'chat-tts-btn';
     b.type = 'button';
     b.title = '朗读这条回复';
     b.textContent = '🔊';
-    b.addEventListener('click', function(e){
-      e.stopPropagation();
+    function paint(on){
+      b.textContent = on ? '⏹' : '🔊';
+      b.title = on ? '停止朗读' : '朗读这条回复';
+    }
+    function play(){
+      if(V){
+        if(V.isSpeaking()){ V.stop(); paint(false); return; }
+        V.speak(text, paint);
+        return;
+      }
       try{
-        if(window.speechSynthesis.speaking){ window.speechSynthesis.cancel(); b.textContent = '🔊'; return; }
+        window.speechSynthesis.cancel();
         var u = new SpeechSynthesisUtterance(String(text || '').slice(0, 900));
-        u.lang = 'zh-CN'; u.rate = 1;
-        u.onend = function(){ b.textContent = '🔊'; };
-        u.onerror = function(){ b.textContent = '🔊'; };
-        b.textContent = '⏹';
+        u.lang = 'zh-CN'; u.rate = 0.92; u.pitch = 1.06;
+        u.onend = function(){ paint(false); };
+        u.onerror = function(){ paint(false); };
+        paint(true);
         window.speechSynthesis.speak(u);
-      }catch(err){}
-    }, false);
+      }catch(err){ paint(false); }
+    }
+    b.addEventListener('click', function(e){ e.stopPropagation(); play(); }, false);
     bubble.appendChild(b);
+    // 自动朗读：等打字机把这一条展示完再开口，避免和文字抢节奏
+    if(V && V.auto()){
+      var t = setTimeout(play, Math.max(0, delay || 0));
+      b.addEventListener('click', function(){ clearTimeout(t); }, false);
+    }
   }
   function finishReply(think, reply, note, opts){
     opts = opts || {};
@@ -288,6 +303,10 @@
     chatSend.disabled = false;
     chatInput.focus();
   }
+  // 本地知识库覆盖不到时的收尾提示（放在括号里：TTS 朗读会自动跳过，不会念出来）
+  function aiUpsellNote(){
+    return '\n\n（这个问题我的内置知识库暂时没有覆盖到。接入 AI 大模型可以得到更完整、更贴合你情况的回答——点对话框右上角的 ⚙ 打开设置，选一个服务商就能开启。）';
+  }
   function aiChat(text, think, imageDataUrl){
     chatHistory.push({ role: 'user', content: text, image: imageDataUrl || null });
     saveHistory();
@@ -307,23 +326,20 @@
       saveAiCfg(); paintAiStatus();
     }
     var useTools = !imageDataUrl && aiCfg.provider !== 'pollinations';
+    // 本地知识库兜底：若这条问题超出内置应答范围，在末尾提示接入大模型
     var localFallback = function(){
       var kwTool = detectTool(text);
       var kwBtns = kwTool ? [{ view: kwTool.view, label: '去「' + (VIEW_NAMES[kwTool.view] || kwTool.name) + '」看看' }] : null;
-      finishReply(think, addFollowup(replyFor(text)), '〔AI 接口暂不可用，已切换本地知识库应答〕\n', { buttons: kwBtns });
+      var body = addFollowup(replyFor(text));
+      if(typeof _replyUncovered !== 'undefined' && _replyUncovered) body += aiUpsellNote();
+      var note = (aiCfg.enabled && aiKeyOk()) ? '〔AI 接口暂时不可用，已切换本地知识库应答〕\n' : '';
+      finishReply(think, body, note, { buttons: kwBtns });
     };
     if(!(aiCfg.enabled && aiKeyOk())){ localFallback(); return; }
     if(typeof navigator !== 'undefined' && navigator.onLine === false){ localFallback(); return; }
     var msgs = buildMessages();
-    // RAG 检索可视化：在思考气泡中展示命中的站内科普条目数
-    var hits = searchKB(text);
-    _lastHits = hits;
-    if(think && hits.length){
-      var thinkBubble = think.querySelector('.bubble');
-      if(thinkBubble && !think._streamed){
-        thinkBubble.innerHTML = '<span class="rag-hint">🔍 已检索到 ' + hits.length + ' 条站内科普资料 · 星语思考中…</span>';
-      }
-    }
+    // 静默预检索：命中结果只作为回答依据，不在气泡里显示检索提示（保持原始思考动画）
+    _lastHits = searchKB(text);
     var pendingButtons = [];
     callAI(msgs, function(content, toolCalls){
       if(toolCalls && toolCalls.length){
