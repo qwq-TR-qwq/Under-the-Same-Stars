@@ -193,22 +193,35 @@
   // ---- 朗读 / 停止（分段合成 + 句间停顿，降低机械感） ----
   var speakingFlag = false;
   var seq = 0;
-  function speak(text, cb) {
+  var activeCb = null;   // 当前这段朗读的状态回调，stop 时也要通知它，按钮才不会卡在“停止”态
+  var activeSrc = '';    // 朗读来源：chat（回复朗读）/ test（设置面板试听）
+  function speak(text, cb, src) {
     cb = typeof cb === 'function' ? cb : function () {};
     if (!HAS_TTS) { cb(false); return; }
     var say = cleanForSpeech(text);
     if (!say) { cb(false); return; }
+    // 回复朗读只在对话页有效：自动朗读的延时触发若已离开对话页，直接丢弃
+    if ((src || 'chat') === 'chat' && !inChatView()) { cb(false); return; }
     if (say.length > 1500) say = say.slice(0, 1500);
+    // 打断上一段前，先让它把按钮状态复位
+    if (activeCb) { var prev = activeCb; activeCb = null; activeSrc = ''; try { prev(false); } catch (e) {} }
     var mySeq = ++seq;
     try { window.speechSynthesis.cancel(); } catch (e) {}
     var voice = resolveVoice();
     var parts = splitForSpeech(say);
     var i = 0;
     speakingFlag = true;
+    activeCb = cb;
+    activeSrc = src || 'chat';
+    function end(on) {
+      var f = activeCb;
+      activeCb = null; activeSrc = '';
+      if (f) { try { f(on); } catch (e) {} }
+    }
     cb(true);
     function next() {
       if (mySeq !== seq) return;
-      if (i >= parts.length) { speakingFlag = false; cb(false); return; }
+      if (i >= parts.length) { speakingFlag = false; end(false); return; }
       var seg = parts[i++];
       var u = new SpeechSynthesisUtterance(seg);
       if (voice) { u.voice = voice; u.lang = voice.lang || 'zh-CN'; } else { u.lang = 'zh-CN'; }
@@ -221,7 +234,7 @@
       function done(ok) {
         if (guard) { clearTimeout(guard); guard = 0; }
         if (mySeq !== seq) return;
-        if (!ok) { speakingFlag = false; cb(false); return; }
+        if (!ok) { speakingFlag = false; end(false); return; }
         setTimeout(next, gap);
       }
       u.onend = function () { done(true); };
@@ -237,6 +250,10 @@
     seq++;
     if (HAS_TTS) { try { window.speechSynthesis.cancel(); } catch (e) {} }
     speakingFlag = false;
+    // 关键：主动打断时也要通知状态回调，否则按钮会一直停在“⏹ 停止朗读”
+    var f = activeCb;
+    activeCb = null; activeSrc = '';
+    if (f) { try { f(false); } catch (e) {} }
   }
   function isSpeaking() {
     if (!HAS_TTS) return false;
@@ -328,7 +345,7 @@
       elTest.textContent = '停止试听';
       speak('晚上好，我是星语。今天辛苦了，慢慢说，我一直在听。不用急着把话说完整，想到哪儿说到哪儿就好。（这句括号里的提示不会被朗读）', function (on) {
         elTest.textContent = on ? '停止试听' : '试听这段声音';
-      });
+      }, 'test');
     }, false);
   }
 
@@ -351,6 +368,43 @@
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) stop();
   }, false);
+
+  // ---- 离开对话页立即停止朗读 ----
+  // 覆盖三种离开方式：翻回前面的书页、点导航切到别的板块、切到首页。
+  // 只在“本来在对话页、现在不在了”这一跳变时停，避免误伤正常朗读。
+  function inChatView() {
+    var b = document.body;
+    return b.classList.contains('book-on') && b.classList.contains('chat-open');
+  }
+  var wasInChat = inChatView();
+  function checkLeaveChat() {
+    var now = inChatView();
+    if (wasInChat && !now) stop();
+    wasInChat = now;
+  }
+  if (window.MutationObserver) {
+    try {
+      new MutationObserver(checkLeaveChat).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    } catch (e) {}
+  }
+  // 兜底：点击/方向键翻页后延时复查（无 MutationObserver 的环境也能停）
+  document.addEventListener('click', function () { setTimeout(checkLeaveChat, 80); }, true);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
+      setTimeout(checkLeaveChat, 80);
+    }
+  }, true);
+  window.addEventListener('hashchange', function () { setTimeout(checkLeaveChat, 80); }, false);
+
+  // 设置面板关闭时，若还在试听就停掉
+  var aiMask = document.getElementById('aiMask');
+  if (aiMask && window.MutationObserver) {
+    try {
+      new MutationObserver(function () {
+        if (!aiMask.classList.contains('open') && activeSrc === 'test') stop();
+      }).observe(aiMask, { attributes: true, attributeFilter: ['class'] });
+    } catch (e) {}
+  }
 
   window.__starVoice = {
     speak: speak,
