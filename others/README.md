@@ -160,8 +160,8 @@
     ├── 技术文档.md / .pdf      # 技术文档
     ├── 作品介绍文档.md / .pdf  # 作品介绍
     ├── 环境配置说明.md          # 运行说明
-    ├── 演示视频分镜脚本.md      # 演示视频拍摄/剪辑指引
     ├── serverless/             # AI 后端中转代理（Vercel / Cloudflare Workers）
+    ├── _checks/                # 政策官方链接核验数据（候选域名 + 逐条实测结果，答辩佐证）
     ├── .env.example            # 环境变量模板（真实 Key 不入库）
     ├── README.md               # 本文件
     ├── CHANGELOG.md           # 更新日志
