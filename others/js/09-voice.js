@@ -1,50 +1,66 @@
-/* ===== 09-voice.js：星语播报声线（默认温柔女声 · 音色/语速/音调个性化） =====
+/* ===== 09-voice.js：星语播报声线（温柔女声 / 温润男声 · 尽量接近真人） =====
  * 职责：
  *   1) 统一管理朗读（speechSynthesis）的选音、语速、音调，默认挑温柔中文女声；
- *   2) 朗读前清洗文本：括号里的提示/注释、markdown 符号、emoji、链接一律不读；
- *   3) 提供 window.__starVoice 给 02/03 调用（点击 🔊 与自动朗读共用同一套声线）。
+ *   2) 尽量去掉"人机感"：优先选用系统里最自然的神经语音（Natural / Neural / Online），
+ *      按句分段合成、句间留自然停顿，语速音调默认贴近真人说话；
+ *   3) 朗读前清洗文本：括号里的提示/注释、markdown 符号、emoji、链接一律不读；
+ *   4) 提供 window.__starVoice 给 02/03 调用（点击 🔊 与自动朗读共用同一套声线）。
  * 配置存放：localStorage['xingya_voice_cfg_v1']
  */
 (function () {
   'use strict';
 
   var KEY = 'xingya_voice_cfg_v1';
+  var CFG_VER = 2;
   var HAS_TTS = ('speechSynthesis' in window) && (typeof SpeechSynthesisUtterance !== 'undefined');
 
   // ---- 音色预设：hints 按优先级排列，用于在系统语音里找最贴近的那个 ----
+  // ---- 男声候选：拼音与中文并收（Edge 的在线语音以中文名出现，如"云希"） ----
+  var MALE_WARM = ['yunxi', '云希', 'yunze', '云泽', 'yunfeng', '云枫', 'yunjian', '云健',
+    'yunyang', '云扬', 'yunxia', '云夏', 'kangkang', '康康', 'male', '男'];
+  var MALE_DEEP = ['yunjian', '云健', 'yunyang', '云扬', 'yunhao', '云皓', 'yunye', '云野',
+    'yunlong', '云龙', '雲龍', 'yunzhe', '云哲', '雲哲', 'kangkang', '康康',
+    'yunxi', '云希', 'male', '男'];
+  var MALE_ALL = MALE_WARM.concat(MALE_DEEP, ['xiaobei', '晓北', '曉北']);
+  var FEMALE_HINTS = [
+    'xiaoxiao', '晓晓', 'xiaoyi', '晓伊', 'xiaohan', '晓涵', 'xiaomo', '晓墨',
+    'xiaorui', 'xiaoshuang', 'xiaoni', '晓妮', 'huihui', '慧慧', 'yaoyao', '瑶瑶',
+    'tingting', '婷婷', 'meijia', '美佳', 'yating', '雅婷', 'sinji', 'hiugaai',
+    'xiaoman', '晓曼', 'xiaoyu', '晓雨', 'xiaozhen', '晓臻', 'xiaojia', '晓佳',
+    'xiaoyan', '晓颜', 'xiaoxuan', '晓萱',
+    'female', '女'
+  ];
   var PRESETS = [
-    { id: 'gentle', name: '温柔女声（默认）', rate: 0.92, pitch: 1.06, hints: [
-      'xiaoxiao', 'xiaoyi', 'xiaohan', 'xiaomo', 'xiaorui', 'xiaoshuang',
-      'huihui', 'yaoyao', 'tingting', 'meijia', 'yating', 'sinji', 'hiugaai',
-      '晓晓', '晓伊', '晓涵', '晓墨', '慧慧', '瑶瑶', '婷婷', '美佳', '小艺',
-      'female', '女'
-    ] },
-    { id: 'whisper', name: '轻声细语（更慢更轻）', rate: 0.82, pitch: 1.02, hints: [
-      'xiaoxiao', 'xiaoyi', 'huihui', 'yaoyao', 'tingting', 'meijia',
-      '晓晓', '晓伊', '慧慧', '瑶瑶', '婷婷', '美佳', 'female', '女'
-    ] },
-    { id: 'bright', name: '明亮少女（清亮一点）', rate: 1.06, pitch: 1.22, hints: [
-      'xiaoxuan', 'xiaoyan', 'xiaomeng', 'xiaoxiao', 'xiaoyi', 'huihui', 'yaoyao',
-      '晓萱', '晓颜', '晓梦', '晓晓', '晓伊', '慧慧', '瑶瑶', 'female', '女'
-    ] },
-    { id: 'calm', name: '沉稳旁白（中性低沉）', rate: 0.98, pitch: 0.94, hints: [
-      'yunxi', 'yunjian', 'yunyang', 'kangkang', 'yunxia', 'male',
-      '云希', '云健', '云扬', '康康', '男'
-    ] }
+    { id: 'gentle', name: '温柔女声（默认）', rate: 0.94, pitch: 1.0, hints: FEMALE_HINTS },
+    { id: 'whisper', name: '轻声细语（更慢更轻）', rate: 0.86, pitch: 1.0, hints: FEMALE_HINTS },
+    { id: 'bright', name: '明亮少女（清亮一点）', rate: 1.02, pitch: 1.1, hints: FEMALE_HINTS },
+    { id: 'mellow', name: '温润男声（自然亲和）', rate: 0.95, pitch: 0.96, hints: MALE_WARM },
+    { id: 'deep', name: '低沉男声（稳重安抚）', rate: 0.9, pitch: 0.88, hints: MALE_DEEP },
+    { id: 'calm', name: '沉稳旁白（中性低沉）', rate: 0.96, pitch: 0.92, hints: MALE_DEEP }
   ];
 
-  var cfg = { preset: 'gentle', voiceURI: '', rate: 0.92, pitch: 1.06, auto: false };
+  var cfg = { v: CFG_VER, preset: 'gentle', voiceURI: '', rate: 0.94, pitch: 1.0, auto: false };
+  var savedV = 0;
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved && typeof saved === 'object') {
       if (typeof saved.preset === 'string') cfg.preset = saved.preset;
       if (typeof saved.voiceURI === 'string') cfg.voiceURI = saved.voiceURI;
-      if (typeof saved.rate === 'number') cfg.rate = saved.rate;
-      if (typeof saved.pitch === 'number') cfg.pitch = saved.pitch;
       if (typeof saved.auto === 'boolean') cfg.auto = saved.auto;
+      if (typeof saved.v === 'number') savedV = saved.v;
+      // 旧版配置的语速/音调偏"电子味"（pitch 1.06），升级到 v2 时回到新版预设默认值
+      if (savedV === CFG_VER) {
+        if (typeof saved.rate === 'number') cfg.rate = saved.rate;
+        if (typeof saved.pitch === 'number') cfg.pitch = saved.pitch;
+      }
     }
   } catch (e) {}
   if (!presetOf(cfg.preset)) cfg.preset = 'gentle';
+  if (savedV !== CFG_VER) {
+    var _p = presetOf(cfg.preset);
+    cfg.rate = _p.rate;
+    cfg.pitch = _p.pitch;
+  }
 
   function presetOf(id) {
     for (var i = 0; i < PRESETS.length; i++) { if (PRESETS[i].id === id) return PRESETS[i]; }
@@ -71,7 +87,32 @@
     for (var i = 0; i < list.length; i++) { if (isZh(list[i])) zh.push(list[i]); }
     return zh;
   }
-  // 选音：用户指定 > 预设 hints 命中 > 第一个中文语音 > 系统默认
+  function isMaleVoice(v) {
+    var n = String(v.name || '').toLowerCase();
+    for (var i = 0; i < MALE_ALL.length; i++) { if (n.indexOf(MALE_ALL[i].toLowerCase()) >= 0) return true; }
+    return false;
+  }
+  // 自然度打分：神经语音（Natural/Neural/Online）远好于老式 SAPI 桌面语音
+  function naturalScore(v) {
+    var n = (String(v.name || '') + ' ' + String(v.voiceURI || '')).toLowerCase();
+    var s = 0;
+    if (/natural|neural|online|premium|enhanced|神经/.test(n)) s += 12;
+    if (/google/.test(n)) s += 6;          // Chrome 内置普通话，韵律较自然
+    if (/microsoft/.test(n)) s += 2;
+    if (/desktop|sapi|espeak|compact/.test(n)) s -= 4;
+    return s;
+  }
+  // 普通话优先：粤语 / 台普等其他中文变体降权，避免男声预设落到听不懂的方言上
+  function mandarinScore(v) {
+    var lang = String(v.lang || '').toLowerCase().replace('_', '-');
+    var n = String(v.name || '').toLowerCase();
+    if (lang.indexOf('zh-cn') === 0 || lang.indexOf('zh-hans') === 0) return 8;
+    if (/mandarin, simplified|普通话/.test(n)) return 8;
+    if (/cantonese|粤|粵|hong kong|zh-hk|zh-yue/.test(n + ' ' + lang)) return -10;
+    if (/taiwan|zh-tw|國語/.test(n + ' ' + lang)) return -4;
+    return 0;
+  }
+  // 选音：用户指定 > 预设 hints 命中（同分取最自然的）> 最自然的中文语音 > 系统默认
   function resolveVoice() {
     var list = refreshVoices();
     if (!list.length) return null;
@@ -83,12 +124,26 @@
     var pool = zhVoices();
     if (!pool.length) pool = list;
     var p = presetOf(cfg.preset) || PRESETS[0];
+    var wantMale = (p.hints === MALE_WARM || p.hints === MALE_DEEP);
+    var best = null, bestScore = -999;
     for (var h = 0; h < p.hints.length; h++) {
       for (var j = 0; j < pool.length; j++) {
-        if (String(pool[j].name || '').toLowerCase().indexOf(p.hints[h].toLowerCase()) >= 0) return pool[j];
+        var name = String(pool[j].name || '').toLowerCase();
+        if (name.indexOf(p.hints[h].toLowerCase()) < 0) continue;
+        // 命中越靠前的 hint 越贴题；同 hint 内按自然度 + 普通话优先取更高者
+        var score = (p.hints.length - h) * 100 + naturalScore(pool[j]) + mandarinScore(pool[j]);
+        if (score > bestScore) { bestScore = score; best = pool[j]; }
       }
     }
-    return pool[0];
+    if (best) return best;
+    // 兜底：按自然度挑一个（男声预设尽量避开明显女声与方言）
+    var fallback = null, fbScore = -999;
+    for (var k = 0; k < pool.length; k++) {
+      var sc = naturalScore(pool[k]) + mandarinScore(pool[k]);
+      if (wantMale && !isMaleVoice(pool[k])) sc -= 20;
+      if (sc > fbScore) { fbScore = sc; fallback = pool[k]; }
+    }
+    return fallback || pool[0];
   }
 
   // ---- 朗读文本清洗：括号注释 / markdown / emoji / 链接 都不念 ----
@@ -100,8 +155,7 @@
     t = t.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ');           // 图片
     t = t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');          // 链接保留文字
     t = t.replace(/https?:\/\/\S+/g, ' ');
-    // 括号内容：连续两轮，兼顾一层嵌套
-    for (var i = 0; i < 2; i++) { t = t.replace(PROMPT_PAT, ' '); }
+    for (var i = 0; i < 2; i++) { t = t.replace(PROMPT_PAT, ' '); }   // 兼顾一层嵌套
     t = t.replace(/[*_`#>~|]+/g, ' ');                      // markdown 符号
     t = t.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, ' ');  // emoji（代理对）
     t = t.replace(/[\u2190-\u21FF\u2300-\u27BF\u2B00-\u2BFF\uFE0F\u200D]/g, ' ');
@@ -110,54 +164,79 @@
     t = t.replace(/\n{2,}/g, '\n');
     return t.replace(/^\s+|\s+$/g, '');
   }
-  // 超长文本按句末截断，避免念到一半被硬切
-  function trimSentence(t, max) {
-    if (t.length <= max) return t;
-    var cut = t.slice(0, max);
-    var m = cut.match(/[\s\S]*[。！？!?；;\n]/);
-    return (m ? m[0] : cut).replace(/^\s+|\s+$/g, '');
+
+  // ---- 分段：按句切，短句合并、长句按逗号再切，读起来才有呼吸感 ----
+  function splitForSpeech(text) {
+    var arr = String(text).match(/[^。！？!?；;\n]+[。！？!?；;]?/g) || [String(text)];
+    var merged = [], buf = '';
+    for (var i = 0; i < arr.length; i++) {
+      var s = arr[i].replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+      if (!s) continue;
+      buf += s;
+      if (buf.length >= 26 || /[。！？!?；;]$/.test(s)) { merged.push(buf); buf = ''; }
+    }
+    if (buf) merged.push(buf);
+    var out = [];
+    for (var j = 0; j < merged.length; j++) {
+      var seg = merged[j];
+      while (seg.length > 80) {
+        var cut = seg.lastIndexOf('，', 80);
+        if (cut < 20) cut = 80;
+        out.push(seg.slice(0, cut + 1));
+        seg = seg.slice(cut + 1);
+      }
+      if (seg.replace(/\s/g, '')) out.push(seg);
+    }
+    return out.length ? out : [String(text)];
   }
 
-  // ---- 朗读 / 停止 ----
+  // ---- 朗读 / 停止（分段合成 + 句间停顿，降低机械感） ----
   var speakingFlag = false;
-  var keepAlive = 0;
+  var seq = 0;
   function speak(text, cb) {
     cb = typeof cb === 'function' ? cb : function () {};
     if (!HAS_TTS) { cb(false); return; }
     var say = cleanForSpeech(text);
     if (!say) { cb(false); return; }
-    say = trimSentence(say, 1200);
+    if (say.length > 1500) say = say.slice(0, 1500);
+    var mySeq = ++seq;
     try { window.speechSynthesis.cancel(); } catch (e) {}
-    stopKeepAlive();
-    var u = new SpeechSynthesisUtterance(say);
-    var v = resolveVoice();
-    if (v) { u.voice = v; u.lang = v.lang || 'zh-CN'; } else { u.lang = 'zh-CN'; }
-    u.rate = clamp(cfg.rate, 0.6, 1.6);
-    u.pitch = clamp(cfg.pitch, 0.5, 1.6);
-    u.volume = 1;
-    u.onstart = function () { speakingFlag = true; startKeepAlive(); };
-    u.onend = function () { speakingFlag = false; stopKeepAlive(); cb(false); };
-    u.onerror = function () { speakingFlag = false; stopKeepAlive(); cb(false); };
+    var voice = resolveVoice();
+    var parts = splitForSpeech(say);
+    var i = 0;
     speakingFlag = true;
-    try { window.speechSynthesis.speak(u); cb(true); } catch (e) { speakingFlag = false; cb(false); }
+    cb(true);
+    function next() {
+      if (mySeq !== seq) return;
+      if (i >= parts.length) { speakingFlag = false; cb(false); return; }
+      var seg = parts[i++];
+      var u = new SpeechSynthesisUtterance(seg);
+      if (voice) { u.voice = voice; u.lang = voice.lang || 'zh-CN'; } else { u.lang = 'zh-CN'; }
+      u.rate = clamp(cfg.rate, 0.6, 1.6);
+      u.pitch = clamp(cfg.pitch, 0.5, 1.6);
+      u.volume = 1;
+      // 句间留白：句号停久一点，逗号短一点 —— 这是"像真人"的关键
+      var gap = /[。！？!?]$/.test(seg) ? 260 : 150;
+      var guard = 0;
+      function done(ok) {
+        if (guard) { clearTimeout(guard); guard = 0; }
+        if (mySeq !== seq) return;
+        if (!ok) { speakingFlag = false; cb(false); return; }
+        setTimeout(next, gap);
+      }
+      u.onend = function () { done(true); };
+      u.onerror = function () { done(false); };
+      // 兜底：个别浏览器不触发 onend，按字数估时接管，避免卡住
+      guard = setTimeout(function () { guard = 0; done(true); }, Math.round(seg.length * 300 / clamp(cfg.rate, 0.6, 1.6)) + 4000);
+      try { window.speechSynthesis.speak(u); }
+      catch (e) { done(false); }
+    }
+    next();
   }
-  // Chrome 桌面端长文本约 15 秒会停，定时 resume 兜底
-  function startKeepAlive() {
-    stopKeepAlive();
-    keepAlive = setInterval(function () {
-      try {
-        if (!window.speechSynthesis.speaking) { stopKeepAlive(); return; }
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
-      } catch (e) { stopKeepAlive(); }
-    }, 10000);
-  }
-  function stopKeepAlive() { if (keepAlive) { clearInterval(keepAlive); keepAlive = 0; } }
   function stop() {
-    if (!HAS_TTS) return;
-    try { window.speechSynthesis.cancel(); } catch (e) {}
+    seq++;
+    if (HAS_TTS) { try { window.speechSynthesis.cancel(); } catch (e) {} }
     speakingFlag = false;
-    stopKeepAlive();
   }
   function isSpeaking() {
     if (!HAS_TTS) return false;
@@ -192,15 +271,17 @@
     var list = refreshVoices();
     var zh = zhVoices();
     var pool = zh.length ? zh : list;
+    // 按自然度排序：最像真人的排在前面
+    pool = pool.slice().sort(function (a, b) { return naturalScore(b) - naturalScore(a); });
     var html = '<option value="">跟随音色预设（推荐）</option>';
     for (var i = 0; i < pool.length; i++) {
       var v = pool[i];
       var label = String(v.name || '语音 ' + (i + 1)) + (v.lang ? '（' + v.lang + '）' : '');
+      if (isMaleVoice(v)) label += ' · 男声';
       html += '<option value="' + String(v.voiceURI || v.name).replace(/"/g, '&quot;') + '">' + label + '</option>';
     }
     elName.innerHTML = html;
     elName.value = cfg.voiceURI || '';
-    elName.disabled = false;
   }
   function paintSliders() {
     if (elRate) elRate.value = cfg.rate;
@@ -216,6 +297,7 @@
       cfg.preset = p.id;
       cfg.rate = p.rate;
       cfg.pitch = p.pitch;
+      cfg.v = CFG_VER;
       paintSliders();
       save();
     }, false);
@@ -244,7 +326,7 @@
     elTest.addEventListener('click', function () {
       if (isSpeaking()) { stop(); elTest.textContent = '试听这段声音'; return; }
       elTest.textContent = '停止试听';
-      speak('晚上好，我是星语。今天也辛苦了，慢慢说，我一直在听。（这句括号里的提示不会被朗读）', function (on) {
+      speak('晚上好，我是星语。今天辛苦了，慢慢说，我一直在听。不用急着把话说完整，想到哪儿说到哪儿就好。（这句括号里的提示不会被朗读）', function (on) {
         elTest.textContent = on ? '停止试听' : '试听这段声音';
       });
     }, false);
@@ -265,7 +347,7 @@
     voiceBox.style.display = 'none';
   }
 
-  // 声音暂停/恢复：页面隐藏时停掉朗读，避免后台一直念
+  // 页面隐藏时停掉朗读，避免后台一直念
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) stop();
   }, false);
@@ -276,6 +358,7 @@
     isSpeaking: isSpeaking,
     auto: function () { return !!cfg.auto; },
     clean: cleanForSpeech,
+    split: splitForSpeech,
     cfg: cfg
   };
 })();

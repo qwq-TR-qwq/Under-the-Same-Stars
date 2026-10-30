@@ -1262,7 +1262,7 @@
                   <label class="set-check"><input type="checkbox" id="aiEnabled" checked> 启用真实 AI 对话（未启用或接口不可用时，自动使用内置本地应答）</label>
                 </div>
                 <div class="set-row voice-box">
-                  <div class="set-label">星语的声音<small>默认为温柔女声，可自选音色、语速与音调</small></div>
+                  <div class="set-label">星语的声音<small>默认温柔女声，可选温润 / 低沉男声；优先使用系统里最自然的语音</small></div>
                   <div class="voice-grid">
                     <select class="set-select" id="voicePreset" aria-label="音色预设"></select>
                     <select class="set-select" id="voiceName" aria-label="系统语音"></select>
@@ -1270,20 +1270,20 @@
                   <div class="voice-sliders">
                     <label class="voice-slider" for="voiceRate">
                       <span>语速</span>
-                      <input type="range" id="voiceRate" min="0.7" max="1.3" step="0.02" value="0.92" aria-label="语速">
-                      <b id="voiceRateVal">0.92×</b>
+                      <input type="range" id="voiceRate" min="0.7" max="1.3" step="0.02" value="0.94" aria-label="语速">
+                      <b id="voiceRateVal">0.94×</b>
                     </label>
                     <label class="voice-slider" for="voicePitch">
                       <span>音调</span>
-                      <input type="range" id="voicePitch" min="0.7" max="1.4" step="0.02" value="1.06" aria-label="音调">
-                      <b id="voicePitchVal">1.06</b>
+                      <input type="range" id="voicePitch" min="0.7" max="1.4" step="0.02" value="1.00" aria-label="音调">
+                      <b id="voicePitchVal">1.00</b>
                     </label>
                   </div>
                   <div class="voice-foot">
                     <label class="set-check"><input type="checkbox" id="voiceAuto"> 每条回复自动朗读</label>
                     <button class="ui-close" id="voiceTest" type="button">试听这段声音</button>
                   </div>
-                  <p class="voice-note">朗读时会自动跳过括号里的注释、表情符号与链接；点回复下方的 🔊 即可听这一条。</p>
+                  <p class="voice-note">朗读会自动跳过括号注释、表情与链接，并按句分段、句间留白，尽量贴近真人说话；点回复下方的 🔊 可听单条。想换男声，在上方音色里选「温润男声」或「低沉男声」。</p>
                 </div>
                 <div class="set-actions">
                   <button class="ui-close" id="aiTest" type="button">测试连接</button>
