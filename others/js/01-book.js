@@ -137,7 +137,6 @@
   function startBgm(force){
     if(!musicOn) return;
     if(isStimLow()) return;                  // 低刺激模式：不主动起背景音乐
-    if(cur === 8 && !force) return;          // 自动场景下，B 站视频页（第9页）不启动背景音乐
     musicStarted = true;
     bgm.volume = bgmVol;
     bgm.currentTime = bgm.currentTime;
@@ -159,8 +158,8 @@
     if(musicOn){ startBgm(true); } else { stopBgm(); }
   }
   function ensureMusic(){
-    if(cur === 8){ stopBgm(); }              // 进入视频页暂停背景音乐
-    else if(musicOn && musicStarted){ bgm.volume = bgmVol; bgm.play().catch(function(){}); }
+    // 背景音乐全页通用（含视频页）：翻到任何一页都保持音乐不中断
+    if(musicOn && musicStarted){ bgm.volume = bgmVol; bgm.play().catch(function(){}); }
   }
   // 短片已外置为 videos/ 下独立 mp4 文件（减小 HTML 体积）：进入短片页尝试播放，离开时暂停（避免其他页出声）
   // 若主源加载失败（触发 error），降级尝试其他视频文件
