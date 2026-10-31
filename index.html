@@ -21,11 +21,12 @@
 <title>以星为灯 · 照亮来自星星的孩子</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FFD964' d='M12 2l2.4 6.2L21 10l-5.2 3.4L17 20l-5-3.4L7 20l1.2-6.6L3 10l6.6-1.8z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
 <link rel="preconnect" href="https://text.pollinations.ai" crossorigin>
 <link rel="dns-prefetch" href="https://api.deepseek.com">
 <link rel="dns-prefetch" href="https://open.bigmodel.cn">
 <link rel="dns-prefetch" href="https://dashscope.aliyuncs.com">
-<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -34,8 +35,13 @@
   <nav class="site-nav" id="siteNav">
     <div class="nav-toprow">
       <div class="site-brand" data-view="home" role="button" tabindex="0"><i></i>星夜入眠</div>
-      <button class="chat-fab-nav" id="navChatBtn" type="button">💬 星语对话</button>
-      <button class="nav-burger" id="navBurger" type="button" aria-label="打开菜单">☰</button>
+      <div class="nav-right">
+        <button class="low-stim-toggle" id="lowStimBtn" type="button" aria-pressed="false" title="低刺激模式：暂停动态效果、背景音乐与弹幕滚动">
+          <span aria-hidden="true">🌙</span><span class="ls-label">低刺激</span>
+        </button>
+        <button class="chat-fab-nav" id="navChatBtn" type="button">💬 星语对话</button>
+        <button class="nav-burger" id="navBurger" type="button" aria-label="打开菜单">☰</button>
+      </div>
     </div>
     <div class="site-links" id="siteLinks">
       <a data-view="home" class="on">首页</a>
@@ -264,35 +270,35 @@
       <h4>作品展廊</h4>
       <div class="site-cards art4">
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_03.webp" alt="遨游太空"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_03.webp" alt="遨游太空" width="673" height="500"></div>
           <div class="art-body"><b>遨游太空</b><p>一个孩子画下了火箭与漫天星星——他说，长大后要飞到太空去看看。</p><span class="star">儿童美术作品</span></div>
         </div>
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_04.webp" alt="江南好 · 忆江南"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_04.webp" alt="江南好 · 忆江南" width="900" height="1388"></div>
           <div class="art-body"><b>江南好 · 忆江南</b><p>诗配画《忆江南》：白墙黛瓦、一叶扁舟。孩子把古诗画成了江南的春天。</p><span class="star">供图：北京市海淀区特教中心</span></div>
         </div>
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_05.jpg" alt="我住的城市"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_05.jpg" alt="我住的城市" width="400" height="496"></div>
           <div class="art-body"><b>我住的城市</b><p>太阳、高楼与大树——9 岁男孩瑞瑞笔下的城市，明亮又热闹。</p><span class="star">9 岁自闭症孩子瑞瑞的作品</span></div>
         </div>
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_06.webp" alt="童话森林"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_06.webp" alt="童话森林" width="900" height="661"></div>
           <div class="art-body"><b>童话森林</b><p>大树、小狗与蘑菇——孩子画下一片温柔的小森林，邀请你来做客。</p><span class="star">CGTN 报道 · 自闭症儿童画作</span></div>
         </div>
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_07.webp" alt="斑斓的脸"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_07.webp" alt="斑斓的脸" width="650" height="500"></div>
           <div class="art-body"><b>斑斓的脸</b><p>无数种颜色的面孔挤在一起——他说，每个人都有自己的样子。</p><span class="star">儿童美术作品</span></div>
         </div>
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_08.webp" alt="彩色的表情"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_08.webp" alt="彩色的表情" width="1280" height="962"></div>
           <div class="art-body"><b>彩色的表情</b><p>夸张的五官与浓烈的颜色，是他表达情绪的方式。</p><span class="star">儿童美术作品</span></div>
         </div>
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_09.webp" alt="武汉加油"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_09.webp" alt="武汉加油" width="500" height="369"></div>
           <div class="art-body"><b>武汉加油</b><p>30 名自闭症小朋友致敬战疫英雄——他们同样懂爱、同样会感恩。</p><span class="star">今日头条公益报道作品</span></div>
         </div>
         <div class="site-c art-c">
-          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_10.jpg" alt="奇想生灵"></div>
+          <div class="art-pic"><img loading="lazy" decoding="async" src="images/asset_10.jpg" alt="奇想生灵" width="494" height="409"></div>
           <div class="art-body"><b>奇想生灵</b><p>鱼与龙的奇妙组合，星星落在画里——这是他最珍视的装裱作品。</p><span class="star">今日头条报道作品</span></div>
         </div>
       </div>
@@ -308,7 +314,7 @@
     </div>
     <div class="site-block">
       <div class="story-row">
-        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_11.jpg" alt="孩子眼中的世界·插画"></div>
+        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_11.jpg" alt="孩子眼中的世界·插画" width="800" height="600"></div>
         <div class="story-cols">
           <h4>孩子的视角 · 我眼里的世界</h4>
           <div class="story-quote"><span class="sq-txt">"商场里很吵，像有一千个喇叭同时响；灯光太亮，晃得我不敢睁眼。我想说"我害怕"，可话到嘴边就变成了不说话。妈妈的手很暖，可我一着急，连那只手都不敢去牵。"</span><span class="sq-tag">自闭症男孩 · 示例独白</span><span class="sq-who">隐私保护 · 插画示意</span></div>
@@ -318,7 +324,7 @@
     </div>
     <div class="site-block">
       <div class="story-row">
-        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_12.jpg" alt="家长与孩子的日常·插画"></div>
+        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_12.jpg" alt="家长与孩子的日常·插画" width="800" height="600"></div>
         <div class="story-cols">
           <h4>家长的手记 · 长跑中的光</h4>
           <div class="story-quote"><span class="sq-txt">"第一次带孩子去公园，他被喇叭声吓得蹲在角落，抱着头不肯起来。周围有人指指点点，我很难受，但后来我学会了：先稳住自己，才能稳住他。蹲下来陪他数完十颗星星，他慢慢就不怕了。"</span><span class="sq-tag">一位妈妈的日常 · 示例</span><span class="sq-who">隐私保护 · 插画示意</span></div>
@@ -328,7 +334,7 @@
     </div>
     <div class="site-block">
       <div class="story-row">
-        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_13.webp" alt="康复师陪伴·插画"></div>
+        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_13.webp" alt="康复师陪伴·插画" width="800" height="600"></div>
         <div class="story-cols">
           <h4>康复师视角 · 微小的进步</h4>
           <div class="story-quote"><span class="sq-txt">"干预的意义不是"变正常"，而是帮他们更自如地生活。有个孩子第一次主动牵起我的手，是在我们一起练习了 47 遍"打招呼"之后——他手心都是汗，却记得把我的手握得紧紧的。"</span><span class="sq-tag">特教康复师 · 示例</span><span class="sq-who">隐私保护 · 插画示意</span></div>
@@ -338,7 +344,7 @@
     </div>
     <div class="site-block">
       <div class="story-row">
-        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_14.webp" alt="星空画室·插画"></div>
+        <div class="story-illus"><img loading="lazy" decoding="async" src="images/asset_14.webp" alt="星空画室·插画" width="800" height="600"></div>
         <div class="story-cols">
           <h4>成长案例 · 他们也在融入世界</h4>
           <div class="story-quote"><span class="sq-txt">"小宇（化名）三岁确诊，不会对视、不会应答。从一次次"眼神练习"开始，到在便利店主动说"谢谢"，再到融合班级里有了第一个朋友。他依然与众不同，但世界开始接纳他的不同。"</span><span class="sq-tag">社区融合案例 · 示例</span><span class="sq-who">隐私保护 · 化名处理</span></div>
@@ -731,12 +737,12 @@
       <p>发现内容有误、有想补充的资源，或愿意与项目合作？告诉我们——你的每一条反馈都会让这片星空更亮。</p>
     </div>
     <div class="site-block">
-      <h4>运营数据看板</h4>
+      <h4>体验数据看板 <em class="dash-badge">本机演示 · 非全网统计</em></h4>
       <div class="site-data four">
-        <div class="sd"><b id="stVisits">0</b><span>本机访问次数</span><em>每次打开页面 +1</em></div>
-        <div class="sd"><b id="stMsgs">0</b><span>星光留言条数</span><em>来自互助社群留言墙</em></div>
-        <div class="sd"><b id="stVols">0</b><span>志愿者登记人次</span><em>来自公益参与登记</em></div>
-        <div class="sd"><b id="stLights">0</b><span>点亮祝福次数</span><em>来自留言墙"点亮一颗星"</em></div>
+        <div class="sd"><b id="stVisits">0</b><span>本机打开次数</span><em>只统计这台设备</em></div>
+        <div class="sd"><b id="stMsgs">0</b><span>本机留言条数</span><em>你在留言墙发布的内容</em></div>
+        <div class="sd"><b id="stVols">0</b><span>本机登记份数</span><em>你填写的公益参与登记</em></div>
+        <div class="sd"><b id="stLights">0</b><span>本机点亮次数</span><em>你在留言墙点亮的星</em></div>
       </div>
       <div class="site-dash-note">演示数据说明：以上数据仅存于你本机浏览器（localStorage），用于展示"可运营、可统计"的产品闭环；正式上线将接入服务端统计与数据看板。</div>
     </div>
@@ -966,9 +972,9 @@
             有人笔下的星空，永远有普通人画不出的绚烂颜色
           </p>
           <div class="mosaic">
-            <figure class="tile"><img loading="lazy" decoding="async" src="images/asset_15.webp" alt="孩子画的微笑星星"><figcaption>他画了一颗会笑的星星</figcaption></figure>
-            <figure class="tile"><img loading="lazy" decoding="async" src="images/asset_16.webp" alt="孩子画的小星球"><figcaption>她的小星球，有一扇亮着的窗</figcaption></figure>
-            <figure class="tile"><img loading="lazy" decoding="async" src="images/asset_17.webp" alt="孩子拼贴的星空"><figcaption>拼贴成满天的星光</figcaption></figure>
+            <figure class="tile"><img loading="lazy" decoding="async" src="images/asset_15.webp" alt="孩子画的微笑星星" width="1400" height="1400"><figcaption>他画了一颗会笑的星星</figcaption></figure>
+            <figure class="tile"><img loading="lazy" decoding="async" src="images/asset_16.webp" alt="孩子画的小星球" width="1400" height="1400"><figcaption>她的小星球，有一扇亮着的窗</figcaption></figure>
+            <figure class="tile"><img loading="lazy" decoding="async" src="images/asset_17.webp" alt="孩子拼贴的星空" width="1400" height="1400"><figcaption>拼贴成满天的星光</figcaption></figure>
           </div>
           <p class="gifts" style="margin-top:48px">
             就像你眼前这几幅小拼图里的画 ——<br>
@@ -1293,8 +1299,9 @@
                   <p class="voice-note">朗读会自动跳过括号注释、表情与链接，并按句分段、句间留白，尽量贴近真人说话；点回复下方的 🔊 可听单条。想换男声，在上方音色里选「温润男声」或「低沉男声」。</p>
                 </div>
                 <div class="set-actions">
-                  <button class="ui-close" id="aiTest" type="button">测试连接</button>
+                  <button class="ui-close" id="aiTest" type="button">链路诊断</button>
                   <button class="ui-close" id="aiSave" type="button">保存设置</button>
+                  <button class="ui-close" id="missExport" type="button" title="导出「星语没答上来的问题」清单（CSV），用于持续补充知识库">未命中清单 (0)</button>
                   <button class="ui-close" id="aiClear" type="button" style="background:rgba(255,120,90,.1); border-color:rgba(255,140,110,.4); color:#ffd0c2">清空对话记忆</button>
                 </div>
                 <div class="set-test-status" id="aiTestStatus"></div>
@@ -1339,14 +1346,56 @@
               <div class="fam-cats" id="famCats" role="tablist" aria-label="难题分类"></div>
               <div class="fam-list" id="famList" role="tabpanel"></div>
             </div>
+            <button class="fam-tool fam-tool-slim" id="famQuizOpen" type="button" title="5 道题快速定位当下最需要的支持">
+              <span aria-hidden="true">⏱</span> 不知道从哪看起？60 秒自评，帮你定位最急的问题
+            </button>
+            <button class="fam-tool" id="clinicOpen" type="button" title="整理观察记录，生成可打印的就诊准备单">
+              <span aria-hidden="true">🩺</span> 就医准备清单 · 5 分钟整理观察记录，打印带去儿保科
+            </button>
             <p class="fam-foot">内容依据 WHO、美国儿科学会、中国残联康复救助政策等公开资料整理，仅供家庭参考，不构成诊断或治疗建议；涉及自伤、走失、受虐待请立即就医或报警。</p>
+          </div>
+        </div>
+        <!-- 就医准备清单生成器（家属可打印带去医院） -->
+        <div class="ui-mask" id="clinicMask">
+          <div class="ui-panel clinic-panel">
+            <div class="ui-head">
+              <span class="quiz-flag">就医准备</span>
+              <div class="ui-title">就诊准备单 · 观察记录</div>
+              <button class="ui-close" id="clinicClose" type="button">‹ 返回</button>
+            </div>
+            <div class="clinic-body">
+              <div class="clinic-tip">下面是常见的早期信号与表现，勾选你观察到过的项目（可注明频率），再简单填基本信息。生成后用"打印 / 保存 PDF"，就诊时直接交给医生——医生看到结构化记录，沟通效率会高很多。</div>
+              <div class="clinic-grid">
+                <label class="cl-field"><span>孩子昵称</span><input id="clName" type="text" placeholder="如：小星星（可留空）" maxlength="20"></label>
+                <label class="cl-field"><span>月龄 / 年龄</span><input id="clAge" type="text" placeholder="如：2岁8个月" maxlength="20"></label>
+                <label class="cl-field"><span>观察时间段</span><input id="clSpan" type="text" placeholder="如：最近三个月 / 入园以来" maxlength="30"></label>
+              </div>
+              <div id="clChecks" class="cl-checks"></div>
+              <div class="cl-sec"><b>最担心的 3 件事</b><textarea id="clWorry" rows="2" placeholder="把最想先问医生的事写在这里，就诊时先说这几件"></textarea></div>
+              <div class="cl-sec"><b>已经试过的方法（可选）</b><textarea id="clTried" rows="2" placeholder="如：读了绘本引导、调整作息、幼儿园老师的做法……"></textarea></div>
+              <div class="cl-sec"><b>重要事件时间线（可选，最多 4 条）</b>
+                <div class="cl-tl">
+                  <input id="clTl0" type="text" placeholder="时间 + 事件，如：2026年7月 · 上幼儿园第一周，每天早上哭闹约1小时">
+                  <input id="clTl1" type="text" placeholder="时间 + 事件">
+                  <input id="clTl2" type="text" placeholder="时间 + 事件">
+                  <input id="clTl3" type="text" placeholder="时间 + 事件">
+                </div>
+              </div>
+            </div>
+            <div class="clinic-ops">
+              <button class="cl-btn primary" id="clMake" type="button">生成打印单</button>
+              <button class="cl-btn" id="clReset" type="button">清空勾选</button>
+              <span class="cl-note">所有内容仅保存在本机，不会上传</span>
+            </div>
           </div>
         </div>
 </section>
 <audio id="bgm" loop preload="auto" src="others/audio/bgm.mp3"></audio>
+<!-- 就诊准备单打印层（默认隐藏，生成后显示；打印时仅输出本层） -->
+<div id="clinicPrint" aria-hidden="true"></div>
   <div class="a11y-fab">
     <button id="a11yBtn" type="button">无障碍：标准</button>
-
+    <button class="low-stim-toggle" type="button" data-stim-text="1" aria-pressed="false">🌙 低刺激：关</button>
   </div>
   <!-- JS 模块化：按功能拆分为独立文件（详见 js/ 目录），按依赖顺序加载 -->
   <script src="others/js/00-boot.js"></script>
@@ -1360,6 +1409,11 @@
   <script src="others/js/08-policy.js"></script>
   <script src="others/js/09-voice.js"></script>
   <script src="others/js/10-family.js"></script>
+  <script src="others/js/11-stim.js"></script>
+  <script src="others/js/12-modal.js"></script>
+  <script src="others/js/13-clinic.js"></script>
+  <script src="others/js/14-safety.js"></script>
+  <script src="others/js/15-misslog.js"></script>
 
 <!-- 短片已外置为 videos/ 下独立 mp4 文件 -->
 </body>

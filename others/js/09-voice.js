@@ -191,12 +191,17 @@
   }
 
   // ---- 朗读 / 停止（分段合成 + 句间停顿，降低机械感） ----
+  // opts（可选）：
+  //   startSeg  从第几段开始读（点句跳读用）
+  //   onSeg(idx) 每开始读一段回调一次；-1 表示结束/停止（用于高亮当前句、清进度）
   var speakingFlag = false;
   var seq = 0;
   var activeCb = null;   // 当前这段朗读的状态回调，stop 时也要通知它，按钮才不会卡在“停止”态
+  var activeOpts = null; // 当前朗读的段回调配置
   var activeSrc = '';    // 朗读来源：chat（回复朗读）/ test（设置面板试听）
-  function speak(text, cb, src) {
+  function speak(text, cb, src, opts) {
     cb = typeof cb === 'function' ? cb : function () {};
+    opts = opts || {};
     if (!HAS_TTS) { cb(false); return; }
     var say = cleanForSpeech(text);
     if (!say) { cb(false); return; }
@@ -204,18 +209,24 @@
     if ((src || 'chat') === 'chat' && !inChatView()) { cb(false); return; }
     if (say.length > 1500) say = say.slice(0, 1500);
     // 打断上一段前，先让它把按钮状态复位
-    if (activeCb) { var prev = activeCb; activeCb = null; activeSrc = ''; try { prev(false); } catch (e) {} }
+    if (activeCb) { var prev = activeCb; activeCb = null; activeSrc = ''; activeOpts = null; try { prev(false); } catch (e) {} }
     var mySeq = ++seq;
     try { window.speechSynthesis.cancel(); } catch (e) {}
     var voice = resolveVoice();
     var parts = splitForSpeech(say);
     var i = 0;
+    if (typeof opts.startSeg === 'number' && opts.startSeg > 0 && opts.startSeg < parts.length) { i = opts.startSeg; }
     speakingFlag = true;
     activeCb = cb;
+    activeOpts = opts;
     activeSrc = src || 'chat';
+    function segNotify(idx) {
+      if (opts && typeof opts.onSeg === 'function') { try { opts.onSeg(idx); } catch (e) {} }
+    }
     function end(on) {
       var f = activeCb;
-      activeCb = null; activeSrc = '';
+      activeCb = null; activeSrc = ''; activeOpts = null;
+      segNotify(-1);
       if (f) { try { f(on); } catch (e) {} }
     }
     cb(true);
@@ -223,6 +234,7 @@
       if (mySeq !== seq) return;
       if (i >= parts.length) { speakingFlag = false; end(false); return; }
       var seg = parts[i++];
+      segNotify(i - 1);
       var u = new SpeechSynthesisUtterance(seg);
       if (voice) { u.voice = voice; u.lang = voice.lang || 'zh-CN'; } else { u.lang = 'zh-CN'; }
       u.rate = clamp(cfg.rate, 0.6, 1.6);
@@ -252,7 +264,9 @@
     speakingFlag = false;
     // 关键：主动打断时也要通知状态回调，否则按钮会一直停在“⏹ 停止朗读”
     var f = activeCb;
-    activeCb = null; activeSrc = '';
+    var o = activeOpts;
+    activeCb = null; activeSrc = ''; activeOpts = null;
+    if (o && typeof o.onSeg === 'function') { try { o.onSeg(-1); } catch (e) {} }
     if (f) { try { f(false); } catch (e) {} }
   }
   function isSpeaking() {

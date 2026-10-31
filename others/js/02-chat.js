@@ -465,7 +465,9 @@
     _replyExact = false;
     var t = String(text || '').replace(/[，。！？、,.!?~～…\s]/g, '');
     var tl = t.toLowerCase();
-    if(/自杀|想死|不想活|轻生|活不下去|结束生命|伤害自己|自残|了断|撑不下去/.test(tl)){
+    // 情绪安全阀：检测危机信号 → 先置顶安全卡片，再继续应答
+    var safetyHit = (window.__safety && window.__safety.check(text)) || '';
+    if(safetyHit === 'self'){
       return '听到你这么说，我真的很担心你。你现在的感受很重要，请不要独自承受——请立刻联系身边信任的人，或拨打 120 急救，也可以拨打全国心理援助热线 12356（24 小时）。专业的倾听与帮助一直都在，你值得被温柔接住。';
     }
     // 家长专区：自闭症家庭专项问答。命中即用，不进入通用关键词库，
@@ -531,6 +533,8 @@
       '我在呢，想说什么都可以，慢慢来。'
     ]);
     _replyUncovered = true;
+    // 数据驱动迭代：把本地知识库没接住的问题记进未命中日志（可在 AI 设置里导出 CSV）
+    if(window.__missLog){ window.__missLog.add(text); }
     return pickOne(FALLBACKS);
   }
 

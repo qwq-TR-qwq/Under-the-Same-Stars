@@ -405,4 +405,104 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && mask.classList.contains('open')) closeMask();
   }, false);
+
+  // ---------- 60 秒自评导航：不知道从哪看起时，5 题定位最急的问题 ----------
+  // 不做任何诊断，只做"阅读导航"：根据选择计分，推荐对应分类。
+  var quizBtn = document.getElementById('famQuizOpen');
+  if (quizBtn && catsEl && listEl) {
+    var QUIZ = [
+      { q: '你现在最想解决的是哪方面？', opts: [
+        { t: '刚拿到诊断 / 还在怀疑，心里很乱', w: { new: 3 } },
+        { t: '孩子的情绪和行为（崩溃、发脾气、刻板动作）', w: { behavior: 3 } },
+        { t: '说话、沟通、听不懂指令', w: { talk: 3 } },
+        { t: '吃睡、挑食、自理这些日常', w: { daily: 3 } },
+        { t: '上学、幼儿园、康复安排', w: { school: 3 } },
+        { t: '家长自己快撑不住了', w: { self: 3 } }
+      ]},
+      { q: '孩子现在多大了？', opts: [
+        { t: '0–3 岁', w: { new: 1, daily: 1 } },
+        { t: '4–6 岁', w: { school: 1, talk: 1 } },
+        { t: '7 岁及以上', w: { school: 2 } }
+      ]},
+      { q: '最近一个月，最让家里紧张的画面是？', opts: [
+        { t: '孩子频繁情绪崩溃，甚至有伤到自己的动作', w: { behavior: 2 } },
+        { t: '完全不开口 / 一教沟通就僵住', w: { talk: 2 } },
+        { t: '被幼儿园或学校反映"跟不上"、被投诉', w: { school: 2 } },
+        { t: '大人失眠、争执、情绪先失控', w: { self: 2 } }
+      ]},
+      { q: '目前的诊断情况是？', opts: [
+        { t: '刚确诊不久', w: { new: 2 } },
+        { t: '正在评估 / 还在怀疑', w: { new: 1, school: 1 } },
+        { t: '确诊较久，想找下一步方向', w: { school: 1, daily: 1 } }
+      ]},
+      { q: '你希望先得到什么？', opts: [
+        { t: '能马上上手的具体方法', w: { behavior: 1, talk: 1, daily: 1 } },
+        { t: '政策、补贴、康复资源怎么申请', w: { school: 1, new: 1 } },
+        { t: '家长自己的心态支持', w: { self: 2 } }
+      ]}
+    ];
+    var qi = -1;
+    var qw = {};
+    function catName(id) {
+      var cs = window.__familyTopics || [];
+      for (var i = 0; i < cs.length; i++) { if (cs[i].id === id) return cs[i].name; }
+      return id;
+    }
+    function quizHome() {
+      var html = '<div class="fq-home"><b>60 秒自评</b>'
+        + '<p>下面 5 道题帮你定位当下最需要的支持。这不是诊断，只是帮你选一个开始的地方。</p>'
+        + '<button type="button" class="fq-start">开始 ›</button></div>';
+      listEl.innerHTML = html;
+    }
+    function quizPaint() {
+      if (qi < 0) { quizHome(); return; }
+      if (qi >= QUIZ.length) { quizResult(); return; }
+      var cur = QUIZ[qi];
+      var html = '<div class="fq-card"><div class="fq-prog">' + (qi + 1) + ' / ' + QUIZ.length + '</div>'
+        + '<div class="fq-q">' + cur.q + '</div><div class="fq-opts">';
+      for (var i = 0; i < cur.opts.length; i++) {
+        html += '<button type="button" class="fq-opt" data-i="' + i + '">' + cur.opts[i].t + '</button>';
+      }
+      html += '</div><button type="button" class="fq-back">‹ 返回上一题</button></div>';
+      listEl.innerHTML = html;
+    }
+    function quizResult() {
+      var best = 'new', bestV = -1;
+      for (var k in qw) { if (qw[k] > bestV) { bestV = qw[k]; best = k; } }
+      var html = '<div class="fq-card"><div class="fq-prog">完成</div>'
+        + '<div class="fq-res">根据你的回答，建议先看 <b>【' + catName(best) + '】</b> 分类。</div>'
+        + '<p class="fq-note">如果当下有更急的事（比如孩子正在崩溃、自伤或有走失风险），请直接回到对话里描述情况，星语会优先给安全提示。</p>'
+        + '<button type="button" class="fq-go" data-cat="' + best + '">去看【' + catName(best) + '】 ›</button>'
+        + '<button type="button" class="fq-again">再测一次</button></div>';
+      listEl.innerHTML = html;
+    }
+    quizBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      qi = 0; qw = {};
+      quizPaint();
+    }, false);
+    listEl.addEventListener('click', function (e) {
+      var start = e.target.closest('.fq-start');
+      if (start) { qi = 0; qw = {}; quizPaint(); return; }
+      var opt = e.target.closest('.fq-opt');
+      if (opt) {
+        var cur = QUIZ[qi];
+        var w = cur.opts[parseInt(opt.getAttribute('data-i'), 10)].w;
+        for (var k in w) { qw[k] = (qw[k] || 0) + w[k]; }
+        qi++;
+        quizPaint();
+        return;
+      }
+      var back = e.target.closest('.fq-back');
+      if (back) { qi = Math.max(0, qi - 1); quizPaint(); return; }
+      var again = e.target.closest('.fq-again');
+      if (again) { qi = 0; qw = {}; quizPaint(); return; }
+      var go = e.target.closest('.fq-go');
+      if (go) {
+        var catId = go.getAttribute('data-cat');
+        var tab = catsEl.querySelector('[data-cat="' + catId + '"]');
+        if (tab) tab.click();   // 走既有分类切换逻辑，高亮与列表一起刷新
+      }
+    }, false);
+  }
 })();

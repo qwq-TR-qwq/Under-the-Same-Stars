@@ -2,6 +2,14 @@
 (function () {
   'use strict';
 
+  // ---- 低刺激模式：在渲染前就应用，避免首屏动画"闪一下"再静止 ----
+  // 状态只存在 <html class="stim-low">，其余模块直接查询类名即可，无需依赖加载顺序。
+  try {
+    if (localStorage.getItem('xyn_low_stim') === '1') {
+      document.documentElement.classList.add('stim-low');
+    }
+  } catch (e) {}
+
   // ---- 全局错误兜底：任何未捕获错误 / Promise 拒绝 → 友好提示，杜绝演示白屏 ----
   var errShown = 0;
   function toast(msg) {
@@ -29,4 +37,18 @@
       navigator.serviceWorker.register('others/sw.js').catch(function () {});
     });
   }
+
+  // ---- 离线就绪提示：断网时星语自动切换本地知识库，明确告诉用户"仍然能用" ----
+  // （答辩演示点：拔掉网线刷新页面，对话、科普、家长专区全部照常工作）
+  window.addEventListener('DOMContentLoaded', function () {
+    function offlineHint() {
+      var el = document.getElementById('siteToast');
+      if (!el) return;
+      el.textContent = '当前处于离线状态：星语已切换到本地知识库模式，科普与对话功能不受影响 ✦';
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 5000);
+    }
+    if (navigator.onLine === false) offlineHint();
+    else window.addEventListener('offline', offlineHint, false);
+  });
 })();

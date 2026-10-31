@@ -997,6 +997,22 @@ body.book-on{ overflow:hidden; }
   gap:6px;
 }
 .site-nav .nav-toprow{ display:flex; align-items:center; justify-content:space-between; width:100%; }
+.nav-right{ display:flex; align-items:center; gap:10px; flex:none; }
+/* 低刺激模式开关（全站感官友好） */
+.low-stim-toggle{
+  display:inline-flex; align-items:center; gap:5px; flex:none;
+  padding:8px 14px; border-radius:999px; cursor:pointer; white-space:nowrap;
+  font-size:14px; letter-spacing:1px; font-family:inherit;
+  color:#cfd9f5; background:rgba(18,23,52,.62);
+  border:1px solid rgba(255,217,100,.32);
+  transition:background .2s ease, color .2s ease, border-color .2s ease;
+}
+.low-stim-toggle:hover{ background:rgba(255,217,100,.16); color:#ffd964; }
+.low-stim-toggle.on{
+  background:linear-gradient(135deg,#ffd964,#ffb84d); color:#1a1f4a;
+  border-color:transparent; font-weight:700;
+  box-shadow:0 4px 16px rgba(255,217,100,.32);
+}
 .chat-fab-nav{
   display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:999px;
   font-size:15px; letter-spacing:2px; color:#1a1f4a; cursor:pointer;
@@ -1662,7 +1678,7 @@ body.a11y-lg .site-view h3, body.a11y-lg .site-view h4{ font-size:1.3em !importa
 .dash-intro{ font-size:14px; color:#9fb0e0; letter-spacing:1px; max-width:760px; margin:0 auto; text-align:center; line-height:1.9; }
 .story-row{ display:flex; gap:26px; align-items:center; flex-wrap:wrap; }
 .story-illus{ flex:0 0 240px; max-width:240px; }
-.story-illus img{ width:100%; border-radius:14px; border:1px solid rgba(255,255,255,.14); display:block; }
+.story-illus img{ width:100%; height:auto; border-radius:14px; border:1px solid rgba(255,255,255,.14); display:block; }
 .story-cols{ flex:1 1 320px; min-width:280px; }
 
 /* ===== 家长专区（自闭症家庭专项对话） ===== */
@@ -1737,3 +1753,238 @@ body.a11y-lg .site-view h3, body.a11y-lg .site-view h4{ font-size:1.3em !importa
   .fam-item{ padding:14px 16px; }
   .fam-q{ font-size:17px; }
 }
+
+/* ===== 低刺激模式（全站，可随时开关）=====
+ * 目标：为感官敏感人群（尤其自闭症谱系儿童与家长）提供"安静的版本"。
+ * 做法：把动画压到瞬时完成（保留最终帧，不会出现元素停在 opacity:0 的残缺态），
+ *       并显式关掉视差与滚动类动画。
+ */
+html.stim-low *,
+html.stim-low *::before,
+html.stim-low *::after{
+  animation-duration:.001s !important;
+  animation-delay:0s !important;
+  animation-iteration-count:1 !important;
+  transition-duration:.06s !important;
+  transition-delay:0s !important;
+}
+html.stim-low .book-bg,
+html.stim-low .hero-par{ transform:none !important; }
+html.stim-low .site-bg i.tw,
+html.stim-low .meteor{ animation:none !important; opacity:.4 !important; }
+html.stim-low .mw-dm{ animation:none !important; display:none !important; }
+html.stim-low .card,
+html.stim-low .fact,
+html.stim-low .stat,
+html.stim-low .tile,
+html.stim-low .item,
+html.stim-low .back{ transform:none !important; }
+.mw-stim-note{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  font-size:13.5px; letter-spacing:1px; color:#9fb0e0;
+  background:rgba(10,15,40,.6); border:1px solid rgba(255,255,255,.14);
+  border-radius:999px; padding:10px 20px; white-space:nowrap;
+}
+@media (max-width:640px){
+  .nav-right{ gap:6px; }
+  .low-stim-toggle{ padding:7px 10px; font-size:12px; letter-spacing:0; }
+  .low-stim-toggle .ls-label{ display:none; }
+  .mw-stim-note{ white-space:normal; width:86%; text-align:center; }
+}
+
+/* 数据看板口径徽标（诚实标注本机演示数据） */
+.dash-badge{
+  display:inline-block; vertical-align:2px; margin-left:10px;
+  font-style:normal; font-family:"Noto Sans SC",sans-serif;
+  font-size:12px; font-weight:400; letter-spacing:1px;
+  color:#9fb0e0; background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.16); border-radius:999px;
+  padding:3px 12px;
+}
+
+/* ===== 就医准备清单生成器 ===== */
+.fam-tool{
+  flex:none; margin-top:12px; display:flex; align-items:center; gap:8px;
+  width:100%; text-align:left; cursor:pointer; font-family:inherit;
+  font-size:14.5px; letter-spacing:1px; color:#ffd964;
+  background:rgba(255,217,100,.08); border:1px dashed rgba(255,217,100,.45);
+  border-radius:14px; padding:12px 18px; transition:background .2s ease;
+}
+.fam-tool:hover{ background:rgba(255,217,100,.16); }
+.clinic-panel{ width:78%; max-width:1200px; height:92%; max-height:1020px; }
+.clinic-body{ flex:1; overflow-y:auto; padding:18px 4px 10px; display:flex; flex-direction:column; gap:16px; }
+.clinic-tip{
+  font-size:13.5px; line-height:1.9; letter-spacing:.5px; color:#c9d3f2;
+  background:rgba(255,217,100,.07); border:1px solid rgba(255,217,100,.22);
+  border-radius:14px; padding:12px 18px;
+}
+.clinic-grid{ display:flex; gap:14px; flex-wrap:wrap; }
+.cl-field{ flex:1 1 220px; display:flex; flex-direction:column; gap:6px; }
+.cl-field span{ font-size:13px; letter-spacing:1px; color:#9fb0e0; }
+.cl-field input{
+  background:rgba(18,23,52,.6); border:1px solid rgba(255,255,255,.2); color:#fff;
+  border-radius:10px; padding:10px 14px; font-size:15px; font-family:inherit;
+}
+.cl-checks{ display:flex; flex-direction:column; gap:12px; }
+.cl-group b{ display:block; font-size:14.5px; letter-spacing:2px; color:#ffd964; margin-bottom:8px; }
+.cl-items{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px 18px; }
+.cl-item{
+  display:flex; align-items:center; gap:8px; font-size:14px; letter-spacing:.5px;
+  color:#e6ebff; background:rgba(18,23,52,.5); border:1px solid rgba(255,255,255,.1);
+  border-radius:10px; padding:8px 12px; cursor:pointer;
+}
+.cl-item:hover{ border-color:rgba(255,217,100,.4); }
+.cl-item input[type="checkbox"]{ width:16px; height:16px; accent-color:#ffd964; flex:none; }
+.cl-item select{
+  margin-left:auto; flex:none; background:rgba(5,8,28,.6); color:#c9d3f2;
+  border:1px solid rgba(255,255,255,.2); border-radius:8px; padding:3px 8px;
+  font-size:12.5px; font-family:inherit; cursor:pointer; visibility:hidden;
+}
+.cl-item.sel select{ visibility:visible; }
+.cl-sec b{ display:block; font-size:14.5px; letter-spacing:2px; color:#ffd964; margin-bottom:8px; }
+.cl-sec textarea{
+  width:100%; box-sizing:border-box; background:rgba(18,23,52,.6);
+  border:1px solid rgba(255,255,255,.2); color:#fff; border-radius:10px;
+  padding:10px 14px; font-size:14px; line-height:1.7; font-family:inherit; resize:vertical;
+}
+.cl-tl{ display:flex; flex-direction:column; gap:8px; }
+.cl-tl input{
+  background:rgba(18,23,52,.6); border:1px solid rgba(255,255,255,.2); color:#fff;
+  border-radius:10px; padding:10px 14px; font-size:14px; font-family:inherit;
+}
+.clinic-ops{ flex:none; display:flex; align-items:center; gap:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.1); }
+.cl-btn{
+  cursor:pointer; font-family:inherit; font-size:14.5px; letter-spacing:2px;
+  color:#e6ebff; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.24);
+  border-radius:999px; padding:10px 26px; transition:background .2s ease;
+}
+.cl-btn:hover{ background:rgba(255,255,255,.18); }
+.cl-btn.primary{
+  color:#1a1f4a; font-weight:700; background:linear-gradient(135deg,#ffd964,#ffb84d);
+  border-color:transparent; box-shadow:0 4px 18px rgba(255,217,100,.32);
+}
+.cl-note{ font-size:12.5px; letter-spacing:.5px; color:#8fa0d8; margin-left:auto; }
+
+/* 打印层：屏幕上不显示；生成后以白底预览 */
+#clinicPrint{ display:none; }
+#clinicPrint.show{
+  display:block; position:fixed; inset:0; z-index:100000; overflow-y:auto;
+  background:#fff; color:#111; padding:56px 20px 80px;
+}
+.cp-sheet{ max-width:800px; margin:0 auto; }
+.cp-ops{ max-width:800px; margin:0 auto 18px; display:flex; gap:10px; justify-content:flex-end; }
+.cp-ops button{
+  cursor:pointer; font-family:inherit; font-size:14px; letter-spacing:1px;
+  border-radius:999px; padding:9px 22px; border:1px solid #bbb; background:#fff; color:#333;
+}
+.cp-ops button.primary{ background:#1a1f4a; color:#fff; border-color:#1a1f4a; }
+.cp-sheet h1{ font-size:24px; text-align:center; letter-spacing:4px; margin:0 0 4px; }
+.cp-sub{ text-align:center; font-size:12.5px; color:#555; margin-bottom:16px; }
+.cp-meta{ display:flex; flex-wrap:wrap; gap:8px 26px; font-size:14px; border:1.5px solid #222; border-radius:10px; padding:12px 16px; margin-bottom:16px; }
+.cp-worry{ background:#fff8e1; border:1px solid #e0c878; border-radius:10px; padding:10px 14px; font-size:14px; margin-bottom:16px; }
+.cp-sec{ margin-bottom:16px; }
+.cp-sec h2{ font-size:15.5px; letter-spacing:2px; border-bottom:1.5px solid #222; padding-bottom:6px; margin:0 0 8px; }
+.cp-line{ display:flex; gap:8px; font-size:13.5px; line-height:1.9; }
+.cp-line i{ flex:none; font-style:normal; color:#666; }
+.cp-tl{ width:100%; border-collapse:collapse; font-size:13.5px; }
+.cp-tl th, .cp-tl td{ border:1px solid #444; padding:7px 10px; text-align:left; }
+.cp-tl th{ background:#f2f2f2; width:16%; }
+.cp-note-box{ border:1.5px dashed #888; border-radius:10px; padding:10px 14px; font-size:13px; line-height:1.9; color:#333; }
+.cp-foot{ margin-top:18px; font-size:11.5px; color:#777; line-height:1.8; text-align:center; }
+@media print{
+  body.print-clinic *{ visibility:hidden !important; }
+  #clinicPrint, #clinicPrint *{ visibility:visible !important; }
+  #clinicPrint{ display:block !important; position:absolute; left:0; top:0; width:100%; padding:0; overflow:visible; }
+  #clinicPrint .cp-ops{ display:none !important; }
+  .cp-sheet{ max-width:100%; }
+}
+@media (max-width:1180px){
+  .cl-items{ grid-template-columns:1fr; }
+  .clinic-panel{ width:94%; }
+}
+
+/* 60 秒自评导航（家长专区） */
+.fam-tool-slim{ margin-top:12px; font-size:13.5px; padding:10px 18px; }
+.fq-home, .fq-card{ display:flex; flex-direction:column; gap:12px; padding:8px 4px; }
+.fq-home b{ font-size:17px; letter-spacing:2px; color:#ffd964; }
+.fq-home p{ margin:0; font-size:13.5px; line-height:1.9; color:#c9d3f2; }
+.fq-start, .fq-again{
+  align-self:flex-start; cursor:pointer; font-family:inherit; font-size:14px;
+  letter-spacing:2px; color:#1a1f4a; font-weight:700;
+  background:linear-gradient(135deg,#ffd964,#ffb84d); border:none; border-radius:999px; padding:10px 28px;
+}
+.fq-again{ color:#e6ebff; background:rgba(255,255,255,.1); font-weight:400; }
+.fq-prog{ font-size:12px; letter-spacing:2px; color:#8fa0d8; }
+.fq-q{ font-size:16px; line-height:1.7; letter-spacing:.5px; color:#fff; }
+.fq-opts{ display:flex; flex-direction:column; gap:8px; }
+.fq-opt{
+  text-align:left; cursor:pointer; font-family:inherit; font-size:14.5px; line-height:1.6;
+  color:#e6ebff; background:rgba(18,23,52,.5); border:1px solid rgba(255,255,255,.12);
+  border-radius:12px; padding:12px 16px; transition:border-color .2s ease, background .2s ease;
+}
+.fq-opt:hover{ border-color:rgba(255,217,100,.55); background:rgba(255,217,100,.08); }
+.fq-back{ align-self:flex-start; background:none; border:none; color:#8fa0d8; font-family:inherit; font-size:13px; cursor:pointer; padding:0; letter-spacing:1px; }
+.fq-back:hover{ color:#c9d3f2; }
+.fq-res{ font-size:15.5px; line-height:1.8; color:#fff; letter-spacing:.5px; }
+.fq-res b{ color:#ffd964; }
+.fq-note{ margin:0; font-size:13px; line-height:1.9; color:#c9d3f2; }
+.fq-go{
+  align-self:flex-start; cursor:pointer; font-family:inherit; font-size:14px;
+  letter-spacing:2px; color:#1a1f4a; font-weight:700;
+  background:linear-gradient(135deg,#ffd964,#ffb84d); border:none; border-radius:999px; padding:10px 28px;
+}
+
+/* ===== 情绪安全阀卡片（危机信息前置） ===== */
+#safetyCard{ display:none; }
+#safetyCard.show{ display:block; position:fixed; inset:0; z-index:95000; background:rgba(5,8,28,.72); }
+.sf-card{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(520px, 92vw); box-sizing:border-box;
+  background:linear-gradient(180deg,#101640,#0b1030);
+  border:2px solid #ffd964; border-radius:22px; padding:28px 30px 24px;
+  box-shadow:0 30px 90px rgba(0,0,0,.6), 0 0 60px rgba(255,217,100,.18);
+}
+.sf-flag{
+  display:inline-block; font-size:12.5px; letter-spacing:2px; color:#1a1f4a; font-weight:700;
+  background:linear-gradient(135deg,#ffd964,#ffb84d); border-radius:999px; padding:4px 14px; margin-bottom:12px;
+}
+.sf-close{
+  position:absolute; top:14px; right:16px; width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25);
+  color:#cfd9f5; font-size:18px; cursor:pointer; line-height:1;
+}
+.sf-close:hover{ background:rgba(255,255,255,.2); color:#fff; }
+.sf-card h3{ margin:0 0 8px; font-size:21px; letter-spacing:2px; color:#ffd964; }
+.sf-desc{ margin:0 0 16px; font-size:14px; line-height:1.9; color:#c9d3f2; letter-spacing:.5px; }
+.sf-calls{ display:flex; gap:10px; flex-wrap:wrap; }
+.sf-call{
+  flex:1 1 140px; display:flex; flex-direction:column; gap:3px; text-decoration:none;
+  background:rgba(255,217,100,.1); border:1.5px solid rgba(255,217,100,.5);
+  border-radius:14px; padding:12px 14px; transition:background .2s ease;
+}
+.sf-call:hover{ background:rgba(255,217,100,.2); }
+.sf-call b{ font-size:22px; letter-spacing:1px; color:#ffd964; }
+.sf-call span{ font-size:13.5px; letter-spacing:1px; color:#fff; }
+.sf-call i{ font-style:normal; font-size:11.5px; color:#9fb0e0; }
+.sf-extra{ margin:14px 0 0; font-size:12.5px; line-height:1.9; color:#9fb0e0; letter-spacing:.5px; }
+@media (max-width:640px){
+  .sf-card{ padding:22px 18px 18px; }
+  .sf-call{ flex:1 1 100%; }
+}
+
+/* ===== 朗读逐句高亮 + 进度条（点句跳读） ===== */
+.tts-prog{
+  height:3px; border-radius:2px; background:rgba(255,255,255,.14);
+  margin:2px 0 8px; overflow:hidden; opacity:0; transition:opacity .2s ease;
+}
+.bubble.tts-on .tts-prog{ opacity:1; }
+.tts-prog i{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg,#ffd964,#ffb84d); transition:width .3s ease;
+}
+.tts-text .vs-seg{ transition:background .18s ease, color .18s ease; border-radius:4px; }
+.tts-text .vs-seg.on{
+  background:rgba(255,217,100,.28); color:#fff;
+  box-shadow:0 0 0 2px rgba(255,217,100,.18);
+}
+.bubble.tts-on .tts-text .vs-seg{ cursor:pointer; }

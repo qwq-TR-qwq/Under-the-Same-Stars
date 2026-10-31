@@ -1,3 +1,13 @@
+  // 低刺激模式：从 <html class="stim-low"> 读取唯一真相，任何模块随时可查
+  function isStimLow(){ return document.documentElement.classList.contains('stim-low'); }
+  function stimClearParallax(){
+    try{
+      var bp = document.querySelector('.book-bg'), hp = document.querySelector('.hero-par');
+      if(bp) bp.style.transform = '';
+      if(hp) hp.style.transform = '';
+    }catch(e){}
+  }
+
   // 对话页并入书框：保证对话框与科普站始终显示在“书”背景框内（手机端 fixed 会脱离书框）
   var bookEl = document.getElementById('book');
   var chatPageEl = document.querySelector('.chat-page');
@@ -90,6 +100,7 @@
   var tickCtx = null;
   function playTick(){
     if(!musicOn) return;   // 提示音与背景音乐同开关控制
+    if(isStimLow()) return; // 低刺激模式：不播放任何悬停音效
     try{
       if(!tickCtx) tickCtx = new (window.AudioContext || window.webkitAudioContext)();
       if(tickCtx.state === 'suspended') tickCtx.resume();
@@ -125,6 +136,7 @@
   }
   function startBgm(force){
     if(!musicOn) return;
+    if(isStimLow()) return;                  // 低刺激模式：不主动起背景音乐
     if(cur === 8 && !force) return;          // 自动场景下，B 站视频页（第9页）不启动背景音乐
     musicStarted = true;
     bgm.volume = bgmVol;
@@ -133,10 +145,15 @@
   }
   function stopBgm(){ try{ bgm.pause(); bgm.volume = 0; }catch(e){} }
   function syncMusicBtn(){
-    musicBtn.classList.toggle('off', !musicOn);
-    musicBtn.title = musicOn ? '关闭背景音乐' : '开启背景音乐';
+    musicBtn.classList.toggle('off', !musicOn || isStimLow());
+    musicBtn.title = isStimLow() ? '低刺激模式下背景音乐已关闭'
+                    : (musicOn ? '关闭背景音乐' : '开启背景音乐');
   }
   function toggleMusic(){
+    if(isStimLow()){
+      if(typeof siteToast === 'function'){ siteToast('低刺激模式已关闭背景音乐，需要音乐请先关闭低刺激模式 🌙'); }
+      return;
+    }
     musicOn = !musicOn;
     syncMusicBtn();
     if(musicOn){ startBgm(true); } else { stopBgm(); }
@@ -177,6 +194,7 @@
   var heroPar = document.querySelector('.hero-par');
   var parRAF = null;
   document.addEventListener('mousemove', function(e){
+    if(isStimLow()) return;   // 低刺激模式：关闭鼠标视差跟随
     var rx = (e.clientX / window.innerWidth) - 0.5;
     var ry = (e.clientY / window.innerHeight) - 0.5;
     if(parRAF) return;
@@ -204,6 +222,7 @@
   // 首次点击屏幕（非音乐控件）时解锁浏览器自动播放限制
   document.addEventListener('pointerdown', function(e){
     if(e.target && e.target.closest && e.target.closest('#musicBox')) return;
+    if(isStimLow()) return;   // 低刺激模式：不因用户首次点击就起音乐
     if(musicOn && !musicStarted){
       musicStarted = true;
       bgm.volume = bgmVol;
@@ -213,5 +232,20 @@
   // 页面加载时尝试直接播放（部分环境允许自动播放则直接响起）
   bgm.volume = bgmVol;
   paintVol();
-  bgm.play().catch(function(){});
+  syncMusicBtn();
+  if(!isStimLow()){ bgm.play().catch(function(){}); }
+
+  // ---- 低刺激开关联动：开启立即静音，关闭后按原开关状态恢复 ----
+  document.addEventListener('stim:change', function(e){
+    var on = e.detail && e.detail.on;
+    if(on){
+      stopBgm();
+      musicStarted = false;
+      stimClearParallax();
+      syncMusicBtn();
+    } else {
+      syncMusicBtn();
+      if(musicOn){ startBgm(true); }
+    }
+  }, false);
 

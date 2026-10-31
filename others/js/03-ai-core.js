@@ -256,10 +256,71 @@
       b.textContent = on ? '⏹' : '🔊';
       b.title = on ? '停止朗读' : '朗读这条回复';
     }
-    function play(){
+    // ---- 逐句高亮 + 点句跳读：把气泡文本重建为一句一个 span，读到哪句亮哪句 ----
+    var marked = false;
+    function segSpans(){ return bubble.querySelectorAll('.tts-text .vs-seg'); }
+    function markSegs(){
+      if(marked) return;
+      var host = bubble.querySelector('.txt');
+      var clean = V ? V.clean(text) : String(text || '').replace(/（[^（）]*）|\([^()]*\)/g, ' ');
+      var parts = V ? V.split(clean) : [clean];
+      if(!parts.length) return;
+      var span = document.createElement('span');
+      span.className = 'tts-text';
+      var prog = document.createElement('div');
+      prog.className = 'tts-prog';
+      prog.innerHTML = '<i></i>';
+      for(var j = 0; j < parts.length; j++){
+        var seg = document.createElement('span');
+        seg.className = 'vs-seg';
+        seg.setAttribute('data-i', String(j));
+        seg.title = '点击从这一句开始朗读';
+        seg.textContent = parts[j];
+        (function(idx){
+          seg.addEventListener('click', function(e){
+            e.stopPropagation();
+            if(V){ play(idx); }
+          }, false);
+        })(j);
+        span.appendChild(seg);
+      }
+      if(host){
+        host.textContent = '';
+        host.appendChild(prog);
+        host.appendChild(span);
+        marked = true;
+      } else {
+        // 流式气泡没有 .txt：替换第一个非空文本节点
+        for(var k = 0; k < bubble.childNodes.length; k++){
+          var n = bubble.childNodes[k];
+          if(n.nodeType === 3 && n.textContent.replace(/\s/g, '')){
+            bubble.replaceChild(span, n);
+            bubble.insertBefore(prog, span);
+            marked = true;
+            break;
+          }
+        }
+      }
+    }
+    function highlight(idx){
+      var spans = segSpans();
+      for(var i = 0; i < spans.length; i++){ spans[i].classList.toggle('on', i === idx); }
+      var bar = bubble.querySelector('.tts-prog i');
+      if(bar){
+        if(idx < 0){ bar.style.width = '0%'; bubble.classList.remove('tts-on'); }
+        else {
+          bar.style.width = Math.round((idx + 1) / Math.max(spans.length, 1) * 100) + '%';
+          bubble.classList.add('tts-on');
+        }
+      }
+    }
+    function play(startIdx){
       if(V){
-        if(V.isSpeaking()){ V.stop(); paint(false); return; }
-        V.speak(text, paint);
+        if(V.isSpeaking() && typeof startIdx !== 'number'){ V.stop(); paint(false); return; }
+        markSegs();
+        var opts = { onSeg: highlight };
+        if(typeof startIdx === 'number') opts.startSeg = startIdx;
+        V.speak(text, paint, 'chat', opts);
         return;
       }
       try{
@@ -314,7 +375,7 @@
     saveHistory();
     _lastUserText = text;
     // AI 安全兜底：危机干预优先于一切常规回复
-    if(isCrisis(text) && !imageDataUrl){
+    if(window.__safety && window.__safety.check(text) === 'self' && !imageDataUrl){
       finishReply(think, CRISIS_REPLY, '');
       return;
     }

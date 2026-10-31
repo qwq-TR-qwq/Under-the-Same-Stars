@@ -103,18 +103,20 @@
   aiTestBtn.addEventListener('click', function(e){
     e.stopPropagation();
     var msgs = [{ role: 'system', content: '你是一个连接测试助手，请只回复两个字：在线' }, { role: 'user', content: '在吗' }];
-    aiTestStatus.textContent = '正在测试连接…';
-    aiTestStatus.className = 'set-test-status';
+    // 链路诊断：显性展示四级兜底（本地知识库 → 免费接口 → 后端中转 → 自填 Key）里的当前层级
+    var pname = AI_PROVIDERS[aiProviderEl.value] ? AI_PROVIDERS[aiProviderEl.value].name : '当前服务商';
     aiCfg.provider = aiProviderEl.value;
     aiCfg.apiKey = aiKeyEl.value.replace(/^\s+|\s+$/g, '');
     aiCfg.model = aiModelEl.value.replace(/^\s+|\s+$/g, '');
     aiCfg.endpoint = aiEndpointEl.value.replace(/^\s+|\s+$/g, '');
     aiCfg.enabled = aiEnabledEl.checked;
+    aiTestStatus.textContent = '① 本地知识库：✓ 就绪（未联网也能答）… 正在检测 ② ' + pname + ' …';
+    aiTestStatus.className = 'set-test-status';
     callAI(msgs, function(reply){
-      aiTestStatus.textContent = '✓ 连接成功：' + reply.slice(0, 60);
+      aiTestStatus.textContent = '✓ 链路诊断通过：本地知识库 ✓ → ' + pname + ' ✓ 在线应答已就绪（回复：' + reply.slice(0, 30) + '）';
       aiTestStatus.className = 'set-test-status ok';
     }, function(err){
-      aiTestStatus.textContent = '✗ 连接失败：' + (err && err.message ? err.message : '网络异常');
+      aiTestStatus.textContent = '△ ' + pname + ' 暂不可用（' + (err && err.message ? err.message : '网络异常') + '）。星语会自动降级到本地知识库继续应答——功能完整，只是知识面窄一些；也可换一个服务商或填入 API Key 重试。';
       aiTestStatus.className = 'set-test-status err';
     });
   }, false);

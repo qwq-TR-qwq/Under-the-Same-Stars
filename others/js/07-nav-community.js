@@ -165,6 +165,7 @@ function mwRender(){
   window._mwTimer = setInterval(function(){
     var st = document.getElementById('mwStage');
     if(!st) return;
+    if(document.documentElement.classList.contains('stim-low')) return;   // 低刺激模式：暂停弹幕滚动
     var r = st.getBoundingClientRect();
     if(r.width === 0 && r.height === 0) return;
     var item = pool[pi % pool.length]; pi++;
@@ -186,7 +187,7 @@ if(mwSend){
     mwRender();
     // 自己的留言：立即以金色高亮弹幕划出
     var stage = document.getElementById('mwStage');
-    if(stage){
+    if(stage && !document.documentElement.classList.contains('stim-low')){
       var el = document.createElement('div');
       el.className = 'mw-dm mine';
       var now2 = Date.now();
