@@ -502,31 +502,6 @@ function replyFor(text) {
 - 分享传播：补齐 Open Graph / Twitter Card 元信息与 1200×675 分享封面图
 - 预连接：AI 接口域名 preconnect / dns-prefetch，降低首字延迟
 - 资源瘦身：15 张大图转 WebP（2805KB → 2047KB），images 目录 6.7MB → 5MB</p>
-<p><strong>v12.3（10/31，当前版本：BGM 全页通用 + Pages 上线）</strong>
-- 背景音乐全页通用：移除视频页自动静音特殊处理，翻页全程音乐不中断
-- GitHub Pages 在线演示上线：https://qwq-tr-qwq.github.io/Under-the-Same-Stars/ ；SW 缓存 v15</p>
-<p><strong>v12.2（10/31：显示修复与动画豁免）</strong>
-- 修复绘本第六页拼图拉伸（<code>.tile img</code> 补 <code>height:auto</code>，防 HTML 固有 height 属性压过 aspect-ratio）
-- 低刺激模式豁免换页叙事动画：页面过渡、封面入眠动画、星光补齐 glow 恢复原时长</p>
-<p><strong>v12.1（10/31：常见问题本地应答全覆盖）</strong>
-- REPLY_BANK 话题键 122 → 145 组，新增 23 类高频问题专属答复；修复中文自由语序漏覆盖（「威胁殴打」「意义都没有」）</p>
-<p><strong>v12.0（10/31：无障碍与家庭支持六件套）</strong>
-- 新增 5 个模块：全站低刺激模式（11-stim）、浮层焦点统一接管（12-modal）、就医准备清单生成器（13-clinic）、情绪安全阀（14-safety）、未命中问题日志（15-misslog）
-- 语音逐句高亮 + 点句跳读（09-voice 分段回调 + 03-ai-core 气泡重建）；数据看板改诚实口径（本机演示徽标）；图片补固有宽高防 CLS
-- 详见 5.7 节</p>
-<p><strong>v11.5–v11.9（10/29–10/31：TTS 声线系统与家长专区）</strong>
-- TTS 个性化：默认温柔女声、6 种音色预设（含温润/低沉男声）、神经语音优先、按句分段留白的真人感朗读；离开对话页即停止朗读
-- 家长专区（<code>10-family.js</code>）：6 大类 24 题自闭症家属循证应答；四层关键词体系扩至 943 词（高置信 138 / 核心 448 / 辅助 304 / 排除 53），排除词仅在无高置信命中时生效防误伤</p>
-<p><strong>v11.4（10/29：政策页省市二级 + 搜索记忆）</strong>
-- 地区选择精确到市：31 省级行政区 + 333 个地级行政区省市二级联动
-- 排序规则改为拼音首字母 A–Z，直辖市单独成组并置于第一组，快捷芯片第一排固定直辖市
-- 新增地区搜索（实时建议、键盘操作）与最近 5 条搜索记录（去重置顶、可清除）
-- 官方入口链接文字改为金黄色，未收录的市级门户给出明确提示而非猜测链接
-- 市级政府门户逐条探测核验，收录 244 个城市，排除同音城市误配</p>
-<p><strong>v11.3（10/29，政策模块初版）</strong>
-- 政策与救助板块重构为「地区选择 → 三步办理路径 → 官方入口 → 全国通用政策」四段式
-- 新增 31 省官方入口联动（省残联 / 省政府门户 / 12345），60+ 链接逐条核验；<code>others/js/08-policy.js</code> 独立模块承载数据与渲染
-- localStorage 记忆上次选择；select / 芯片 / aria-live 全套无障碍支持</p>
 <p><strong>v11.2（10/25，HTML 0.07MB + CSS 91KB + JS 8 模块）</strong>
 - <strong>视口修复</strong>：<code>width=1280</code> → <code>device-width</code>，激活全部移动端断点（此前手机端只是"缩小的桌面版"）
 - <strong>无障碍</strong>：导航链接 / 品牌区补 <code>role="button"</code> + <code>tabindex="0"</code>；focus-visible 金色焦点环；图标按钮补 aria-label
@@ -535,6 +510,31 @@ function replyFor(text) {
 - <strong>密钥安全升级</strong>：新增 others/serverless/ 后端中转代理（Vercel Functions + Cloudflare Workers 双版本，SSE 流式直通）与 others/.env.example 模板；AI 设置面板新增「后端中转」服务商
 - <strong>PWA</strong>：新增 manifest.json + Service Worker（静态资源缓存优先、HTML 网络优先）；最终目录规范下归档于 others/
 - <strong>稳定兜底</strong>：全局错误兜底 toast（未捕获异常 / Promise 拒绝 → 友好提示），杜绝演示白屏</p>
+<p><strong>v11.3（10/29，政策模块初版）</strong>
+- 政策与救助板块重构为「地区选择 → 三步办理路径 → 官方入口 → 全国通用政策」四段式
+- 新增 31 省官方入口联动（省残联 / 省政府门户 / 12345），60+ 链接逐条核验；<code>others/js/08-policy.js</code> 独立模块承载数据与渲染
+- localStorage 记忆上次选择；select / 芯片 / aria-live 全套无障碍支持</p>
+<p><strong>v11.4（10/29：政策页省市二级 + 搜索记忆）</strong>
+- 地区选择精确到市：31 省级行政区 + 333 个地级行政区省市二级联动
+- 排序规则改为拼音首字母 A–Z，直辖市单独成组并置于第一组，快捷芯片第一排固定直辖市
+- 新增地区搜索（实时建议、键盘操作）与最近 5 条搜索记录（去重置顶、可清除）
+- 官方入口链接文字改为金黄色，未收录的市级门户给出明确提示而非猜测链接
+- 市级政府门户逐条探测核验，收录 244 个城市，排除同音城市误配</p>
+<p><strong>v11.5–v11.9（10/29–10/31：TTS 声线系统与家长专区）</strong>
+- TTS 个性化：默认温柔女声、6 种音色预设（含温润/低沉男声）、神经语音优先、按句分段留白的真人感朗读；离开对话页即停止朗读
+- 家长专区（<code>10-family.js</code>）：6 大类 24 题自闭症家属循证应答；四层关键词体系扩至 943 词（高置信 138 / 核心 448 / 辅助 304 / 排除 53），排除词仅在无高置信命中时生效防误伤</p>
+<p><strong>v12.0（10/31：无障碍与家庭支持六件套）</strong>
+- 新增 5 个模块：全站低刺激模式（11-stim）、浮层焦点统一接管（12-modal）、就医准备清单生成器（13-clinic）、情绪安全阀（14-safety）、未命中问题日志（15-misslog）
+- 语音逐句高亮 + 点句跳读（09-voice 分段回调 + 03-ai-core 气泡重建）；数据看板改诚实口径（本机演示徽标）；图片补固有宽高防 CLS
+- 详见 5.7 节</p>
+<p><strong>v12.1（10/31：常见问题本地应答全覆盖）</strong>
+- REPLY_BANK 话题键 122 → 145 组，新增 23 类高频问题专属答复；修复中文自由语序漏覆盖（「威胁殴打」「意义都没有」）</p>
+<p><strong>v12.2（10/31：显示修复与动画豁免）</strong>
+- 修复绘本第六页拼图拉伸（<code>.tile img</code> 补 <code>height:auto</code>，防 HTML 固有 height 属性压过 aspect-ratio）
+- 低刺激模式豁免换页叙事动画：页面过渡、封面入眠动画、星光补齐 glow 恢复原时长</p>
+<p><strong>v12.3（10/31，当前版本：BGM 全页通用 + Pages 上线）</strong>
+- 背景音乐全页通用：移除视频页自动静音特殊处理，翻页全程音乐不中断
+- GitHub Pages 在线演示上线：https://qwq-tr-qwq.github.io/Under-the-Same-Stars/ ；SW 缓存 v15</p>
 <h3>6.2 测试覆盖</h3>
 <ul>
 <li>✅ PC 端 Chrome / Edge 主流分辨率</li>
