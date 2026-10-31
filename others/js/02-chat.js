@@ -23,6 +23,8 @@
     if(!text) return text;
     // 自杀/紧急情况不追加引导
     if(/120|12356|急救|立刻联系/.test(text)) return text;
+    // 家长专区专项答案自带收尾追问，不再叠随机引导
+    if(_replyExact) return text;
     return text + FOLLOWUPS[Math.floor(Math.random()*FOLLOWUPS.length)];
   }
           var REPLY_BANK = [
@@ -457,12 +459,20 @@
     '你刚才说的，我在认真听。除了这些，还有别的想和我聊的吗？'
   ];
   var _replyUncovered = false;   // 本地应答是否"没覆盖到这个问题"（03 据此在末尾提示接入大模型）
+  var _replyExact = false;       // 是否命中专项精确答案（家长专区等），命中后不再追加随机引导
   function replyFor(text){
     _replyUncovered = false;
+    _replyExact = false;
     var t = String(text || '').replace(/[，。！？、,.!?~～…\s]/g, '');
     var tl = t.toLowerCase();
     if(/自杀|想死|不想活|轻生|活不下去|结束生命|伤害自己|自残|了断|撑不下去/.test(tl)){
       return '听到你这么说，我真的很担心你。你现在的感受很重要，请不要独自承受——请立刻联系身边信任的人，或拨打 120 急救，也可以拨打全国心理援助热线 12356（24 小时）。专业的倾听与帮助一直都在，你值得被温柔接住。';
+    }
+    // 家长专区：自闭症家庭专项问答。命中即用，不进入通用关键词库，
+    // 避免"孩子不说话""快撑不住了"这类家长话被泛心理答案稀释掉。
+    if(typeof window.__familyAnswer === 'function'){
+      var famAns = window.__familyAnswer(text);
+      if(famAns){ _replyExact = true; return famAns; }
     }
     // 左侧科普站话题：直接返回专门回答，不走关键词匹配
     var TOPIC_REPLIES = {

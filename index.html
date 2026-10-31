@@ -1203,6 +1203,13 @@
               </div>
 <button class="chat-exit" id="chatExit" type="button">‹ 返回</button>
             </div>
+            <button class="family-strip" id="familyOpen" type="button" title="打开家长专区：自闭症家庭常见难题">
+              <span class="fs-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="2.6"/><circle cx="16.6" cy="9.4" r="2.1"/><path d="M3.8 18.6c0-2.9 2.3-5.2 5.2-5.2s5.2 2.3 5.2 5.2"/><path d="M15.2 13.8c2.3.2 4 2.1 4 4.4"/></svg>
+              </span>
+              <span class="fs-main"><b>家长专区</b><i>确诊适应 · 情绪行为 · 沟通 · 上学康复 · 照顾自己</i></span>
+              <span class="fs-arrow" aria-hidden="true">›</span>
+            </button>
             <div class="chat-msgs" id="chatMsgs"></div>
             <div class="chat-inputbar">
               <button class="chat-mic" id="chatPic" type="button" title="发送图片，让星语看图解读" aria-label="发送图片，让星语看图解读">📷</button>
@@ -1320,6 +1327,21 @@
             </div>
           </div>
         </div>
+      <!-- 家长专区（自闭症家庭专项对话） -->
+        <div class="ui-mask" id="familyMask">
+          <div class="ui-panel fam-panel">
+            <div class="ui-head">
+              <span class="quiz-flag">家长专区</span>
+              <div class="ui-title">自闭症家庭 · 常见难题</div>
+              <button class="ui-close" id="familyClose" type="button">‹ 返回对话</button>
+            </div>
+            <div class="fam-body">
+              <div class="fam-cats" id="famCats" role="tablist" aria-label="难题分类"></div>
+              <div class="fam-list" id="famList" role="tabpanel"></div>
+            </div>
+            <p class="fam-foot">内容依据 WHO、美国儿科学会、中国残联康复救助政策等公开资料整理，仅供家庭参考，不构成诊断或治疗建议；涉及自伤、走失、受虐待请立即就医或报警。</p>
+          </div>
+        </div>
 </section>
 <audio id="bgm" loop preload="auto" src="others/audio/bgm.mp3"></audio>
   <div class="a11y-fab">
@@ -1337,6 +1359,7 @@
   <script src="others/js/07-nav-community.js"></script>
   <script src="others/js/08-policy.js"></script>
   <script src="others/js/09-voice.js"></script>
+  <script src="others/js/10-family.js"></script>
 
 <!-- 短片已外置为 videos/ 下独立 mp4 文件 -->
 </body>

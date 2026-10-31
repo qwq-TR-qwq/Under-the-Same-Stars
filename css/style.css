@@ -1664,3 +1664,76 @@ body.a11y-lg .site-view h3, body.a11y-lg .site-view h4{ font-size:1.3em !importa
 .story-illus{ flex:0 0 240px; max-width:240px; }
 .story-illus img{ width:100%; border-radius:14px; border:1px solid rgba(255,255,255,.14); display:block; }
 .story-cols{ flex:1 1 320px; min-width:280px; }
+
+/* ===== 家长专区（自闭症家庭专项对话） ===== */
+.family-strip{
+  flex:none; display:flex; align-items:center; gap:16px;
+  width:calc(100% - 68px); margin:16px 34px 0; padding:14px 22px;
+  border-radius:16px; font-family:inherit; text-align:left; cursor:pointer;
+  background:linear-gradient(100deg, rgba(255,217,100,.15), rgba(255,217,100,.04));
+  border:1px solid rgba(255,217,100,.38); color:var(--cream);
+  transition:border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.family-strip:hover{ transform:translateY(-2px); border-color:rgba(255,217,100,.7); box-shadow:0 14px 34px rgba(0,0,0,.32); }
+.family-strip:focus-visible{ outline:3px solid var(--star); outline-offset:3px; }
+.fs-ico{
+  flex:none; width:44px; height:44px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,217,100,.16); border:1px solid rgba(255,217,100,.45); color:var(--star);
+}
+.fs-ico svg{ width:25px; height:25px; }
+.fs-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.fs-main b{ font-size:20px; font-weight:500; letter-spacing:2px; color:var(--cream); }
+.fs-main i{ font-size:14px; font-style:normal; letter-spacing:1px; color:#9fb0e0; }
+.fs-arrow{ flex:none; font-size:28px; line-height:1; color:var(--star); }
+
+.fam-panel{ width:76%; max-width:1240px; height:auto; min-height:0; }
+.fam-body{ flex:1; min-height:0; display:flex; gap:26px; padding:22px 0 6px; }
+.fam-cats{ flex:none; width:236px; display:flex; flex-direction:column; gap:10px; }
+.fam-cat{
+  display:flex; flex-direction:column; gap:4px; text-align:left; cursor:pointer;
+  font-family:inherit; padding:13px 18px; border-radius:14px;
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+  color:#dce4fa; transition:all .22s ease;
+}
+.fam-cat b{ font-size:19px; font-weight:500; letter-spacing:2px; }
+.fam-cat i{ font-size:13px; font-style:normal; letter-spacing:1px; color:#8fa0d8; }
+.fam-cat:hover{ border-color:rgba(255,217,100,.5); background:rgba(255,217,100,.08); }
+.fam-cat.on{ background:rgba(255,217,100,.16); border-color:rgba(255,217,100,.65); }
+.fam-cat.on b{ color:var(--star); }
+.fam-cat.on i{ color:#e6d3a4; }
+.fam-cat:focus-visible{ outline:3px solid var(--star); outline-offset:2px; }
+.fam-list{
+  flex:1; min-width:0; overflow-y:auto; display:flex; flex-direction:column; gap:14px;
+  padding-right:8px; scrollbar-width:thin; scrollbar-color:rgba(255,217,100,.35) transparent;
+}
+.fam-list::-webkit-scrollbar{ width:6px; }
+.fam-list::-webkit-scrollbar-thumb{ background:rgba(255,217,100,.35); border-radius:3px; }
+.fam-item{
+  display:flex; align-items:center; gap:18px; text-align:left; cursor:pointer;
+  font-family:inherit; padding:20px 24px; border-radius:16px;
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.13);
+  color:#eef3ff; transition:all .22s ease;
+}
+.fam-item:hover{ background:rgba(255,217,100,.1); border-color:rgba(255,217,100,.55); transform:translateX(4px); }
+.fam-item:focus-visible{ outline:3px solid var(--star); outline-offset:2px; }
+.fam-q{ flex:1; min-width:0; font-size:19px; font-weight:300; line-height:1.65; letter-spacing:1px; }
+.fam-go{ flex:none; font-size:15px; letter-spacing:1px; color:#ffd964; }
+.fam-foot{
+  flex:none; margin:8px 0 0; font-size:12.5px; line-height:1.8; letter-spacing:.5px;
+  color:#8fa0d8; border-top:1px solid rgba(255,255,255,.1); padding-top:14px;
+}
+@media (max-width:1440px){
+  .fam-panel{ width:88%; }
+  .fam-cats{ width:200px; }
+}
+@media (max-width:1180px){
+  .family-strip{ width:calc(100% - 40px); margin:12px 20px 0; padding:12px 16px; gap:12px; }
+  .fs-main i{ display:none; }
+  .fam-body{ flex-direction:column; gap:16px; }
+  .fam-cats{ width:100%; flex-direction:row; flex-wrap:wrap; }
+  .fam-cat{ flex:1 1 140px; padding:10px 14px; }
+  .fam-cat i{ display:none; }
+  .fam-item{ padding:14px 16px; }
+  .fam-q{ font-size:17px; }
+}
