@@ -27,7 +27,7 @@ strong{color:#1f2430}
 <h1>星夜入眠 —— 关爱自闭症儿童公益科普网站技术文档</h1>
 <p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛
 <strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统
-<strong>版本</strong>：v12.3（正式参赛版）</p>
+<strong>版本</strong>：v12.4（正式参赛版）</p>
 <hr />
 <h2>目录</h2>
 <ol>
@@ -419,21 +419,23 @@ function replyFor(text) {
 <p><strong>链接治理（重要）</strong>
 - 省级：31 个省级残联域名逐条比对官方来源 + HTTP 实测，修正上海（新站 shdpf.org.cn）、陕西（仅 http）、新疆（www 前缀）等问题
 - 市级：337 个地级行政区逐一探测「全拼 / 首字母缩写 + <code>www.{x}.gov.cn</code>」候选域名，<strong>只收录标题中同时出现城市名与"政府"字样的站点</strong>（共 244 个），据此排除了 <code>ts.gov.cn</code>（实为泰顺县）、<code>suzhou.gov.cn</code>（苏州市，非宿州）等同名误配；未收录的城市不展示猜测链接，改为提示通过省残联或 12345 获取本地信息</p>
-<h3>5.7 无障碍与低刺激（v12.0）</h3>
+<h3>5.7 偏好设置与无障碍（v12.0，v12.4 扩展）</h3>
 <ul>
-<li>大字模式：真实字体放大（不只调行距），不破坏排版</li>
+<li>大字模式：真实字体放大（不只调行距），不破坏排版（v12.4 起并入设置面板并可持久化）</li>
 <li>心理量表题目字体 36px、选项 25px，保证可读性</li>
-<li><strong>全站低刺激模式</strong>（<code>11-stim.js</code>）：状态唯一真相是 <code>&lt;html class="stim-low"&gt;</code>，<code>00-boot.js</code> 在渲染前从 localStorage 预应用（首屏不闪动画）；开启时 CSS 将全部动画压到瞬时完成（<code>animation-duration:.001s</code>，保留最终帧避免元素停在透明态），并显式关闭鼠标视差、弹幕滚动；JS 侧监听 <code>stim:change</code> 自定义事件实现"开启即静音 BGM、关闭按原状态恢复"</li>
-<li><strong>浮层焦点统一接管</strong>（<code>12-modal.js</code>）：零侵入设计——MutationObserver 监听 6 个浮层 class 的 open/on 切换，自动完成焦点移入、Tab 循环锁定（首尾环绕）、ESC 关闭（点各浮层自己的关闭按钮保证业务状态一致）、焦点归还触发元素、body 滚动锁定；不修改任何业务模块的开关函数</li>
+<li><strong>偏好设置中心</strong>（<code>11-settings.js</code>，v12.4）：顶栏 + 右下角双入口「⚙ 设置」浮层，统一管理四项个性化调整——主题外观（深色·星夜 / 浅色·日光）、网页动态效果（开启全部动效 / 减少动效，快捷键 Shift+L）、字号大小（标准 / 大字）、背景音乐（与书页音乐按钮双向同步）；全部状态仅存 localStorage，刷新自动恢复，旧版低刺激存档（<code>xyn_low_stim</code>）自动迁移为 <code>xyn_motion</code></li>
+<li><strong>浅色模式</strong>（v12.4）：<code>&lt;html class="theme-light"&gt;</code> 单一状态真相；日光纸白配色 + 深色墨字（正文对比度 ≥ 4.5:1），书页背景换晨光渐变，书首页标题垫毛玻璃胶囊保证插画上文字可读；数据看板 Canvas 图表监听 <code>theme:change</code> 事件以浅色配色重绘；约 400 行覆盖规则逐一适配全站组件</li>
+<li><strong>网页动态效果（原低刺激模式）</strong>（<code>11-settings.js</code>）：状态唯一真相是 <code>&lt;html class="motion-off"&gt;</code>（原 <code>stim-low</code>），<code>00-boot.js</code> 在渲染前从 localStorage 预应用（首屏不闪动画）；减少动效时 CSS 将全部动画压到瞬时完成（<code>animation-duration:.001s</code>，保留最终帧避免元素停在透明态，换页叙事动画通过高优先级规则豁免），并显式关闭鼠标视差、弹幕滚动；JS 侧监听 <code>motion:change</code>（原 <code>stim:change</code>）自定义事件实现"减少即静音 BGM、恢复后按原开关状态继续"</li>
+<li><strong>浮层焦点统一接管</strong>（<code>12-modal.js</code>）：零侵入设计——MutationObserver 监听 7 个浮层（AI 设置 / 家长专区 / 就医清单 / 心理测评 / 科普话题 / 感官体验 / 偏好设置）class 的 open/on 切换，自动完成焦点移入、Tab 循环锁定（首尾环绕）、ESC 关闭（点各浮层自己的关闭按钮保证业务状态一致）、焦点归还触发元素、body 滚动锁定；不修改任何业务模块的开关函数</li>
 <li><strong>就医准备清单生成器</strong>（<code>13-clinic.js</code>）：5 组 25 项循证观察项（勾选 + 频率），localStorage 持久化可分天补充；生成结构化 A4 打印单（基本信息 → 最担心的事 → 分类清单含频率 → 时间线表格 → 已尝试方法 → 就诊提示），打印用 <code>visibility</code> 方案只输出清单层，不依赖 <code>display:none</code> 逐个隐藏</li>
-<li><strong>情绪安全阀</strong>（<code>14-safety.js</code>）：<code>window.__safety.check(text)</code> 统一入口，区分家长语境（描述孩子行为 → child 卡片）与本人危机（self 卡片）；02-chat 与 03-ai-core 两处拦截点共用；60 秒节流；卡片静态无动画，兼容低刺激模式</li>
+<li><strong>情绪安全阀</strong>（<code>14-safety.js</code>）：<code>window.__safety.check(text)</code> 统一入口，区分家长语境（描述孩子行为 → child 卡片）与本人危机（self 卡片）；02-chat 与 03-ai-core 两处拦截点共用；60 秒节流；卡片静态无动画，兼容减少动效模式</li>
 <li><strong>未命中问题日志</strong>（<code>15-misslog.js</code>）：本地知识库未接住的问题记入 <code>xyn_miss_log_v1</code>（10 分钟去重、上限 200 条），设置面板一键导出 CSV（文件写入 UTF-8 BOM 头，Excel 打开中文不乱码）——以真实用户提问反推知识库补充方向</li>
 <li>高对比模式已按需求移除</li>
 </ul>
 <hr />
 <h2>6. 测试与部署</h2>
-<h3>6.1 开发历程（从 v1 到 v12.3 完整迭代）</h3>
-<p>项目从最初版本到 v11.2 共经历 11 个大版本，持续迭代打磨：</p>
+<h3>6.1 开发历程（从 v1 到 v12.4 完整迭代）</h3>
+<p>项目从最初版本到现在持续迭代打磨：</p>
 <p><strong>v1 初版（9/30，10.6MB）</strong>
 - 基础星空动画 + 交互动画背景
 - 首页主视觉、导航栏
@@ -532,9 +534,15 @@ function replyFor(text) {
 <p><strong>v12.2（10/31：显示修复与动画豁免）</strong>
 - 修复绘本第六页拼图拉伸（<code>.tile img</code> 补 <code>height:auto</code>，防 HTML 固有 height 属性压过 aspect-ratio）
 - 低刺激模式豁免换页叙事动画：页面过渡、封面入眠动画、星光补齐 glow 恢复原时长</p>
-<p><strong>v12.3（10/31，当前版本：BGM 全页通用 + Pages 上线）</strong>
+<p><strong>v12.3（10/31：BGM 全页通用 + Pages 上线）</strong>
 - 背景音乐全页通用：移除视频页自动静音特殊处理，翻页全程音乐不中断
 - GitHub Pages 在线演示上线：https://qwq-tr-qwq.github.io/Under-the-Same-Stars/ ；SW 缓存 v15</p>
+<p><strong>v12.4（11/1，当前版本：浅色模式 + 偏好设置中心）</strong>
+- 新增浅色模式（☀ 浅色·日光）：日光纸白 + 深色墨字，正文对比度 ≥ 4.5:1；书页换晨光渐变、首页标题垫毛玻璃胶囊；Canvas 图表监听主题事件自动重绘为浅底深字；约 400 行覆盖规则逐组件适配，全站 10+ 页面逐页截图核验
+- 新增偏好设置中心（<code>11-settings.js</code>，替代 <code>11-stim.js</code>）：主题外观 / 网页动态效果 / 字号大小 / 背景音乐四项统一入口，双「⚙ 设置」按钮，全部持久化；字号设置并入后可记忆选择
+- 「低刺激」更名「网页动态效果」：语义改为「开启全部动效 / 减少动效」；类名 <code>stim-low</code>→<code>motion-off</code>、事件 <code>stim:change</code>→<code>motion:change</code>、存储 <code>xyn_low_stim</code>→<code>xyn_motion</code>（旧存档自动迁移）；换页叙事动画保留豁免、快捷键 Shift+L 保留
+- 设置面板纳入 12-modal 焦点管理（浮层 6→7 个）；SW 缓存 v16
+- 质量验证：无头浏览器端到端功能断言 14/14 通过（持久化、旧存档迁移、图表重绘、音乐同步、快捷键等），过程中修复快捷键 toggle 逻辑反转问题</p>
 <h3>6.2 测试覆盖</h3>
 <ul>
 <li>✅ PC 端 Chrome / Edge 主流分辨率</li>
