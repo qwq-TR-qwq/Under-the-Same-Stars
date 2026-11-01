@@ -2,12 +2,23 @@
 (function () {
   'use strict';
 
-  // ---- 低刺激模式：在渲染前就应用，避免首屏动画"闪一下"再静止 ----
-  // 状态只存在 <html class="stim-low">，其余模块直接查询类名即可，无需依赖加载顺序。
+  // ---- 偏好预应用（渲染前生效，避免首屏"闪一下"再切换）----
+  // 状态只写在 <html class="motion-off|theme-light"> / <body class="a11y-lg">，
+  // 其余模块直接查询类名即可，无需依赖加载顺序。
   try {
-    if (localStorage.getItem('xyn_low_stim') === '1') {
-      document.documentElement.classList.add('stim-low');
+    var mv = localStorage.getItem('xyn_motion');
+    if (mv === null || mv === undefined) {
+      // 兼容旧版「低刺激模式」存档：旧值为 1（减少动效）则沿用，并回写为新键
+      if (localStorage.getItem('xyn_low_stim') === '1') {
+        mv = '0';
+        try { localStorage.setItem('xyn_motion', '0'); } catch (e2) {}
+      } else { mv = '1'; }
     }
+    if (mv === '0') document.documentElement.classList.add('motion-off');
+    if (localStorage.getItem('xyn_theme') === 'light') document.documentElement.classList.add('theme-light');
+  } catch (e) {}
+  try {
+    if (localStorage.getItem('xyn_font') === 'lg') document.body.classList.add('a11y-lg');
   } catch (e) {}
 
   // ---- 全局错误兜底：任何未捕获错误 / Promise 拒绝 → 友好提示，杜绝演示白屏 ----

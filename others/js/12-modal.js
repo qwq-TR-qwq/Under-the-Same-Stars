@@ -6,7 +6,7 @@
  *   3) ESC 关闭（点各浮层自己的关闭按钮，业务状态不会错乱）
  *   4) 关闭时：解锁滚动 → 焦点归还触发按钮
  * 接入范围：AI设置 #aiMask / 家长专区 #familyMask / 测评 #testMask
- *           科普话题 #topicMask / 感官体验 #senseOverlay
+ *           科普话题 #topicMask / 感官体验 #senseOverlay / 偏好设置 #setMask
  */
 (function () {
   'use strict';
@@ -19,6 +19,7 @@
     clinicMask: '#clinicClose',
     testMask: '#testClose',
     topicMask: '#topicBack',
+    setMask: '#setClose',
     senseOverlay: '#senseClose'
   };
 
@@ -91,7 +92,7 @@
   document.addEventListener('keydown', onKeydown, true);
 
   // 页面加载时浮层若已处于打开态（理论不会，但兜底）
-  var nodes = Array.prototype.slice.call(document.querySelectorAll('#aiMask,#familyMask,#clinicMask,#testMask,#topicMask,#senseOverlay'));
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('#aiMask,#familyMask,#clinicMask,#testMask,#topicMask,#senseOverlay,#setMask'));
   var mo = new MutationObserver(function (muts) {
     for (var i = 0; i < muts.length; i++) {
       var el = muts[i].target;

@@ -165,7 +165,7 @@ function mwRender(){
   window._mwTimer = setInterval(function(){
     var st = document.getElementById('mwStage');
     if(!st) return;
-    if(document.documentElement.classList.contains('stim-low')) return;   // 低刺激模式：暂停弹幕滚动
+    if(document.documentElement.classList.contains('motion-off')) return;   // 减少动效模式：暂停弹幕滚动
     var r = st.getBoundingClientRect();
     if(r.width === 0 && r.height === 0) return;
     var item = pool[pi % pool.length]; pi++;
@@ -187,7 +187,7 @@ if(mwSend){
     mwRender();
     // 自己的留言：立即以金色高亮弹幕划出
     var stage = document.getElementById('mwStage');
-    if(stage && !document.documentElement.classList.contains('stim-low')){
+    if(stage && !document.documentElement.classList.contains('motion-off')){
       var el = document.createElement('div');
       el.className = 'mw-dm mine';
       var now2 = Date.now();
@@ -332,13 +332,25 @@ switchView('home');
 mwRender();
 
 
-// ---- 自闭症数据看板：canvas 绘制（带 hover 交互） ----
+// ---- 自闭症数据看板：canvas 绘制（带 hover 交互 / 跟随浅色主题重绘） ----
 (function(){
+  // 主题调色板：深色为星夜底，浅色为纸白底；切换主题时通过 theme:change 事件重绘
+  function chartPal(){
+    var light = document.documentElement.classList.contains('theme-light');
+    return light ? {
+      bg:'#fffdf6', grid:'rgba(43,48,90,.16)', axis:'#77809f', year:'#4a5378',
+      note:'#8a8fa8', numLabel:'#7a5a00', preLabel:'#2b5f9e', hoverLegend:'#1a1f4a'
+    } : {
+      bg:'rgba(10,15,45,.9)', grid:'rgba(255,255,255,.08)', axis:'#8fa0d8', year:'#c9d3f2',
+      note:'#6a7299', numLabel:'#ffe9b8', preLabel:'#bcd6ff', hoverLegend:'#fff'
+    };
+  }
   function dprFix(cv){ var w=cv.width,h=cv.height; var ctx=cv.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); return ctx; }
   function lineChart(cv, hoverIdx){
+    var P = chartPal();
     var ctx = dprFix(cv); var W=cv.width, H=cv.height;
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='rgba(10,15,45,.9)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=P.bg; ctx.fillRect(0,0,W,H);
     var yrs=[2013,2015,2016,2020,2022,2025];
     var num=[1000,1050,1075,1175,1225,1300];
     var pre=[null,3.5,7,18,null,null];
@@ -347,14 +359,14 @@ mwRender();
     var x=function(y){ return padL + (y-yrs[0])/(yrs[yrs.length-1]-yrs[0])*iw; };
     var yN=function(v){ return padT + ih - (v-900)/(1400-900)*ih; };
     var yP=function(v){ return padT + ih - (v-0)/(20-0)*ih; };
-    ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.fillStyle='#8fa0d8'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+    ctx.strokeStyle=P.grid; ctx.fillStyle=P.axis; ctx.font='11px sans-serif'; ctx.textAlign='right';
     for(var g=900; g<=1400; g+=100){ ctx.beginPath(); ctx.moveTo(padL,yN(g)); ctx.lineTo(W-padR,yN(g)); ctx.stroke(); ctx.fillText(g+'万', padL-6, yN(g)+4); }
     ctx.textAlign='center';
-    for(var i=0;i<yrs.length;i++){ ctx.fillStyle='#c9d3f2'; ctx.fillText(yrs[i], x(yrs[i]), H-padB+18); }
-    ctx.fillStyle='#8fa0d8'; ctx.save(); ctx.translate(16,H/2); ctx.rotate(-Math.PI/2); ctx.fillText('中国患者人数（万人）',0,0); ctx.restore();
+    for(var i=0;i<yrs.length;i++){ ctx.fillStyle=P.year; ctx.fillText(yrs[i], x(yrs[i]), H-padB+18); }
+    ctx.fillStyle=P.axis; ctx.save(); ctx.translate(16,H/2); ctx.rotate(-Math.PI/2); ctx.fillText('中国患者人数（万人）',0,0); ctx.restore();
     ctx.textAlign='left';
-    for(var g2=0; g2<=20; g2+=5){ ctx.fillStyle='#8fa0d8'; ctx.fillText(g2+'‰', W-padR+8, yP(g2)+4); }
-    ctx.fillStyle='#8fa0d8'; ctx.save(); ctx.translate(W-8,H/2); ctx.rotate(Math.PI/2); ctx.fillText('儿童患病率（‰）',0,0); ctx.restore();
+    for(var g2=0; g2<=20; g2+=5){ ctx.fillStyle=P.axis; ctx.fillText(g2+'‰', W-padR+8, yP(g2)+4); }
+    ctx.fillStyle=P.axis; ctx.save(); ctx.translate(W-8,H/2); ctx.rotate(Math.PI/2); ctx.fillText('儿童患病率（‰）',0,0); ctx.restore();
     ctx.strokeStyle='#ffd98a'; ctx.lineWidth=2.4; ctx.beginPath();
     for(var n=0;n<num.length;n++){ if(n===0) ctx.moveTo(x(yrs[n]),yN(num[n])); else ctx.lineTo(x(yrs[n]),yN(num[n])); }
     ctx.stroke();
@@ -371,7 +383,7 @@ mwRender();
       ctx.beginPath(); ctx.arc(x(yrs[n2]),yN(num[n2]), isH?8:4, 0, 7);
       ctx.fillStyle='#ffd98a'; ctx.fill();
       if(isH){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke(); }
-      ctx.fillStyle='#ffe9b8'; ctx.font= isH?'bold 13px sans-serif':'11px sans-serif';
+      ctx.fillStyle=P.numLabel; ctx.font= isH?'bold 13px sans-serif':'11px sans-serif';
       ctx.fillText(num[n2]+(n2===0||n2===5?'':'*'), x(yrs[n2]), yN(num[n2])-12);
     }
     ctx.strokeStyle='#7fb3ff'; ctx.lineWidth=2.4; ctx.beginPath(); var started=false;
@@ -382,7 +394,7 @@ mwRender();
       ctx.beginPath(); ctx.arc(x(yrs[p2]),yP(pre[p2]), isHP?8:4, 0, 7);
       ctx.fillStyle='#7fb3ff'; ctx.fill();
       if(isHP){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke(); }
-      ctx.fillStyle='#bcd6ff'; ctx.font= isHP?'bold 13px sans-serif':'11px sans-serif';
+      ctx.fillStyle=P.preLabel; ctx.font= isHP?'bold 13px sans-serif':'11px sans-serif';
       var dy = (p2===2) ? 20 : -12;
       ctx.fillText(pre[p2]+'‰', x(yrs[p2]), yP(pre[p2])+dy);
     }
@@ -396,7 +408,7 @@ mwRender();
     ctx.beginPath(); ctx.moveTo(padL+8, padT+29); ctx.lineTo(padL+30, padT+29); ctx.stroke();
     ctx.fillStyle='#7fb3ff'; ctx.fillText('儿童患病率（右轴）', padL+36, padT+32);
     cv._legend = [ {y:padT+13, type:'num'}, {y:padT+29, type:'pre'} ];
-    ctx.fillStyle='#6a7299'; ctx.fillText('* 中间年份为按公开增速估算', W-padR, padT+16);
+    ctx.fillStyle=P.note; ctx.fillText('* 中间年份为按公开增速估算', W-padR, padT+16);
     // hover tooltip
     if(hoverIdx!==null && hoverIdx!==undefined && hoverIdx!==-1 && hoverIdx!==-2){
       var ni = parseInt(String(hoverIdx).replace(/num|pre/g,''), 10);
@@ -446,9 +458,10 @@ mwRender();
     for(var hp=0;hp<pre.length;hp++){ if(pre[hp]!==null) cv._hitPts.push({k:'pre'+hp, x:x(yrs[hp]), y:yP(pre[hp])}); }
   }
   function pieChart(cv, data, unit, hoverIdx){
+    var P = chartPal();
     var ctx = dprFix(cv); var W=cv.width, H=cv.height;
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='rgba(10,15,45,.9)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=P.bg; ctx.fillRect(0,0,W,H);
     var colors=['#ffd98a','#7fb3ff','#9be3a8','#f09bbd','#c3a6ff','#6fd6d0','#8fa0d8'];
     var cx=230, cy=190, R=128;
     var total=0; for(var k=0;k<data.length;k++) total+=data[k].v;
@@ -464,7 +477,7 @@ mwRender();
       ctx.beginPath(); ctx.moveTo(cx+dx,cy+dy); ctx.arc(cx+dx,cy+dy,rr,a0,a1); ctx.closePath();
       ctx.fillStyle=colors[i%colors.length]; ctx.globalAlpha = isH?1:0.92; ctx.fill();
       ctx.globalAlpha=1;
-      ctx.strokeStyle = isH ? '#fff' : 'rgba(10,15,45,.9)';
+      ctx.strokeStyle = isH ? '#fff' : P.bg;
       ctx.lineWidth = isH?3:2; ctx.stroke();
       if(data[i].v/total>0.045){
         ctx.fillStyle='#0b1030'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
@@ -483,7 +496,7 @@ mwRender();
       var lw = isLH?15:12;
       ctx.fillRect(cx+R+26, ly-9, lw, lw);
       ctx.globalAlpha=1;
-      ctx.fillStyle = isLH ? '#fff' : '#c9d3f2';
+      ctx.fillStyle = isLH ? P.hoverLegend : P.year;
       ctx.font = isLH ? 'bold 13px "Microsoft YaHei",sans-serif' : '12px "Microsoft YaHei",sans-serif';
       ctx.fillText(data[j].n+'：'+data[j].v+unit+'（'+(data[j].v/total*100).toFixed(1)+'%）', cx+R+44, ly);
       cv._slices[j].legendY = ly;
@@ -491,7 +504,7 @@ mwRender();
     }
     cv._total = total; cv._data = data; cv._unit = unit;
     cv._cx = cx; cv._cy = cy; cv._R = R;
-    ctx.fillStyle='#6a7299'; ctx.font='11px sans-serif';
+    ctx.fillStyle=P.note; ctx.font='11px sans-serif';
     ctx.fillText('* 部分国家/年龄组为估算，仅作科普示意', cx-R-40, H-14);
   }
   function bindLineHover(cv){
@@ -548,7 +561,14 @@ mwRender();
       {n:'0-6 岁',v:150},{n:'7-12 岁',v:220},{n:'13-18 岁',v:180},{n:'18 岁以上',v:750}
     ], '万'); bindPieHover(c3); }
   }
+  // 仅重绘不重复绑定（浅色主题切换时调用）
+  function redrawAll(){
+    var c1=document.getElementById('chartLine'); if(c1) lineChart(c1, null);
+    var c2=document.getElementById('chartPie1'); if(c2 && c2._data) pieChart(c2, c2._data, c2._unit, null);
+    var c3=document.getElementById('chartPie2'); if(c3 && c3._data) pieChart(c3, c3._data, c3._unit, null);
+  }
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
+  document.addEventListener('theme:change', redrawAll);
 })();
 
 // ---- AI 星空寄语卡片：LLM 生成寄语 + Canvas 绘制可保存卡片 ----
@@ -790,17 +810,4 @@ mwRender();
   });
 })();
 
-// ---- 无障碍 ----
-(function(){
-  var modes = ['', 'a11y-lg'];
-  var mi = 0;
-  var btnA = document.getElementById('a11yBtn');
-  if(btnA){
-    btnA.addEventListener('click', function(){
-      mi = (mi + 1) % modes.length;
-      document.body.classList.remove('a11y-lg');
-      if(modes[mi]){ document.body.classList.add(modes[mi]); }
-      btnA.textContent = mi===0 ? '无障碍：标准' : '无障碍：大字';
-    });
-  }
-})();
+// ---- 无障碍字号：已收口到「⚙ 设置」面板（11-settings.js 统一管理，此处保留空位避免旧引用报错） ----

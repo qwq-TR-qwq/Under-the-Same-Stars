@@ -1,6 +1,6 @@
-  // 低刺激模式：从 <html class="stim-low"> 读取唯一真相，任何模块随时可查
-  function isStimLow(){ return document.documentElement.classList.contains('stim-low'); }
-  function stimClearParallax(){
+  // 网页动态效果：从 <html class="motion-off"> 读取唯一真相，任何模块随时可查
+  function isMotionOff(){ return document.documentElement.classList.contains('motion-off'); }
+  function motionClearParallax(){
     try{
       var bp = document.querySelector('.book-bg'), hp = document.querySelector('.hero-par');
       if(bp) bp.style.transform = '';
@@ -100,7 +100,7 @@
   var tickCtx = null;
   function playTick(){
     if(!musicOn) return;   // 提示音与背景音乐同开关控制
-    if(isStimLow()) return; // 低刺激模式：不播放任何悬停音效
+    if(isMotionOff()) return; // 减少动效模式：不播放任何悬停音效
     try{
       if(!tickCtx) tickCtx = new (window.AudioContext || window.webkitAudioContext)();
       if(tickCtx.state === 'suspended') tickCtx.resume();
@@ -136,7 +136,7 @@
   }
   function startBgm(force){
     if(!musicOn) return;
-    if(isStimLow()) return;                  // 低刺激模式：不主动起背景音乐
+    if(isMotionOff()) return;                  // 减少动效模式：不主动起背景音乐
     musicStarted = true;
     bgm.volume = bgmVol;
     bgm.currentTime = bgm.currentTime;
@@ -144,13 +144,13 @@
   }
   function stopBgm(){ try{ bgm.pause(); bgm.volume = 0; }catch(e){} }
   function syncMusicBtn(){
-    musicBtn.classList.toggle('off', !musicOn || isStimLow());
-    musicBtn.title = isStimLow() ? '低刺激模式下背景音乐已关闭'
+    musicBtn.classList.toggle('off', !musicOn || isMotionOff());
+    musicBtn.title = isMotionOff() ? '已减少动效：背景音乐已关闭'
                     : (musicOn ? '关闭背景音乐' : '开启背景音乐');
   }
   function toggleMusic(){
-    if(isStimLow()){
-      if(typeof siteToast === 'function'){ siteToast('低刺激模式已关闭背景音乐，需要音乐请先关闭低刺激模式 🌙'); }
+    if(isMotionOff()){
+      if(typeof siteToast === 'function'){ siteToast('已减少动效：背景音乐已暂停，可在「⚙ 设置」中开启全部动效后欣赏 ✦'); }
       return;
     }
     musicOn = !musicOn;
@@ -193,7 +193,7 @@
   var heroPar = document.querySelector('.hero-par');
   var parRAF = null;
   document.addEventListener('mousemove', function(e){
-    if(isStimLow()) return;   // 低刺激模式：关闭鼠标视差跟随
+    if(isMotionOff()) return;   // 减少动效模式：关闭鼠标视差跟随
     var rx = (e.clientX / window.innerWidth) - 0.5;
     var ry = (e.clientY / window.innerHeight) - 0.5;
     if(parRAF) return;
@@ -221,7 +221,7 @@
   // 首次点击屏幕（非音乐控件）时解锁浏览器自动播放限制
   document.addEventListener('pointerdown', function(e){
     if(e.target && e.target.closest && e.target.closest('#musicBox')) return;
-    if(isStimLow()) return;   // 低刺激模式：不因用户首次点击就起音乐
+    if(isMotionOff()) return;   // 减少动效模式：不因用户首次点击就起音乐
     if(musicOn && !musicStarted){
       musicStarted = true;
       bgm.volume = bgmVol;
@@ -232,15 +232,15 @@
   bgm.volume = bgmVol;
   paintVol();
   syncMusicBtn();
-  if(!isStimLow()){ bgm.play().catch(function(){}); }
+  if(!isMotionOff()){ bgm.play().catch(function(){}); }
 
-  // ---- 低刺激开关联动：开启立即静音，关闭后按原开关状态恢复 ----
-  document.addEventListener('stim:change', function(e){
+  // ---- 动态效果开关联动：减少立即静音，恢复后按原开关状态继续 ----
+  document.addEventListener('motion:change', function(e){
     var on = e.detail && e.detail.on;
     if(on){
       stopBgm();
       musicStarted = false;
-      stimClearParallax();
+      motionClearParallax();
       syncMusicBtn();
     } else {
       syncMusicBtn();

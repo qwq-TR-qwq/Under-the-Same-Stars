@@ -36,8 +36,8 @@
     <div class="nav-toprow">
       <div class="site-brand" data-view="home" role="button" tabindex="0"><i></i>星夜入眠</div>
       <div class="nav-right">
-        <button class="low-stim-toggle" id="lowStimBtn" type="button" aria-pressed="false" title="低刺激模式：暂停动态效果、背景音乐与弹幕滚动">
-          <span aria-hidden="true">🌙</span><span class="ls-label">低刺激</span>
+        <button class="pref-btn" id="settingsBtn" type="button" title="偏好设置：主题外观（深色/浅色）、网页动态效果、字号大小、背景音乐" aria-haspopup="dialog">
+          <span aria-hidden="true">⚙</span><span class="ls-label">设置</span>
         </button>
         <button class="chat-fab-nav" id="navChatBtn" type="button">💬 星语对话</button>
         <button class="nav-burger" id="navBurger" type="button" aria-label="打开菜单">☰</button>
@@ -1391,11 +1391,64 @@
         </div>
 </section>
 <audio id="bgm" loop preload="auto" src="others/audio/bgm.mp3"></audio>
+
+<!-- ================= 偏好设置面板（个性化调整统一入口） ================= -->
+<div class="ui-mask set-mask" id="setMask" role="dialog" aria-label="偏好设置">
+  <div class="ui-panel set-panel">
+    <div class="ui-head">
+      <div class="ui-title set-title">偏好设置</div>
+      <button class="ui-close" id="setClose" type="button">‹ 关闭</button>
+    </div>
+    <div class="ui-body set-body">
+      <div class="set-item">
+        <div class="set-item-head">
+          <b>☀ 主题外观</b>
+          <span>浅色模式为日光纸白配色，正文均为深色文字，白天与明亮环境更醒目</span>
+        </div>
+        <div class="seg" id="segTheme" role="group" aria-label="主题外观">
+          <button type="button" data-v="dark" aria-pressed="true">🌙 深色 · 星夜</button>
+          <button type="button" data-v="light" aria-pressed="false">☀ 浅色 · 日光</button>
+        </div>
+      </div>
+      <div class="set-item">
+        <div class="set-item-head">
+          <b>✨ 网页动态效果</b>
+          <span>选择「减少动效」将简化动画、暂停背景音乐与弹幕滚动（保留换页叙事动画），适合感官敏感人群</span>
+        </div>
+        <div class="seg" id="segMotion" role="group" aria-label="网页动态效果">
+          <button type="button" data-v="on" aria-pressed="true">开启全部动效</button>
+          <button type="button" data-v="off" aria-pressed="false">减少动效</button>
+        </div>
+      </div>
+      <div class="set-item">
+        <div class="set-item-head">
+          <b>🔍 字号大小</b>
+          <span>大字模式将正文、标题与导航整体放大，方便视力不便的家长与长辈阅读</span>
+        </div>
+        <div class="seg" id="segFont" role="group" aria-label="字号大小">
+          <button type="button" data-v="std" aria-pressed="true">标准字号</button>
+          <button type="button" data-v="lg" aria-pressed="false">大字模式</button>
+        </div>
+      </div>
+      <div class="set-item">
+        <div class="set-item-head">
+          <b>🎵 背景音乐</b>
+          <span>与书页右上角的音乐按钮同步；音量可在书内右侧音量钮调节</span>
+        </div>
+        <div class="seg" id="segMusic" role="group" aria-label="背景音乐">
+          <button type="button" data-v="on" aria-pressed="true">播放背景音乐</button>
+          <button type="button" data-v="off" aria-pressed="false">关闭背景音乐</button>
+        </div>
+      </div>
+      <p class="set-foot">快捷键 Shift + L 可随时切换动态效果 · 所有设置仅保存在本机浏览器，不会上传</p>
+    </div>
+  </div>
+</div>
+
 <!-- 就诊准备单打印层（默认隐藏，生成后显示；打印时仅输出本层） -->
 <div id="clinicPrint" aria-hidden="true"></div>
   <div class="a11y-fab">
-    <button id="a11yBtn" type="button">无障碍：标准</button>
-    <button class="low-stim-toggle" type="button" data-stim-text="1" aria-pressed="false">🌙 低刺激：关</button>
+    <button id="settingsFab" type="button" aria-haspopup="dialog" title="偏好设置：主题外观、网页动态效果、字号大小、背景音乐">⚙ 设置</button>
   </div>
   <!-- JS 模块化：按功能拆分为独立文件（详见 js/ 目录），按依赖顺序加载 -->
   <script src="others/js/00-boot.js"></script>
@@ -1409,7 +1462,7 @@
   <script src="others/js/08-policy.js"></script>
   <script src="others/js/09-voice.js"></script>
   <script src="others/js/10-family.js"></script>
-  <script src="others/js/11-stim.js"></script>
+  <script src="others/js/11-settings.js"></script>
   <script src="others/js/12-modal.js"></script>
   <script src="others/js/13-clinic.js"></script>
   <script src="others/js/14-safety.js"></script>
