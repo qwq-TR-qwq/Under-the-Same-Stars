@@ -332,143 +332,177 @@ switchView('home');
 mwRender();
 
 
-// ---- 自闭症数据看板：canvas 绘制（带 hover 交互 / 跟随浅色主题重绘） ----
+// ---- 自闭症数据看板：canvas 绘制（数据来自 data/stats.json 数据层，带来源与口径） ----
 (function(){
+  // 兜底数据：仅当 others/js/data/stats.js 未加载时使用，保证看板不会白屏
+  var FALLBACK = {
+    meta:{ updated:'2026-04', reviewCycle:'每季度复核', caliber:'科普示意 · 非医疗统计口径' },
+    sources:[],
+    trend:{
+      years:[2013,2015,2016,2020,2022,2025],
+      count:[{v:1000,kind:'reported'},{v:1050,kind:'estimate'},{v:1075,kind:'estimate'},
+             {v:1175,kind:'estimate'},{v:1225,kind:'estimate'},{v:1300,kind:'reported'}],
+      rate:[{year:2015,v:3.5,caliber:'儿童总体 · Meta 分析'},{year:2020,v:18,caliber:'0—6 岁 · 1.8%'},
+            {year:2022,v:7,caliber:'0—6 岁 · 规范引用值'}]
+    },
+    countries:{ unit:'万', worldTotal:6700, items:[
+      {n:'中国',v:1300,kind:'reported'},{n:'印度',v:1000,kind:'estimate'},{n:'美国',v:550,kind:'estimate'},
+      {n:'巴西',v:240,kind:'reported'},{n:'日本',v:230,kind:'estimate'},{n:'英国',v:70,kind:'estimate'},
+      {n:'其他国家',v:3310,kind:'derived'}] },
+    ages:{ unit:'万', items:[{n:'0-6 岁',v:150,kind:'estimate'},{n:'7-12 岁',v:200,kind:'estimate'},
+      {n:'13-18 岁',v:150,kind:'estimate'},{n:'18 岁以上',v:800,kind:'estimate'}] }
+  };
+  function STATS(){
+    var s = window.XYN_STATS;
+    if(s && s.trend && s.trend.years && s.countries && s.ages) return s;
+    return FALLBACK;
+  }
+  function srcOf(id){
+    var list = STATS().sources || [];
+    for(var i=0;i<list.length;i++){ if(list[i].id===id) return list[i]; }
+    return null;
+  }
+  function kindText(kind){
+    return kind === 'reported' ? '已发布' : (kind === 'derived' ? '差额推算' : '估算');
+  }
+
   // 主题调色板：深色为星夜底，浅色为纸白底；切换主题时通过 theme:change 事件重绘
   function chartPal(){
     var light = document.documentElement.classList.contains('theme-light');
     return light ? {
       bg:'#fffdf6', grid:'rgba(43,48,90,.16)', axis:'#77809f', year:'#4a5378',
-      note:'#8a8fa8', numLabel:'#7a5a00', preLabel:'#2b5f9e', hoverLegend:'#1a1f4a'
+      note:'#8a8fa8', numLabel:'#7a5a00', preLabel:'#2b5f9e', hoverLegend:'#1a1f4a',
+      tipBg:'rgba(255,253,247,.97)', tipBorder:'rgba(190,140,20,.55)', tipText:'#243060', tipDim:'#6b7495'
     } : {
       bg:'rgba(10,15,45,.9)', grid:'rgba(255,255,255,.08)', axis:'#8fa0d8', year:'#c9d3f2',
-      note:'#6a7299', numLabel:'#ffe9b8', preLabel:'#bcd6ff', hoverLegend:'#fff'
+      note:'#6a7299', numLabel:'#ffe9b8', preLabel:'#bcd6ff', hoverLegend:'#fff',
+      tipBg:'rgba(8,12,34,.94)', tipBorder:'rgba(255,217,100,.6)', tipText:'#ffffff', tipDim:'#a9b6dd'
     };
   }
-  function dprFix(cv){ var w=cv.width,h=cv.height; var ctx=cv.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); return ctx; }
-  function lineChart(cv, hoverIdx){
+  function dprFix(cv){ var ctx=cv.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); return ctx; }
+  function fitText(ctx, str, maxW){
+    if(ctx.measureText(str).width <= maxW) return str;
+    var s = str;
+    while(s.length > 1 && ctx.measureText(s + '…').width > maxW) s = s.slice(0, -1);
+    return s + '…';
+  }
+
+  function lineChart(cv, hoverKey){
     var P = chartPal();
+    var D = STATS(), t = D.trend;
     var ctx = dprFix(cv); var W=cv.width, H=cv.height;
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle=P.bg; ctx.fillRect(0,0,W,H);
-    var yrs=[2013,2015,2016,2020,2022,2025];
-    var num=[1000,1050,1075,1175,1225,1300];
-    var pre=[null,3.5,7,18,null,null];
-    var padL=58, padR=70, padT=30, padB=46;
+    var yrs = t.years, cnt = t.count, rate = t.rate || [];
+    var vals = cnt.map(function(c){ return c.v; });
+    var numMin = Math.floor((Math.min.apply(null, vals) - 100) / 100) * 100;
+    var numMax = Math.ceil((Math.max.apply(null, vals) + 100) / 100) * 100;
+    var rateVals = rate.map(function(r){ return r.v; });
+    var rateMax = Math.max(20, Math.ceil((Math.max.apply(null, rateVals.concat([0])) * 1.1) / 5) * 5);
+    var padL=58, padR=70, padT=44, padB=46;
     var iw=W-padL-padR, ih=H-padT-padB;
     var x=function(y){ return padL + (y-yrs[0])/(yrs[yrs.length-1]-yrs[0])*iw; };
-    var yN=function(v){ return padT + ih - (v-900)/(1400-900)*ih; };
-    var yP=function(v){ return padT + ih - (v-0)/(20-0)*ih; };
+    var yN=function(v){ return padT + ih - (v-numMin)/(numMax-numMin)*ih; };
+    var yP=function(v){ return padT + ih - (v-0)/(rateMax-0)*ih; };
     ctx.strokeStyle=P.grid; ctx.fillStyle=P.axis; ctx.font='11px sans-serif'; ctx.textAlign='right';
-    for(var g=900; g<=1400; g+=100){ ctx.beginPath(); ctx.moveTo(padL,yN(g)); ctx.lineTo(W-padR,yN(g)); ctx.stroke(); ctx.fillText(g+'万', padL-6, yN(g)+4); }
+    var step = (numMax-numMin) > 700 ? 200 : 100;
+    for(var g=numMin; g<=numMax; g+=step){
+      ctx.beginPath(); ctx.moveTo(padL,yN(g)); ctx.lineTo(W-padR,yN(g)); ctx.stroke();
+      ctx.fillText(g+'万', padL-6, yN(g)+4);
+    }
     ctx.textAlign='center';
     for(var i=0;i<yrs.length;i++){ ctx.fillStyle=P.year; ctx.fillText(yrs[i], x(yrs[i]), H-padB+18); }
     ctx.fillStyle=P.axis; ctx.save(); ctx.translate(16,H/2); ctx.rotate(-Math.PI/2); ctx.fillText('中国患者人数（万人）',0,0); ctx.restore();
     ctx.textAlign='left';
-    for(var g2=0; g2<=20; g2+=5){ ctx.fillStyle=P.axis; ctx.fillText(g2+'‰', W-padR+8, yP(g2)+4); }
+    for(var g2=0; g2<=rateMax; g2+=5){ ctx.fillStyle=P.axis; ctx.fillText(g2+'‰', W-padR+8, yP(g2)+4); }
     ctx.fillStyle=P.axis; ctx.save(); ctx.translate(W-8,H/2); ctx.rotate(Math.PI/2); ctx.fillText('儿童患病率（‰）',0,0); ctx.restore();
+
+    // 人数折线
     ctx.strokeStyle='#ffd98a'; ctx.lineWidth=2.4; ctx.beginPath();
-    for(var n=0;n<num.length;n++){ if(n===0) ctx.moveTo(x(yrs[n]),yN(num[n])); else ctx.lineTo(x(yrs[n]),yN(num[n])); }
+    for(var n=0;n<cnt.length;n++){ if(n===0) ctx.moveTo(x(yrs[n]),yN(cnt[n].v)); else ctx.lineTo(x(yrs[n]),yN(cnt[n].v)); }
     ctx.stroke();
-    function yearIsH(yi, series){
-      if(hoverIdx === null || hoverIdx === undefined) return false;
-      if(hoverIdx === series+yi) return true;
-      // 2016 年（索引2）两点重叠，任一 hover 同时高亮两者
-      if(yi === 2 && hoverIdx === 'num2') return true;
-      if(yi === 2 && hoverIdx === 'pre2') return true;
-      return false;
-    }
-    for(var n2=0;n2<num.length;n2++){
-      var isH = yearIsH(n2, 'num');
-      ctx.beginPath(); ctx.arc(x(yrs[n2]),yN(num[n2]), isH?8:4, 0, 7);
+    for(var n2=0;n2<cnt.length;n2++){
+      var isH = (hoverKey === 'c'+n2);
+      ctx.beginPath(); ctx.arc(x(yrs[n2]),yN(cnt[n2].v), isH?8:4, 0, 7);
       ctx.fillStyle='#ffd98a'; ctx.fill();
       if(isH){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke(); }
       ctx.fillStyle=P.numLabel; ctx.font= isH?'bold 13px sans-serif':'11px sans-serif';
-      ctx.fillText(num[n2]+(n2===0||n2===5?'':'*'), x(yrs[n2]), yN(num[n2])-12);
+      var mark = cnt[n2].kind === 'estimate' ? '*' : '';
+      ctx.fillText(cnt[n2].v+mark, x(yrs[n2]), yN(cnt[n2].v)-12);
     }
-    ctx.strokeStyle='#7fb3ff'; ctx.lineWidth=2.4; ctx.beginPath(); var started=false;
-    for(var p=0;p<pre.length;p++){ if(pre[p]===null) continue; if(!started){ ctx.moveTo(x(yrs[p]),yP(pre[p])); started=true; } else ctx.lineTo(x(yrs[p]),yP(pre[p])); }
-    ctx.stroke();
-    for(var p2=0;p2<pre.length;p2++){ if(pre[p2]===null) continue;
-      var isHP = yearIsH(p2, 'pre');
-      ctx.beginPath(); ctx.arc(x(yrs[p2]),yP(pre[p2]), isHP?8:4, 0, 7);
+    // 患病率：各点口径不同，只画散点不连线
+    for(var p=0;p<rate.length;p++){
+      var isHP = (hoverKey === 'r'+p);
+      ctx.beginPath(); ctx.arc(x(rate[p].year),yP(rate[p].v), isHP?8:4.5, 0, 7);
       ctx.fillStyle='#7fb3ff'; ctx.fill();
       if(isHP){ ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke(); }
       ctx.fillStyle=P.preLabel; ctx.font= isHP?'bold 13px sans-serif':'11px sans-serif';
-      var dy = (p2===2) ? 20 : -12;
-      ctx.fillText(pre[p2]+'‰', x(yrs[p2]), yP(pre[p2])+dy);
+      var dy = (p===1) ? 20 : -12;
+      ctx.fillText(rate[p].v+'‰', x(rate[p].year), yP(rate[p].v)+dy);
     }
     ctx.font='11px sans-serif'; ctx.textAlign='left';
-    // 黄色图例
     ctx.strokeStyle='#ffd98a'; ctx.lineWidth=2.4;
-    ctx.beginPath(); ctx.moveTo(padL+8, padT+13); ctx.lineTo(padL+30, padT+13); ctx.stroke();
-    ctx.fillStyle='#ffd98a'; ctx.fillText('中国患者人数（左轴）', padL+36, padT+16);
-    // 蓝色图例
-    ctx.strokeStyle='#7fb3ff'; ctx.lineWidth=2.4;
-    ctx.beginPath(); ctx.moveTo(padL+8, padT+29); ctx.lineTo(padL+30, padT+29); ctx.stroke();
-    ctx.fillStyle='#7fb3ff'; ctx.fillText('儿童患病率（右轴）', padL+36, padT+32);
-    cv._legend = [ {y:padT+13, type:'num'}, {y:padT+29, type:'pre'} ];
-    ctx.fillStyle=P.note; ctx.fillText('* 中间年份为按公开增速估算', W-padR, padT+16);
+    ctx.beginPath(); ctx.moveTo(padL+8, 14); ctx.lineTo(padL+30, 14); ctx.stroke();
+    ctx.fillStyle='#ffd98a'; ctx.fillText('中国患者人数（左轴）', padL+36, 17);
+    ctx.strokeStyle='#7fb3ff';
+    ctx.beginPath(); ctx.moveTo(padL+8, 30); ctx.lineTo(padL+30, 30); ctx.stroke();
+    ctx.fillStyle='#7fb3ff'; ctx.fillText('儿童患病率（右轴·各点口径不同，未连线）', padL+36, 33);
+    ctx.fillStyle=P.note; ctx.fillText('* 中间年份为按公开增速估算', W-padR, 17);
+    cv._legend = [ {y:14, type:'num'}, {y:30, type:'pre'} ];
+
     // hover tooltip
-    if(hoverIdx!==null && hoverIdx!==undefined && hoverIdx!==-1 && hoverIdx!==-2){
-      var ni = parseInt(String(hoverIdx).replace(/num|pre/g,''), 10);
-      if(isNaN(ni)) ni = null;
-      var tx=x(yrs[ni]);
-      var isPreHover = String(hoverIdx).indexOf('pre')===0;
-      // 构造要显示的行
-      var lines = [];
-      if(ni === 2){
-        // 2016 年：黄蓝两条一起显示（黄色 tooltip 样式）
-        lines.push({c:'#ffd98a', t:yrs[ni]+'年：约'+num[ni]+'万人'});
-        lines.push({c:'#7fb3ff', t:'儿童患病率 '+pre[ni]+'‰'});
-      } else if(isPreHover){
-        // hover 蓝色点：只显示蓝色数据
-        lines.push({c:'#7fb3ff', t:'儿童患病率 '+pre[ni]+'‰'});
+    if(hoverKey){
+      var isRate = String(hoverKey).indexOf('r')===0;
+      var idx = parseInt(String(hoverKey).slice(1), 10);
+      var lines = [], tx;
+      if(isRate){
+        var r = rate[idx]; if(!r) { return; }
+        tx = x(r.year);
+        lines.push({c:'#7fb3ff', t:r.year+'年 · '+r.v+'‰'});
+        if(r.caliber) lines.push({c:P.tipDim, t:r.caliber});
+        var rs = srcOf(r.src); if(rs) lines.push({c:P.tipDim, t:'来源：'+rs.org+'（'+rs.year+'）'});
       } else {
-        // hover 黄色点：只显示黄色数据
-        lines.push({c:'#ffd98a', t:yrs[ni]+'年：约'+num[ni]+'万人'});
+        var c = cnt[idx]; if(!c) { return; }
+        tx = x(yrs[idx]);
+        lines.push({c:'#ffd98a', t:yrs[idx]+'年 · 约'+c.v+'万人（'+kindText(c.kind)+'）'});
+        var s2 = srcOf(c.src);
+        if(s2) lines.push({c:P.tipDim, t:'来源：'+s2.org+'（'+s2.year+'）'});
+        else if(c.basis) lines.push({c:P.tipDim, t:'来源：'+c.basis});
       }
-      ctx.font='12px sans-serif';
-      var tw=0; for(var li=0;li<lines.length;li++) tw=Math.max(tw, ctx.measureText(lines[li].t).width+20);
-      var th = lines.length*20 + 8;
-      // 位置：蓝色 tooltip 在圆点下方，黄色在上方
-      var ty;
-      if(ni === 2){
-        // 2016 黄蓝混合框，放在黄色点上方
-        ty = yN(num[ni]) - th - 8;
-      } else if(isPreHover){
-        // 蓝色点：tooltip 在圆点下方
-        ty = yP(pre[ni]) + 12;
-      } else {
-        // 黄色点：tooltip 在圆点上方
-        ty = yN(num[ni]) - th - 8;
-      }
-      // 颜色：蓝色 hover 用蓝框，黄色用黄框
-      var borderColor = isPreHover ? 'rgba(127,179,255,.7)' : 'rgba(255,217,100,.6)';
-      ctx.fillStyle='rgba(0,0,0,.82)'; ctx.strokeStyle=borderColor;
-      ctx.beginPath(); ctx.roundRect(tx-tw/2, ty, tw, th, 6); ctx.fill(); ctx.stroke();
-      ctx.textAlign='center';
+      ctx.font='12px "Microsoft YaHei",sans-serif';
+      var tw=0; for(var li=0;li<lines.length;li++) tw=Math.max(tw, ctx.measureText(lines[li].t).width+22);
+      tw = Math.min(tw, 330);
+      var th = lines.length*20 + 10;
+      var baseY = isRate ? yP(rate[idx].v) : yN(cnt[idx].v);
+      var ty = isRate ? baseY + 14 : baseY - th - 10;
+      if(ty < 4) ty = baseY + 14;
+      if(ty + th > H-4) ty = baseY - th - 10;
+      var bx = Math.max(4, Math.min(tx-tw/2, W-tw-4));
+      ctx.fillStyle=P.tipBg; ctx.strokeStyle=P.tipBorder; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(bx, ty, tw, th, 6); ctx.fill(); ctx.stroke();
+      ctx.textAlign='left';
       for(var lj=0;lj<lines.length;lj++){
         ctx.fillStyle=lines[lj].c;
-        ctx.fillText(lines[lj].t, tx, ty+16+lj*20);
+        ctx.fillText(fitText(ctx, lines[lj].t, tw-20), bx+11, ty+18+lj*20);
       }
     }
     cv._hitPts = [];
-    for(var i=0;i<num.length;i++) cv._hitPts.push({k:'num'+i, x:x(yrs[i]), y:yN(num[i])});
-    for(var hp=0;hp<pre.length;hp++){ if(pre[hp]!==null) cv._hitPts.push({k:'pre'+hp, x:x(yrs[hp]), y:yP(pre[hp])}); }
+    for(var i2=0;i2<cnt.length;i2++) cv._hitPts.push({k:'c'+i2, x:x(yrs[i2]), y:yN(cnt[i2].v)});
+    for(var hp=0;hp<rate.length;hp++) cv._hitPts.push({k:'r'+hp, x:x(rate[hp].year), y:yP(rate[hp].v)});
   }
-  function pieChart(cv, data, unit, hoverIdx){
+
+  function pieChart(cv, items, unit, hoverIdx){
     var P = chartPal();
     var ctx = dprFix(cv); var W=cv.width, H=cv.height;
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle=P.bg; ctx.fillRect(0,0,W,H);
     var colors=['#ffd98a','#7fb3ff','#9be3a8','#f09bbd','#c3a6ff','#6fd6d0','#8fa0d8'];
-    var cx=230, cy=190, R=128;
-    var total=0; for(var k=0;k<data.length;k++) total+=data[k].v;
+    var cx=230, cy=182, R=124;
+    var total=0; for(var k=0;k<items.length;k++) total+=items[k].v;
     var a0=-Math.PI/2;
     cv._slices = [];
-    for(var i=0;i<data.length;i++){
-      var a1=a0 + data[i].v/total*Math.PI*2;
+    for(var i=0;i<items.length;i++){
+      var a1=a0 + items[i].v/total*Math.PI*2;
       var isH = (hoverIdx === i);
       var rr = isH ? R+8 : R;
       var mid=(a0+a1)/2;
@@ -479,17 +513,17 @@ mwRender();
       ctx.globalAlpha=1;
       ctx.strokeStyle = isH ? '#fff' : P.bg;
       ctx.lineWidth = isH?3:2; ctx.stroke();
-      if(data[i].v/total>0.045){
+      if(items[i].v/total>0.045){
         ctx.fillStyle='#0b1030'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
         var lx=cx+dx+Math.cos(mid)*rr*0.62, ly=cy+dy+Math.sin(mid)*rr*0.62;
-        ctx.fillText(data[i].v+unit, lx, ly+4);
+        ctx.fillText(items[i].v+unit, lx, ly+4);
       }
       cv._slices.push({a0:a0, a1:a1, cx:cx+dx, cy:cy+dy, r:rr});
       a0=a1;
     }
-    var ly=34;
+    var ly=30;
     ctx.textAlign='left'; ctx.font='12px "Microsoft YaHei",sans-serif';
-    for(var j=0;j<data.length;j++){
+    for(var j=0;j<items.length;j++){
       var isLH = (hoverIdx === j);
       ctx.fillStyle=colors[j%colors.length];
       ctx.globalAlpha = isLH?1:0.8;
@@ -498,21 +532,29 @@ mwRender();
       ctx.globalAlpha=1;
       ctx.fillStyle = isLH ? P.hoverLegend : P.year;
       ctx.font = isLH ? 'bold 13px "Microsoft YaHei",sans-serif' : '12px "Microsoft YaHei",sans-serif';
-      ctx.fillText(data[j].n+'：'+data[j].v+unit+'（'+(data[j].v/total*100).toFixed(1)+'%）', cx+R+44, ly);
+      ctx.fillText(items[j].n+'：'+items[j].v+unit+'（'+(items[j].v/total*100).toFixed(1)+'%）', cx+R+44, ly);
       cv._slices[j].legendY = ly;
       ly+=22;
     }
-    cv._total = total; cv._data = data; cv._unit = unit;
+    cv._total = total; cv._items = items; cv._unit = unit;
     cv._cx = cx; cv._cy = cy; cv._R = R;
-    ctx.fillStyle=P.note; ctx.font='11px sans-serif';
-    ctx.fillText('* 部分国家/年龄组为估算，仅作科普示意', cx-R-40, H-14);
+    ctx.fillStyle=P.note; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    var note = '* 部分国家/年龄组为估算，详见下方数据来源清单';
+    if(hoverIdx !== null && hoverIdx !== undefined && items[hoverIdx]){
+      var s = srcOf(items[hoverIdx].src);
+      note = '来源：' + (s ? s.org+'（'+s.year+'）' : (items[hoverIdx].basis || '估算')) ;
+      note = fitText(ctx, note, W-40);
+    }
+    ctx.fillText(note, 24, H-14);
   }
+
   function bindLineHover(cv){
     cv.addEventListener('mousemove', function(e){
       var r = cv.getBoundingClientRect();
+      if(!r.width) return;
       var mx = (e.clientX-r.left) * cv.width / r.width;
       var my = (e.clientY-r.top) * cv.height / r.height;
-      var best = null, bd = 20;
+      var best = null, bd = 22;
       if(cv._hitPts){
         for(var i=0;i<cv._hitPts.length;i++){
           var d = Math.hypot(mx-cv._hitPts[i].x, my-cv._hitPts[i].y);
@@ -526,20 +568,19 @@ mwRender();
   function bindPieHover(cv){
     cv.addEventListener('mousemove', function(e){
       var r = cv.getBoundingClientRect();
+      if(!r.width) return;
       var mx = (e.clientX-r.left) * cv.width / r.width;
       var my = (e.clientY-r.top) * cv.height / r.height;
       var best = null;
       if(cv._slices){
-        // 图例命中
         for(var j=0;j<cv._slices.length;j++){
           var ly=cv._slices[j].legendY;
           if(mx > cv._cx+cv._R+20 && mx < cv.width-20 && Math.abs(my-ly)<10){ best=j; break; }
         }
-        // 扇形命中
         if(best===null){
           var dx = mx-cv._cx, dy = my-cv._cy;
           var dist = Math.hypot(dx,dy);
-          if(dist < 140){
+          if(dist < cv._R+12){
             var ang = Math.atan2(dy,dx);
             if(ang < -Math.PI/2) ang += Math.PI*2;
             for(var i=0;i<cv._slices.length;i++){
@@ -548,27 +589,68 @@ mwRender();
           }
         }
       }
-      pieChart(cv, cv._data, cv._unit, best);
+      pieChart(cv, cv._items, cv._unit, best);
     });
-    cv.addEventListener('mouseleave', function(){ pieChart(cv, cv._data, cv._unit, null); });
+    cv.addEventListener('mouseleave', function(){ pieChart(cv, cv._items, cv._unit, null); });
   }
+
+  // ---- 数据来源清单与元信息渲染 ----
+  function el(id){ return document.getElementById(id); }
+  function renderMeta(){
+    var D = STATS(), m = D.meta || {};
+    var pts = (D.trend.count || []).length + (D.trend.rate || []).length
+      + ((D.countries.items || []).length) + ((D.ages.items || []).length);
+    if(el('dashUpdated')) el('dashUpdated').textContent = m.updated || '—';
+    if(el('dashPoints')) el('dashPoints').textContent = pts;
+    if(el('dashCaliber')) el('dashCaliber').textContent = m.caliber || '科普示意 · 非医疗统计口径';
+    if(el('dashReview')) el('dashReview').textContent = m.reviewCycle || '定期复核';
+    var list = el('dashSrcList');
+    if(list){
+      var html = '';
+      (D.sources || []).forEach(function(s, i){
+        var link = s.url
+          ? '<a href="' + s.url + '" target="_blank" rel="noopener noreferrer">查看原文页 ↗</a>'
+          : '<span class="src-nolink">无公开稳定链接</span>';
+        html += '<li><b>' + s.org + '（' + s.year + '）</b>'
+              + '<span class="src-type">' + (s.type || '来源') + '</span>'
+              + '<p>' + s.title + '</p>' + link + '</li>';
+      });
+      if(!html) html = '<li class="src-empty">数据层未加载，当前使用内置兜底数据。</li>';
+      list.innerHTML = html;
+    }
+    if(el('dashSrcCount')) el('dashSrcCount').textContent = (D.sources || []).length;
+    if(el('capTrend')) el('capTrend').textContent = '人数 6 个数据点（首末为发布值，中间为估算）· 患病率 3 个口径点，未连线';
+    if(el('capCountry')) el('capCountry').textContent = '含全球约 6700 万（WHO）对照，「其他国家」为差额推算';
+    if(el('capAge')) el('capAge').textContent = '按 14 岁以下约 500 万（人民日报·民生周刊 2025）拆分示意';
+  }
+
   function init(){
-    var c1=document.getElementById('chartLine'); if(c1){ lineChart(c1); bindLineHover(c1); }
-    var c2=document.getElementById('chartPie1'); if(c2){ pieChart(c2, [
-      {n:'中国',v:1300},{n:'印度',v:1000},{n:'美国',v:550},{n:'巴西',v:240},{n:'日本',v:230},{n:'英国',v:70},{n:'其他国家',v:3310}
-    ], '万'); bindPieHover(c2); }
-    var c3=document.getElementById('chartPie2'); if(c3){ pieChart(c3, [
-      {n:'0-6 岁',v:150},{n:'7-12 岁',v:220},{n:'13-18 岁',v:180},{n:'18 岁以上',v:750}
-    ], '万'); bindPieHover(c3); }
+    renderMeta();
+    var c1=el('chartLine'); if(c1){ lineChart(c1); bindLineHover(c1); }
+    var c2=el('chartPie1'); if(c2){ pieChart(c2, STATS().countries.items, STATS().countries.unit); bindPieHover(c2); }
+    var c3=el('chartPie2'); if(c3){ pieChart(c3, STATS().ages.items, STATS().ages.unit); bindPieHover(c3); }
   }
-  // 仅重绘不重复绑定（浅色主题切换时调用）
+  // 仅重绘不重复绑定（浅色主题切换 / 数据刷新时调用）
   function redrawAll(){
-    var c1=document.getElementById('chartLine'); if(c1) lineChart(c1, null);
-    var c2=document.getElementById('chartPie1'); if(c2 && c2._data) pieChart(c2, c2._data, c2._unit, null);
-    var c3=document.getElementById('chartPie2'); if(c3 && c3._data) pieChart(c3, c3._data, c3._unit, null);
+    var c1=el('chartLine'); if(c1) lineChart(c1, null);
+    var c2=el('chartPie1'); if(c2 && c2._items) pieChart(c2, c2._items, c2._unit, null);
+    var c3=el('chartPie2'); if(c3 && c3._items) pieChart(c3, c3._items, c3._unit, null);
   }
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
   document.addEventListener('theme:change', redrawAll);
+
+  // 线上（http/https）：再取一次 data/stats.json，改了 JSON 不用重新生成 JS 也能生效；
+  // 本地双击（file://）无法 fetch 本地文件，直接用 <script> 注入的 XYN_STATS，离线不受影响。
+  function usable(j){
+    return j && j.trend && j.trend.years && j.countries && j.ages && j.sources;
+  }
+  if(location.protocol === 'http:' || location.protocol === 'https:'){
+    try{
+      fetch('data/stats.json', { cache:'no-store' }).then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){ if(usable(j)){ window.XYN_STATS = j; renderMeta(); redrawAll(); } })
+        .catch(function(){});
+    }catch(e){}
+  }
 })();
 
 // ---- AI 星空寄语卡片：LLM 生成寄语 + Canvas 绘制可保存卡片 ----

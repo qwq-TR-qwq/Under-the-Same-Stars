@@ -174,13 +174,22 @@
     <details class="dash-fold">
       <summary>📊 自闭症数据看板<span class="fold-hint">点击展开 / 收起</span></summary>
       <div class="site-block" style="margin-top:16px;">
-      <p class="dash-intro">数字无法代替感受，却能帮我们更认真地看见这个群体。以下图表整理自公开报道与权威机构数据，部分年份与年龄组为估算，仅供科普参考。</p>
-      <div class="chart-grid">
-        <div class="chart-card"><div class="chart-title">中国自闭症患者人数与儿童患病率变化</div><canvas id="chartLine" width="720" height="380"></canvas></div>
-        <div class="chart-card"><div class="chart-title">各国自闭症患者数量比较（约，万人）</div><canvas id="chartPie1" width="720" height="380"></canvas></div>
-        <div class="chart-card"><div class="chart-title">中国自闭症患者年龄构成（估算）</div><canvas id="chartPie2" width="720" height="380"></canvas></div>
+      <p class="dash-intro">数字无法代替感受，却能帮我们更认真地看见这个群体。下方图表由站内数据层渲染，每个数据点都标注来源、年份与口径；各机构调查样本与年份不同，数值并列呈现，不做合并推算。</p>
+      <div class="dash-meta" role="note" aria-label="数据版本与口径说明">
+        <span class="dm-item">数据截至 <b id="dashUpdated">2026-04-03</b></span>
+        <span class="dm-item">共 <b id="dashPoints">20</b> 个数据点</span>
+        <span class="dm-item"><b id="dashReview">每季度复核</b></span>
+        <span class="dm-tag" id="dashCaliber">科普示意 · 非医疗统计口径</span>
       </div>
-      <p class="chart-src">数据来源：① 中国患者人数：2013 年行业报告"超 1000 万"→2025-2026 年新华社等报道"超 1300 万"（中间年份为估算连线）；② 儿童患病率：2011-2015 年 Meta 分析 3.5‰、国家卫健委 2022《0-6 岁自闭症筛查干预服务规范》约 7‰、中国生育健康杂志 2025（2020-2021 年 0-6 岁 1.8%）；③ 各国人数：中国 1300 万（2026）、印度约 1000 万（估算）、美国约 550 万（估算）、巴西 240 万（2022 普查）、日本约 230 万（估算）、英国约 70 万（估算），全球约 6700 万（WHO 引用），"其他"为差额；④ 年龄构成：14 岁以下约 500 万（人民日报·民生周刊 2025），18 岁以上为差额估算。图表仅为科普示意，非医疗统计口径。</p>
+      <div class="chart-grid">
+        <div class="chart-card"><div class="chart-title">中国自闭症患者人数与儿童患病率变化</div><canvas id="chartLine" width="720" height="380"></canvas><p class="chart-cap" id="capTrend">人数首末两点为公开发布值，中间为估算；患病率各点口径不同，未连线。</p></div>
+        <div class="chart-card"><div class="chart-title">各国自闭症患者数量比较（约，万人）</div><canvas id="chartPie1" width="720" height="380"></canvas><p class="chart-cap" id="capCountry">含全球约 6700 万（WHO）对照，「其他国家」为差额推算。</p></div>
+        <div class="chart-card"><div class="chart-title">中国自闭症患者年龄构成（估算）</div><canvas id="chartPie2" width="720" height="380"></canvas><p class="chart-cap" id="capAge">按 14 岁以下约 500 万（人民日报·民生周刊 2025）拆分示意。</p></div>
+      </div>
+      <details class="src-list">
+        <summary>📚 数据来源清单（<span id="dashSrcCount">10</span> 条）· 点击展开逐条查看</summary>
+        <ol id="dashSrcList"><li>正在加载数据层…</li></ol>
+      </details>
       </div>
     </details>
 
@@ -1458,6 +1467,7 @@
   <script src="others/js/04-sensory.js"></script>
   <script src="others/js/05-tests-community.js"></script>
   <script src="others/js/06-site-shell.js"></script>
+  <script src="others/js/data/stats.js"></script>
   <script src="others/js/07-nav-community.js"></script>
   <script src="others/js/08-policy.js"></script>
   <script src="others/js/09-voice.js"></script>
