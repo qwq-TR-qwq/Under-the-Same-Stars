@@ -332,7 +332,7 @@ switchView('home');
 mwRender();
 
 
-// ---- 自闭症数据看板：canvas 绘制（数据来自 data/stats.json 数据层，带来源与口径） ----
+// ---- 自闭症数据看板：canvas 绘制（数据来自 others/data/stats.json 数据层，带来源与口径） ----
 (function(){
   // 兜底数据：仅当 others/js/data/stats.js 未加载时使用，保证看板不会白屏
   var FALLBACK = {
@@ -639,14 +639,14 @@ mwRender();
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
   document.addEventListener('theme:change', redrawAll);
 
-  // 线上（http/https）：再取一次 data/stats.json，改了 JSON 不用重新生成 JS 也能生效；
+  // 线上（http/https）：再取一次 others/data/stats.json，改了 JSON 不用重新生成 JS 也能生效；
   // 本地双击（file://）无法 fetch 本地文件，直接用 <script> 注入的 XYN_STATS，离线不受影响。
   function usable(j){
     return j && j.trend && j.trend.years && j.countries && j.ages && j.sources;
   }
   if(location.protocol === 'http:' || location.protocol === 'https:'){
     try{
-      fetch('data/stats.json', { cache:'no-store' }).then(function(r){ return r.ok ? r.json() : null; })
+      fetch('others/data/stats.json', { cache:'no-store' }).then(function(r){ return r.ok ? r.json() : null; })
         .then(function(j){ if(usable(j)){ window.XYN_STATS = j; renderMeta(); redrawAll(); } })
         .catch(function(){});
     }catch(e){}

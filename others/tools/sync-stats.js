@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 /* 星夜入眠 · 数据同步脚本
- * 唯一数据源：data/stats.json（人工维护，带来源与口径）
+ * 唯一数据源：others/data/stats.json（人工维护，带来源与口径）
  * 生成产物：others/js/data/stats.js（挂到 window.XYN_STATS，file:// 双击打开也能读到）
  *
  * 用法：
- *   node tools/sync-stats.js            # 校验 + 生成 stats.js
- *   node tools/sync-stats.js --check    # 只校验不写文件（产物与源不一致时退出码 1）
+ *   node others/tools/sync-stats.js            # 校验 + 生成 stats.js
+ *   node others/tools/sync-stats.js --check    # 只校验不写文件（产物与源不一致时退出码 1）
  *
  * 为什么不用 fetch 读 JSON：直接双击 index.html 是 file:// 协议，fetch 本地文件会被 CORS
  * 拦下；用 <script> 注入数据对象才能保证离线演示不崩。线上（http/https）页面会额外
- * fetch 一次 data/stats.json，这样只改 JSON 也能即时生效。
+ * fetch 一次 others/data/stats.json，这样只改 JSON 也能即时生效。
  */
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'data', 'stats.json');
+const ROOT = path.resolve(__dirname, '../..');
+const SRC = path.join(ROOT, 'others', 'data', 'stats.json');
 const OUT = path.join(ROOT, 'others', 'js', 'data', 'stats.js');
 
 const errors = [];
@@ -28,7 +28,7 @@ let data;
 try {
   data = JSON.parse(fs.readFileSync(SRC, 'utf8'));
 } catch (e) {
-  console.error('✗ data/stats.json 无法解析：' + e.message);
+  console.error('✗ others/data/stats.json 无法解析：' + e.message);
   process.exit(1);
 }
 
@@ -108,7 +108,7 @@ if (errors.length) {
 }
 warn.forEach(w => console.warn('! ' + w));
 
-const header = '/* 自动生成，请勿直接编辑 —— 源文件：data/stats.json，生成命令：node tools/sync-stats.js */\n';
+const header = '/* 自动生成，请勿直接编辑 —— 源文件：others/data/stats.json，生成命令：node others/tools/sync-stats.js */\n';
 const body = 'window.XYN_STATS = ' + JSON.stringify(data, null, 2) + ';\n';
 const out = header + body;
 
@@ -116,7 +116,7 @@ let changed = true;
 try { changed = fs.readFileSync(OUT, 'utf8') !== out; } catch (e) { changed = true; }
 
 if (process.argv.includes('--check')) {
-  if (changed) { console.error('✗ others/js/data/stats.js 与 data/stats.json 不同步，请执行 node tools/sync-stats.js'); process.exit(1); }
+  if (changed) { console.error('✗ others/js/data/stats.js 与 others/data/stats.json 不同步，请执行 node others/tools/sync-stats.js'); process.exit(1); }
   console.log('✓ 数据产物已同步（' + points + ' 个数据点，' + data.sources.length + ' 条来源）');
   process.exit(0);
 }

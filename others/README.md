@@ -42,8 +42,8 @@
 - 配二次元风格插图，保护隐私
 
 ### 3. 数据看板
-- 数据层驱动：唯一数据源为 `data/stats.json`（20 个数据点 + 10 条权威来源，含机构/年份/口径/链接），由 `tools/sync-stats.js` 校验并生成 `others/js/data/stats.js` 注入页面
-- 可定期更新：修改 `data/stats.json` → 运行 `node tools/sync-stats.js`；线上（GitHub Pages）还会自动 fetch 一次 JSON，只改 JSON 即时生效
+- 数据层驱动：唯一数据源为 `others/data/stats.json`（20 个数据点 + 10 条权威来源，含机构/年份/口径/链接），由 `others/tools/sync-stats.js` 校验并生成 `others/js/data/stats.js` 注入页面
+- 可定期更新：修改 `others/data/stats.json` → 运行 `node others/tools/sync-stats.js`；线上（GitHub Pages）还会自动 fetch 一次 JSON，只改 JSON 即时生效
 - 离线不崩：双击打开（file://）时数据由 `<script>` 注入，无网络请求；数据文件缺失时自动回退内置兜底数据
 - 2013–2025 年国内自闭症患者人数与儿童患病率图（人数首末为发布值、中间为估算；患病率三个口径点并列呈现、不连线、不可直接比较）
 - 各国患者数量对比饼图（含全球约 6700 万 WHO 对照，「其他国家」为差额推算）
@@ -150,13 +150,9 @@
 ├── index.html            # 主程序（页面结构，约 0.07MB）
 ├── css/
 │   └── style.css              # 全部样式（自内联样式提取，约 91KB）
-├── data/
-│   └── stats.json             # 数据看板唯一数据源（20 个数据点 + 10 条权威来源，人工维护）
-├── tools/
-│   └── sync-stats.js          # 数据同步脚本（校验 stats.json 并生成 others/js/data/stats.js）
-├── images/               # 图片资源（外置 + WebP + 懒加载）
 ├── html/                 # 技术文档 / 作品介绍（网页版，PDF 的源文件）
-└── others/               # 参赛材料 + 站点运行资源（js / 媒体 / PWA）
+├── images/               # 图片资源（外置 + WebP + 懒加载）
+└── others/               # 参赛材料 + 站点运行资源（js / 数据 / 媒体 / PWA）
     ├── js/                     # JS 模块（按功能拆分，按序加载）
     │   ├── 00-boot.js               # 全局错误兜底 + Service Worker 注册
     │   ├── 01-book.js               # 星空书页翻页 / 悬停提示音 / 背景音乐
@@ -173,9 +169,13 @@
     │   ├── 12-modal.js              # 浮层无障碍统一接管（焦点陷阱/ESC/焦点归还）
     │   ├── 13-clinic.js             # 就医准备清单生成器（可打印 A4 就诊准备单）
     │   ├── 14-safety.js             # 情绪安全阀（危机信息前置卡片，tel: 可拨号）
-    │   └── 15-misslog.js            # 未命中问题日志（导出 CSV，数据驱动补知识库）
+    │   ├── 15-misslog.js            # 未命中问题日志（导出 CSV，数据驱动补知识库）
+    │   └── data/
+    │       └── stats.js            # 看板数据注入（由 others/data/stats.json 自动生成，勿手改）
     ├── data/
-    │   └── stats.js                # 看板数据注入（由 data/stats.json 自动生成，勿手改）
+    │   └── stats.json              # 数据看板唯一数据源（20 个数据点 + 10 条权威来源，人工维护）
+    ├── tools/
+    │   └── sync-stats.js           # 数据同步脚本（校验 stats.json 并生成 others/js/data/stats.js）
     ├── videos/                 # 公益短片（外置）
     ├── audio/                  # 背景音乐
     ├── manifest.json           # PWA 清单

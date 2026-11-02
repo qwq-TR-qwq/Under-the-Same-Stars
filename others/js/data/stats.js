@@ -1,4 +1,4 @@
-/* 自动生成，请勿直接编辑 —— 源文件：data/stats.json，生成命令：node tools/sync-stats.js */
+/* 自动生成，请勿直接编辑 —— 源文件：others/data/stats.json，生成命令：node others/tools/sync-stats.js */
 window.XYN_STATS = {
   "meta": {
     "updated": "2026-04-03",

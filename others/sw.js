@@ -16,7 +16,7 @@ var CORE = [
   './js/14-safety.js',
   './js/15-misslog.js',
   './js/data/stats.js',
-  '../data/stats.json',
+  './data/stats.json',
   './manifest.json',
   '../images/og-cover.jpg',
   './audio/bgm.mp3'
