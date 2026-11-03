@@ -27,7 +27,7 @@ strong{color:#1f2430}
 <h1>星夜入眠 · 关爱自闭症儿童公益科普网站 —— 作品介绍文档</h1>
 <p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛
 <strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统
-<strong>版本</strong>：v12.4（正式参赛版）</p>
+<strong>版本</strong>：v12.5（正式参赛版）</p>
 <hr />
 <h2>一、项目详情及使用方式</h2>
 <h3>1.1 项目背景</h3>
@@ -74,7 +74,7 @@ strong{color:#1f2430}
 <h3>2.5 隐私保护</h3>
 <p>所有故事用插画代替真人照片，不使用患儿真实人脸。</p>
 <h3>2.6 演示稳定性与工程质量</h3>
-<p>针对比赛现场环境做了大量稳定化处理：全站视频不自动播放、离开页面即暂停；背景音乐全页通用可一键开关；TTS 朗读为用户主动触发、离开对话页即停；全局错误兜底 toast 杜绝白屏；PWA 离线缓存让断网也能完整演示。<strong>偏好设置中心</strong>统一管理主题外观 / 网页动态效果 / 字号 / 背景音乐：<strong>浅色模式</strong>（日光纸白 + 深色墨字，高对比）与<strong>网页动态效果</strong>（关动效/音乐/视差/弹幕，保留换页叙事动画）为感官敏感人群与明亮环境提供舒适版本。工程上 HTML / CSS / JS 分层（HTML 0.07MB + css/style.css + others/js/ 16 个功能模块），免构建、双击即用，并已托管 GitHub Pages 在线演示。</p>
+<p>针对比赛现场环境做了大量稳定化处理：全站视频不自动播放、离开页面即暂停；背景音乐全页通用可一键开关；TTS 朗读为用户主动触发、离开对话页即停；全局错误兜底 toast 杜绝白屏；PWA 离线缓存让断网也能完整演示。<strong>偏好设置中心</strong>统一管理主题外观 / 网页动态效果 / 字号 / 背景音乐：<strong>浅色模式</strong>（日光纸白 + 深色墨字，高对比）与<strong>网页动态效果</strong>（关动效/音乐/视差/弹幕，保留换页叙事动画）为感官敏感人群与明亮环境提供舒适版本。数据看板升级为<strong>可追溯数据层</strong>（唯一数据源 stats.json：20 个数据点 + 10 条权威来源，带口径与推算依据，线上改 JSON 即时生效、离线自动兜底）。工程上 HTML / CSS / JS 分层（HTML 0.07MB + css/style.css + others/js/ 16 个功能模块），免构建、双击即用，并已托管 GitHub Pages 在线演示。</p>
 <hr />
 <h2>三、Web 网页使用情况概述</h2>
 <h3>3.1 板块结构</h3>
@@ -146,7 +146,8 @@ strong{color:#1f2430}
 <li><strong>网页动态效果（原低刺激模式）</strong>：<code>&lt;html class="motion-off"&gt;</code> 单一状态真相，渲染前预应用防首屏闪烁；减少动效时 CSS 将动画压至瞬时（保留最终帧防残缺态），JS 监听自定义事件实现「减少即静音、恢复继续」；换页叙事动画通过高优先级规则豁免；旧版低刺激存档自动迁移</li>
 <li><strong>浮层无障碍统一接管</strong>：零侵入 MutationObserver 方案，7 个浮层自动获得焦点移入、Tab 循环锁定、ESC 关闭、焦点归还</li>
 <li><strong>资源外置 + 懒加载 + WebP</strong>：图片/视频/音频独立文件，<code>loading="lazy"</code> + 固有宽高防布局抖动，HTML 仅 0.07MB</li>
-<li><strong>PWA</strong>：manifest + Service Worker 离线缓存（v16），可安装、断网可演示</li>
+<li><strong>数据看板数据层</strong>：唯一数据源 <code>others/data/stats.json</code>（20 个数据点 + 10 条权威来源），每个点带类型（发布值/估算/差额推算）与来源引用；同步脚本校验并生成注入文件；线上自动 fetch JSON 即时生效、离线 <code>&lt;script&gt;</code> 注入兜底</li>
+<li><strong>PWA</strong>：manifest + Service Worker 离线缓存（v18），断网可演示</li>
 </ul>
 <h3>4.2 AI 技术</h3>
 <ul>
@@ -186,7 +187,7 @@ strong{color:#1f2430}
 <p>本项目为<strong>原创作品</strong>，首次参加 2026 传智杯 AI WEB 网页开发挑战赛，之前未发表、未参加过其他比赛。</p>
 <hr />
 <h2>七、是否在其他项目基础上优化</h2>
-<p>本项目从 v1 初版星空动画开始，历经 v1→v12.4 共 13 个大版本、25+ 次提交迭代（完整历史见 GitHub 仓库与 CHANGELOG）：</p>
+<p>本项目从 v1 初版星空动画开始，历经 v1→v12.5 持续迭代打磨（完整历史见 GitHub 仓库与 CHANGELOG）：</p>
 <table>
 <thead>
 <tr>
@@ -254,6 +255,10 @@ strong{color:#1f2430}
 <tr>
 <td>v12.4</td>
 <td>浅色模式（日光纸白高对比配色 + Canvas 图表随主题重绘）+ 偏好设置中心（主题外观/网页动态效果/字号/背景音乐统一入口，全部持久化）；「低刺激」更名「网页动态效果」并自动迁移旧存档</td>
+</tr>
+<tr>
+<td>v12.5</td>
+<td>数据看板数据层（20 数据点 + 10 条权威来源，口径并列、悬停显示来源、离线兜底）；目录对齐大赛五类规范；PWA 路径 / OG 分享域名 / keywords 修正；hero 图 WebP 化首屏省 90%</td>
 </tr>
 </tbody>
 </table>

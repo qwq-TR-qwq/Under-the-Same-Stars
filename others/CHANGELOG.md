@@ -18,6 +18,10 @@
 
 - 对话页音乐/音量按钮与「⚙ 设置」悬浮按钮重叠约 5px：音乐盒上移（bottom 104→130px），稳定保持约 21px 间距
 - 「⚙ 设置」右缘与音乐盒对齐（right 14→20px），三个按钮同列右对齐、不再拥挤
+- **PWA manifest 改相对路径**：GitHub Pages 子路径部署下 `/images/icon-*.png` 等绝对路径 404 → `../images/...` 相对路径，图标与 start_url/scope 恢复正常
+- **OG 分享标签更换域名**：废弃旧 `starry-night-autism-care.app.workbuddy.host` → GitHub Pages 地址，分享卡片恢复配图
+- **keywords 去重**：「自闭症,自闭症」→「自闭症,孤独症」
+- **首屏 WebP 化**：书首页 hero 两张带透明通道 PNG（2.0MB）转为 WebP（205KB，省 90%），深浅主题截图核验无视觉差异；SW 缓存 v18
 
 ## [v12.4] - 2026-11-01
 
