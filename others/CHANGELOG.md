@@ -14,6 +14,11 @@
 - **目录结构对齐大赛规范**：数据层相关文件统一收进 `others/`（`others/data/stats.json` 源数据、`others/tools/sync-stats.js` 同步脚本），根目录只保留 `index.html` + `css/` `html/` `images/` `others/` 五类
 - SW 缓存版本升级至 v17（预缓存 others/data/stats.json 与 others/js/data/stats.js）
 
+### 修复：右下角悬浮按钮排版（11-03）
+
+- 对话页音乐/音量按钮与「⚙ 设置」悬浮按钮重叠约 5px：音乐盒上移（bottom 104→130px），稳定保持约 21px 间距
+- 「⚙ 设置」右缘与音乐盒对齐（right 14→20px），三个按钮同列右对齐、不再拥挤
+
 ## [v12.4] - 2026-11-01
 
 ### 新增：浅色模式 + 偏好设置中心

@@ -405,7 +405,7 @@ body{
 .chat-page{ position:absolute; inset:0; z-index:35; display:none; background:transparent; overflow:hidden; }
 .chat-open .chat-page{ display:block; }
 /* 对话页打开时：声音控制移到右下角并缩小，避免与“返回”按钮重叠 */
-.chat-open .music-box{ top:auto; bottom:104px; right:20px; gap:8px; }
+.chat-open .music-box{ top:auto; bottom:130px; right:20px; gap:8px; }
 .chat-open .music-btn{ width:40px; height:40px; }
 .chat-open .vol-btn{ width:30px; height:30px; }
 .chat-open .music-btn svg{ width:20px; height:20px; }
@@ -1651,7 +1651,7 @@ a.pl-card:hover b{ color:#fff6d8; }
 .cert-hint{ font-size:13px; color:#8fa0d8; letter-spacing:1px; }
 
 /* ===== 无障碍 / 浅色 ===== */
-.a11y-fab{ position:fixed; right:14px; bottom:70px; z-index:99999; display:flex; flex-direction:column; gap:8px; }
+.a11y-fab{ position:fixed; right:20px; bottom:70px; z-index:99999; display:flex; flex-direction:column; gap:8px; }
 .a11y-fab button{ background:rgba(18,23,52,.85); border:1px solid rgba(255,217,138,.5); color:#ffd98a; border-radius:999px; padding:9px 14px; font-size:13px; letter-spacing:1px; cursor:pointer; backdrop-filter:blur(6px); transition:.2s; }
 .a11y-fab button:hover{ background:rgba(255,217,138,.16); }
 body.a11y-lg .site-view{ font-size:17px; }
