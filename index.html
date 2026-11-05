@@ -740,7 +740,7 @@
         <div class="site-c"><b>无障碍优先</b><p>深/浅双主题正文对比度均 ≥ 4.5:1；8 个浮层统一焦点陷阱与 ESC 关闭；可一键减少动效、放大字号。</p><span class="star">人人可用</span></div>
       </div>
       <div class="site-ver">
-        <b>v12.10</b>
+        <b>v12.11</b>
         <span>17 个模块 · 11090 行代码 · 零第三方运行时依赖 · 2026 年 11 月</span>
         <em>完整架构与代码质量自检见《技术文档》第 3、8 章</em>
       </div>
@@ -1290,6 +1290,7 @@
                   <label class="set-label" for="aiProvider">服务商<small>选择大模型接口</small></label>
                   <select class="set-select" id="aiProvider"></select>
                 </div>
+                <div class="set-hint" id="aiProviderHint" aria-live="polite"></div>
                 <div class="set-row" id="aiKeyRow">
                   <label class="set-label" for="aiKey">API Key<small>仅保存在本机浏览器 localStorage，用于调用所选接口</small></label>
                   <input class="set-input" id="aiKey" type="password" placeholder="sk-…" autocomplete="off">
@@ -1339,7 +1340,7 @@
                 <div class="set-tip">
                   <b>如何开启真实 AI 对话：</b>默认使用「免费体验接口」，页面联网时即可使用真实大模型（网络波动时会自动切换为本地应答）。
                   正式演示前建议配置自己的 API Key（仅保存在本机浏览器 localStorage，不会进入代码仓库）：
-                  <br>· 后端中转（推荐上线部署）：部署 others/serverless/ 中的代理函数后选择此项，真实 Key 只存服务端，前端零泄露；
+                  <br>· 后端中转（推荐上线部署）：把 others/serverless/vercel-api-ai.js 复制成站点根目录的 api/ai.js，与页面同域部署后选此项——真实 Key 只存服务端，前端零泄露；纯静态托管（GitHub Pages 等）没有 /api/ai，选它会 404 并自动降级；
                   <br>· DeepSeek：到 platform.deepseek.com 获取 Key，模型 deepseek-chat；
                   <br>· 智谱 GLM：到 open.bigmodel.cn 获取 Key，模型 glm-4-flash（含免费额度）；
                   <br>· 通义千问：到 dashscope.console.aliyun.com 获取 Key，模型 qwen-turbo。

@@ -2782,3 +2782,37 @@ html.theme-light .site-ver b{
 }
 html.theme-light .site-ver span{ color:#5d688f; }
 html.theme-light .site-ver em{ color:#6b7390; }
+
+/* ===== AI 设置面板 · 服务商逐项说明（v12.11） ===== */
+.set-hint{
+  margin:-2px 0 18px; padding:14px 18px; border-radius:12px; text-align:left;
+  font-size:15px; font-weight:300; line-height:1.85; letter-spacing:.5px; color:#a9b5e2;
+  background:rgba(12,17,44,.55); border:1px solid rgba(255,255,255,.09);
+  border-left:3px solid rgba(255,217,100,.45);
+}
+.set-hint b{ color:var(--cream); font-weight:500; }
+.set-hint code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.9em;
+  padding:1px 6px; border-radius:5px; background:rgba(255,255,255,.08); color:#ffe6a8;
+  overflow-wrap:anywhere;
+}
+.set-hint .h-tag{
+  display:inline-block; padding:1px 9px; margin-right:4px; border-radius:20px;
+  font-size:12.5px; letter-spacing:1px; vertical-align:1px; white-space:nowrap;
+}
+.set-hint .h-tag.ok{ color:#b8f2c9; background:rgba(120,230,160,.12); border:1px solid rgba(120,230,160,.35); }
+.set-hint .h-tag.warn{ color:#ffd0c2; background:rgba(255,120,90,.12); border:1px solid rgba(255,140,110,.4); }
+.set-hint .h-tag.info{ color:#ffe6a8; background:rgba(255,217,100,.12); border:1px solid rgba(255,217,100,.35); }
+.set-hint[hidden]{ display:none; }
+html.theme-light .set-hint{
+  background:rgba(43,48,90,.04); border-color:rgba(43,48,90,.14); border-left-color:rgba(190,140,20,.55); color:#5a6488;
+}
+html.theme-light .set-hint b{ color:#243060; }
+html.theme-light .set-hint code{ background:rgba(43,48,90,.08); color:#8a5a00; }
+html.theme-light .set-hint .h-tag.ok{ color:#2f6b45; background:rgba(60,160,100,.1); border-color:rgba(60,160,100,.35); }
+html.theme-light .set-hint .h-tag.warn{ color:#a3371f; background:rgba(200,80,50,.08); border-color:rgba(200,80,50,.3); }
+html.theme-light .set-hint .h-tag.info{ color:#8a5a00; background:rgba(190,140,20,.1); border-color:rgba(190,140,20,.3); }
+@media (max-width:780px){
+  .set-hint{ font-size:14px; padding:12px 14px; line-height:1.8; letter-spacing:0; }
+  .set-hint .h-tag{ font-size:12px; }
+}
