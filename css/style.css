@@ -2755,3 +2755,30 @@ html.theme-light .hero-ai{
   box-shadow:0 10px 30px rgba(70,60,30,.14);
 }
 html.theme-light .hero-ai .hai-sub{ color:#6b7390; }
+
+/* ---- 关于页 · 技术说明与版本号（v12.9）---- */
+.site-ver{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+  max-width:1200px; margin:18px auto 0; padding:14px 20px; border-radius:14px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+}
+.site-ver b{
+  flex:none; padding:3px 12px; border-radius:999px;
+  background:rgba(255,217,100,.16); border:1px solid rgba(255,217,100,.42);
+  color:#ffd98a; font-size:13px; font-weight:500; letter-spacing:1px;
+}
+.site-ver span{ font-size:13px; letter-spacing:.5px; color:#93a4d4; }
+.site-ver em{
+  margin-left:auto; font-style:normal; font-size:12px;
+  letter-spacing:.5px; color:#7f8fb8;
+}
+@media (max-width:780px){
+  .site-ver{ gap:8px 12px; padding:12px 16px; }
+  .site-ver em{ margin-left:0; }
+}
+html.theme-light .site-ver{ background:rgba(43,48,90,.04); border-color:rgba(43,48,90,.14); }
+html.theme-light .site-ver b{
+  background:rgba(255,200,80,.22); border-color:rgba(190,140,20,.5); color:#7a5a00;
+}
+html.theme-light .site-ver span{ color:#5d688f; }
+html.theme-light .site-ver em{ color:#6b7390; }
