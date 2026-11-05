@@ -80,6 +80,7 @@
     if(/abort/i.test(n) || /aborted|timeout/i.test(m)) return '请求超时';
     if(/Failed to fetch|fetch failed|NetworkError|Load failed|Network request failed/i.test(m)) return '网络不通，或接口未放行跨域';
     if(/HTTP 401|HTTP 403/.test(m)) return 'Key 无效或没有权限';
+    if(/HTTP 400/.test(m)) return '请求内容未被接口接受（常见原因：该模型不支持图片输入，或内容格式超出模型限制）';
     if(/HTTP 404/.test(m)) return '接口地址不对（404）';
     if(/HTTP 429/.test(m)) return '调用太频繁或额度已用尽';
     if(/HTTP 5\d\d/.test(m)) return '服务端异常 ' + m.replace(/[^0-9]/g, '');
@@ -133,16 +134,18 @@
   function buildMessages(){
     var sys = SYSTEM_PROMPT + ragContext(_lastUserText);
     var msgs = [{ role: 'system', content: sys }];
+    // 当前模型不支持看图时，历史里的图片自动降级为文字占位——否则会随每一轮请求反复触发 400
+    var canSee = !!(AI_PROVIDERS[aiCfg.provider] && AI_PROVIDERS[aiCfg.provider].vision);
     var hist = chatHistory.slice(-30);
     for(var hi = 0; hi < hist.length; hi++){
       var m = hist[hi];
-      if(m.image){
+      if(m.image && canSee){
         msgs.push({ role: m.role, content: [
           { type: 'text', text: m.content || '请看看这张图片' },
           { type: 'image_url', image_url: { url: m.image } }
         ] });
       } else {
-        msgs.push({ role: m.role, content: m.content });
+        msgs.push({ role: m.role, content: m.image ? ('[用户之前发过一张图片] ' + (m.content || '')) : m.content });
       }
     }
     return msgs;
@@ -634,6 +637,9 @@
       var note = '';
       if(err && aiCfg.enabled && aiKeyOk()){
         note = '〔AI 接口暂时不可用（' + aiErrText(err) + '），已切换本地知识库应答〕\n';
+        if(imageDataUrl && /400/.test(String((err && err.message) || ''))){
+          note += '〔另外：你现在用的模型可能看不了图片。点右上角 ⚙ 设置，切换到「通义千问」我就能看图啦〕\n';
+        }
       } else if(aiCfg.enabled && aiKeyOk()){
         note = '〔AI 接口暂时不可用，已切换本地知识库应答〕\n';
       }
