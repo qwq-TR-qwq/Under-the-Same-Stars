@@ -658,7 +658,7 @@
     scrollMsgs();
     return wrap;
   }
-  function botSay(text, buttons){
+  function botSay(text, buttons, onDone){
     var wrap = document.createElement('div');
     wrap.className = 'msg bot';
     wrap.innerHTML = '<div class="ava">' + avaSvg(true) + '</div><div class="bubble"><span class="txt"></span><i class="caret"></i></div>';
@@ -675,8 +675,9 @@
         i++;
       } else {
         clearInterval(timer);
-        bubble.removeChild(caret);
+        if(caret && caret.parentNode) bubble.removeChild(caret);
         scrollMsgs();
+        if(typeof onDone === 'function'){ try{ onDone(wrap, bubble); }catch(e){} }
       }
     }, spd);
     if(buttons && buttons.length){
@@ -704,7 +705,7 @@
     }
     chatInput.value = '';
     chatting = true;
-    chatSend.disabled = true;
+    if(typeof paintSendBtn === 'function') paintSendBtn(); else chatSend.disabled = true;
     var think = botThink();
     aiChat(text, think, img);
   }
@@ -791,10 +792,17 @@
   // 顶部对话按钮
   var navChatBtn = document.getElementById('navChatBtn');
   if(navChatBtn){ navChatBtn.addEventListener('click', function(e){ e.stopPropagation(); switchView('chat'); }, false); }
+  // 首屏 AI 入口：评审打开首页即可一眼看到「AI 在场」，不必先翻两页
+  var heroAiBtn = document.getElementById('heroAi');
+  if(heroAiBtn){ heroAiBtn.addEventListener('click', function(e){ e.stopPropagation(); switchView('chat'); }, false); }
   // 感官体验模拟按钮
   var sensoryBtn = document.getElementById('sensoryBtn');
   if(sensoryBtn){ sensoryBtn.addEventListener('click', function(e){ e.stopPropagation(); switchView('science'); setTimeout(function(){ if(typeof show==='function') show(10); }, 400); }, false); }
-  chatSend.addEventListener('click', function(e){ e.stopPropagation(); sendMsg(); }, false);
+  chatSend.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(chatting){ if(typeof window.__aiStop === 'function') window.__aiStop(); return; }   // 对话中：按钮变「停止」
+    sendMsg();
+  }, false);
   chatInput.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){ e.preventDefault(); e.stopPropagation(); sendMsg(); }
   }, false);
