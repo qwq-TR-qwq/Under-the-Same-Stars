@@ -132,7 +132,8 @@
     return { text: '该工具暂不支持。', brief: '未支持' };
   }
   function buildMessages(){
-    var sys = SYSTEM_PROMPT + ragContext(_lastUserText);
+    // 看图轮次不注入知识库：按文字检索出来的条目跟图片无关，会误导模型、也会挂出错误"依据"
+    var sys = SYSTEM_PROMPT + (_lastReq && _lastReq.image ? '' : ragContext(_lastUserText));
     var msgs = [{ role: 'system', content: sys }];
     // 当前模型不支持看图时，历史里的图片自动降级为文字占位——否则会随每一轮请求反复触发 400
     var canSee = !!(AI_PROVIDERS[aiCfg.provider] && AI_PROVIDERS[aiCfg.provider].vision);
@@ -589,6 +590,7 @@
   function aiChat(text, think, imageDataUrl, opts){
     opts = opts || {};
     _lastReq = { text: text, image: imageDataUrl || null };
+    _lastHits = [];   // 每轮先清空：任何提前返回都不该沿用上一轮的"依据"
     STOPPED = false;
     if(!opts.quiet){
       chatHistory.push({ role: 'user', content: text, image: imageDataUrl || null });
@@ -629,6 +631,17 @@
     var useTools = !imageDataUrl && aiCfg.provider !== 'pollinations';
     // 本地知识库兜底：若这条问题超出内置应答范围，在末尾提示接入大模型
     var localFallback = function(err){
+      // 带图失败：本地知识库读不了图，不套用按文字检索出来的条目，也不给"依据"（那会误导成图片的证据）
+      if(imageDataUrl){
+        if(typeof _replyUncovered !== 'undefined') _replyUncovered = false;
+        _lastHits = [];
+        var whyImg = err ? aiErrText(err) : '当前没有可用的看图通道';
+        var imgTip = '抱歉，这张图片我这边没能看到内容（' + whyImg + '）。\n'
+          + '有两个办法：① 点右上角 ⚙ 设置，把服务商换成「通义千问」——它支持看图，浏览器直连、有免费额度，换好后再发一次这张图；'
+          + '② 或者直接用文字告诉我图里是什么、想让我帮你看哪一部分，我照样能陪你聊。';
+        finishReply(think, imgTip, '', { cites: false });
+        return;
+      }
       var kwTool = detectTool(text);
       var kwBtns = kwTool ? [{ view: kwTool.view, label: '去「' + (VIEW_NAMES[kwTool.view] || kwTool.name) + '」看看' }] : null;
       var body = addFollowup(replyFor(text));
@@ -637,9 +650,6 @@
       var note = '';
       if(err && aiCfg.enabled && aiKeyOk()){
         note = '〔AI 接口暂时不可用（' + aiErrText(err) + '），已切换本地知识库应答〕\n';
-        if(imageDataUrl && /400/.test(String((err && err.message) || ''))){
-          note += '〔另外：你现在用的模型可能看不了图片。点右上角 ⚙ 设置，切换到「通义千问」我就能看图啦〕\n';
-        }
       } else if(aiCfg.enabled && aiKeyOk()){
         note = '〔AI 接口暂时不可用，已切换本地知识库应答〕\n';
       }
@@ -649,7 +659,7 @@
     if(typeof navigator !== 'undefined' && navigator.onLine === false){ localFallback(); return; }
     var msgs = buildMessages();
     // 静默预检索：命中结果只作为回答依据，不在气泡里显示检索提示（保持原始思考动画）
-    _lastHits = searchKB(text);
+    _lastHits = (_lastReq && _lastReq.image) ? [] : searchKB(text);
     var pendingButtons = [];
     callAI(msgs, function(content, toolCalls){
       if(toolCalls && toolCalls.length){
