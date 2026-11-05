@@ -520,6 +520,35 @@
     }, function(err){ cb(null); }, null, false);
   };
 
+  // ============ 对外暴露：结构化 JSON 调用（一周陪伴计划 16-plan.js 使用） ============
+  function parseJSONLoose(txt){
+    if(!txt) return null;
+    var s = String(txt).replace(/```json/gi, '').replace(/```/g, '').replace(/^\s+|\s+$/g, '');
+    var i = s.indexOf('{'), j = s.lastIndexOf('}');
+    if(i < 0 || j <= i) return null;
+    var body = s.slice(i, j + 1);
+    try{ return JSON.parse(body); }catch(e){}
+    try{ return JSON.parse(body.replace(/,\s*([}\]])/g, '$1')); }catch(e){}
+    return null;
+  }
+  window.__aiReady = function(){
+    if(!aiCfg.enabled) return false;
+    if(typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+    return !!aiKeyOk();
+  };
+  window.__aiJSON = function(messages, cb){
+    if(!window.__aiReady()){ cb(null, 'offline'); return; }
+    var acc = '';
+    callAI(messages, function(content){
+      var parsed = parseJSONLoose(content || acc);
+      cb(parsed, parsed ? null : 'parse');
+    }, function(err){
+      cb(null, aiErrText(err));
+    }, function(partial){
+      acc = partial;
+    }, false);
+  };
+
   // ============ RAG 本地知识库（站内科普条目检索） ============
   var KNOWLEDGE_BASE = [
     { t:'什么是自闭症', k:['自闭症','自闭症','是什么','什么是','定义','是病吗','心理疾病','ASD'], c:'自闭症（又叫自闭症，全称"自闭症谱系障碍"，ASD）是一种与生俱来的神经发育差异——说人话就是，他们的大脑处理信息的方式和大多数人不太一样。主要有三个特点：社交沟通有点费劲、兴趣比较专注狭窄、会有重复的小动作或刻板行为。它不是性格内向，不是心理疾病，更不是家长冷漠或教育失败造成的。每个孩子差异很大，有的话多有的话少，有的在某些方面特别有天赋，有的需要长期支持，没有"标准答案"。' },

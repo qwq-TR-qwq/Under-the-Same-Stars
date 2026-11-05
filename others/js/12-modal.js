@@ -17,6 +17,7 @@
     aiMask: '#aiMaskClose',
     familyMask: '#familyClose',
     clinicMask: '#clinicClose',
+    planMask: '#planClose',
     testMask: '#testClose',
     topicMask: '#topicBack',
     setMask: '#setClose',
@@ -92,7 +93,7 @@
   document.addEventListener('keydown', onKeydown, true);
 
   // 页面加载时浮层若已处于打开态（理论不会，但兜底）
-  var nodes = Array.prototype.slice.call(document.querySelectorAll('#aiMask,#familyMask,#clinicMask,#testMask,#topicMask,#senseOverlay,#setMask'));
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('#aiMask,#familyMask,#clinicMask,#planMask,#testMask,#topicMask,#senseOverlay,#setMask'));
   var mo = new MutationObserver(function (muts) {
     for (var i = 0; i < muts.length; i++) {
       var el = muts[i].target;

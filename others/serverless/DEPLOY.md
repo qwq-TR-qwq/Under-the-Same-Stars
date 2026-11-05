@@ -1,5 +1,12 @@
 # AI 代理部署指南（Cloudflare Worker）
 
+> **部署记录（2026-11-05）**：已部署为 `xyn-ai`，子域 `xyn2026`，地址 `https://xyn-ai.xyn2026.workers.dev`。
+> 实测 `*.workers.dev` 在中国大陆被 DNS 污染 + SNI 阻断（解析到 Facebook 网段），**国内无法直连**；
+> `*.vercel.app` 同样被污染。因此线上站点暂不启用 `REMOTE_PROXY`（保持留空 = 通道关闭，行为与 v12.5 一致），
+> 评委默认走 pollinations 免费接口 → 本地知识库。若日后购入域名，把域名 NS 迁到 Cloudflare 并绑定
+> Worker 自定义域后，将新地址填入 `others/js/03-ai-core.js` 顶部的 `REMOTE_PROXY` / `REMOTE_TOKEN` 即可启用。
+> Worker 本身免费保留，海外网络可正常访问，健康检查：`GET https://xyn-ai.xyn2026.workers.dev`。
+
 目的：让线上演示站（GitHub Pages 等纯静态托管）在**评委零配置**的情况下就能用真实大模型对话。
 Key 只存在 Worker 的环境变量里，前端拿不到，也不进代码仓库。
 

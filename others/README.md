@@ -18,6 +18,7 @@
 |---|---|
 | 前端 | 原生 HTML5 + CSS3 + JavaScript（ES6+），JS 按功能模块化拆分（others/js/ 下 16 个模块） |
 | AI 集成 | 多服务商大模型接入（在线演示通道 / 后端中转 / DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口，OpenAI 兼容协议），SSE 流式输出，Function Calling 工具调用 |
+| 一周陪伴计划 | 三步规划工作流：一句话描述困境 → AI 自主判断信息缺口并追问 2–3 题 → 生成"今天一件事 / 本周目标 / 三个避坑 / 何时就医"计划卡，逐日打卡并按执行情况重排 |
 | 多模态 | Web Speech API 语音识别 + TTS 朗读（6 种音色预设，含温柔女声 / 温润男声 / 低沉男声，可调语速与音调）；图片上传 + 视觉模型看图理解（glm-4v-flash / qwen-vl-plus 自动切换） |
 | RAG | 站内科普知识库：字符二元组向量化 + 余弦相似度检索，与计分制关键词匹配混合排序；本地 REPLY_BANK 145 组话题键兜底 + 17 个科普话题专门回答 |
 | AI 安全 | 危机干预关键词兜底（自伤/轻生 → 热线卡片优先响应）、接口失败自动降级本地应答并明示、全局错误兜底 toast |
@@ -111,7 +112,14 @@
 
 命中数 ≥ 2 的条目直接胜出；命中数 = 1 时接受较长关键词（≥3 字），避免单字误匹配。同时内置 17 个科普话题（autism/adhd/tourette/depression/anxiety/bipolar/panic/sleep/stress/exam/social/emotion/comfort/heartbreak/procrastinate/phoneaddict/parent）的**精确匹配长回答**，不走关键词计分，直接命中。
 
-### 4.2 大模型在线集成（多服务商）
+### 4.2 一周陪伴计划（三步规划工作流）
+- 入口：对话页「一周陪伴计划」条 → `others/js/16-plan.js`
+- 流程：描述困境 → AI 输出"还需确认什么"并追问 2–3 题 → 生成计划卡（今天一件事 / 本周目标 / 三个避坑 / 何时就医 / 排序依据）
+- 闭环：逐日打卡（7 格），打卡满 2 天可"按执行情况调整"——第二轮 prompt 带完成率，要求"做到的保留、做不到的降难度"
+- 兜底：本地规则库 8 类场景预设（公共场所崩溃 / 睡眠 / 语言 / 上学 / 进食 / 情绪 / 如厕 / 社交），断网出保守模板卡并标注来源
+- 结构化调用：`__aiJSON()` 宽容解析（剥代码栏栅 / 截取大括号 / 容忍尾逗号）；数据仅存 localStorage
+
+### 4.3 大模型在线集成（多服务商）
 - 默认：免费体验接口（pollinations，无需 Key，联网即用）
 - **在线演示通道（服务端代理）**：线上托管（GitHub Pages / Gitee Pages 等）首次访问自动走 Cloudflare Worker 代理，Key 只存在服务端环境变量，**评审打开即用、无需任何配置**；`file://` 与 `localhost` 不干预，仍可用自己的 Key 直连。部署见 `others/serverless/DEPLOY.md`
 - 可选：DeepSeek（`deepseek-chat`）/ 智谱 GLM（`glm-4-flash`，看图 `glm-4v-flash`，浏览器直连受跨域限制，需代理）/ 通义千问（`qwen-turbo`，看图 `qwen-vl-plus`）/ 自定义 OpenAI 兼容接口

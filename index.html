@@ -1225,6 +1225,11 @@
               <span class="fs-main"><b>家长专区</b><i>确诊适应 · 情绪行为 · 沟通 · 上学康复 · 照顾自己</i></span>
               <span class="fs-arrow" aria-hidden="true">›</span>
             </button>
+            <button class="plan-strip" id="planOpen" type="button" title="一句话描述困境，星语追问后帮你排好一周">
+              <span class="ps-ico" aria-hidden="true">🗓</span>
+              <span class="ps-txt"><b>一周陪伴计划</b>一句话说困境 · 星语追问 2–3 个问题 · 排成可打卡的七天</span>
+              <span class="ps-arrow" aria-hidden="true">›</span>
+            </button>
             <div class="chat-msgs" id="chatMsgs"></div>
             <div class="chat-inputbar">
               <button class="chat-mic" id="chatPic" type="button" title="发送图片，让星语看图解读" aria-label="发送图片，让星语看图解读">📷</button>
@@ -1364,6 +1369,17 @@
             <p class="fam-foot">内容依据 WHO、美国儿科学会、中国残联康复救助政策等公开资料整理，仅供家庭参考，不构成诊断或治疗建议；涉及自伤、走失、受虐待请立即就医或报警。</p>
           </div>
         </div>
+        <!-- 一周陪伴计划（三步规划工作流：描述 → AI 追问 → 可打卡计划卡） -->
+        <div class="ui-mask" id="planMask">
+          <div class="ui-panel plan-panel">
+            <div class="ui-head">
+              <span class="quiz-flag">一周陪伴</span>
+              <div class="ui-title">星语 · 这一周怎么陪</div>
+              <button class="ui-close" id="planClose" type="button">‹ 返回对话</button>
+            </div>
+            <div class="plan-body" id="planBody"></div>
+          </div>
+        </div>
         <!-- 就医准备清单生成器（家属可打印带去医院） -->
         <div class="ui-mask" id="clinicMask">
           <div class="ui-panel clinic-panel">
@@ -1477,6 +1493,7 @@
   <script src="others/js/13-clinic.js"></script>
   <script src="others/js/14-safety.js"></script>
   <script src="others/js/15-misslog.js"></script>
+  <script src="others/js/16-plan.js"></script>
 
 <!-- 短片已外置为 videos/ 下独立 mp4 文件 -->
 </body>

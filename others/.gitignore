@@ -32,3 +32,6 @@ _extract_assets.py
 
 # 开发预览（不提交）
 _preview-*.html
+
+# Wrangler 本地状态（部署缓存，不入库）
+serverless/.wrangler/
