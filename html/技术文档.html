@@ -25,10 +25,10 @@ strong{color:#1f2430}
 </head>
 <body>
 <h1>星夜入眠 —— 关爱自闭症儿童公益科普网站技术文档</h1>
-<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.8（正式参赛版）</p>
+<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.9（正式参赛版）</p>
 <hr>
 <h2>目录</h2>
-<ol><li>项目概述</li><li>需求分析</li><li>系统架构设计</li><li>AI 技术方案</li><li>核心功能实现</li><li>测试与部署</li><li>创新点</li><li>总结与展望</li></ol>
+<ol><li>项目概述</li><li>需求分析</li><li>系统架构设计</li><li>AI 技术方案</li><li>核心功能实现</li><li>测试与部署</li><li>创新点</li><li>性能与安全</li><li>总结与展望</li><li>可持续性与推广路径</li></ol>
 <hr>
 <h2>1. 项目概述</h2>
 <h3>1.1 背景</h3>
@@ -54,72 +54,116 @@ strong{color:#1f2430}
 <ul><li><strong>免构建模块化交付</strong>：纯静态文件，双击即可运行；HTML / CSS / JS 按职责分离</li><li><strong>离线可用</strong>：本地知识库兜底，断网时仍能对话（PWA 文件归档于 others/，离线缓存视托管环境生效）</li><li><strong>响应式</strong>：PC / 移动端均可用（device-width 视口 + 完整移动端断点）</li><li><strong>无障碍</strong>：键盘可达导航、focus-visible 焦点环、图标按钮 aria-label、大字模式</li><li><strong>隐私保护</strong>：不使用患儿真实照片</li><li><strong>基调正向</strong>：不卖惨、不渲染悲情</li><li><strong>密钥安全</strong>：源码零密钥；线上演示默认走 Cloudflare Worker 服务端代理（Key 只存在服务端环境变量），个人使用 Key 仅存本机浏览器</li><li><strong>演示稳定</strong>：不依赖现场网络（本地兜底 + 离线缓存双保险）</li></ul>
 <hr>
 <h2>3. 系统架构设计</h2>
-<h3>3.1 整体架构</h3>
+<h3>3.1 分层架构与依赖方向</h3>
 <pre><code>
-┌─────────────────────────────────────────┐
-│     浏览器（静态站点，免构建直接打开）     │
-├─────────────────────────────────────────┤
-│  index.html（结构，0.11MB）              │
-│  css/style.css（全部样式）               │
-│  others/js/ 16 个功能模块（按序加载）     │
-│  首页 / 科普 / 故事 / 数据 / 体验 / 对话 │
-│  / 家庭 / 公益 / 关于                   │
-├─────────────────────────────────────────┤
-│  渲染层：Canvas 自绘图表/寄语卡片          │
-│         + 外置视频/图片（懒加载 + WebP）  │
-│  交互层：打字机/流式渲染/翻页动画/手势缩放  │
-├─────────────────────────────────────────┤
-│  AI 对话层                              │
-│  ├─ 在线：多服务商 LLM（SSE 流式）        │
-│  │   后端中转 / DeepSeek / 智谱 / 通义 /  │
-│  │   免费体验接口（OpenAI 兼容协议）       │
-│  ├─ Function Calling 站内工具调用         │
-│  │  （板块跳转/知识库检索/感官体验）       │
-│  ├─ 多模态：图片理解 + TTS 朗读（音色     │
-│  │   含男声可选，默认温柔女声）+ 语音输入  │
-│  ├─ RAG：向量检索 + 关键词混合排序         │
-│  └─ 本地：TOPIC_REPLIES + REPLY_BANK 兜底 │
-├─────────────────────────────────────────┤
-│  安全层：危机干预兜底 / 降级明示 / 免责    │
-│  密钥层：后端中转代理（others/serverless/）│
-├─────────────────────────────────────────┤
-│  PWA：others/manifest.json + others/sw.js│
-│  存储：localStorage（配置 / 留言 / 历史） │
-└─────────────────────────────────────────┘
+----------------------------------------------------------
+L0 引导层   00-boot        错误兜底 · 主题预应用 · SW 注册
+----------------------------------------------------------
+L1 视图层   01-book        翻页骨架
+            06-site-shell  视图切换
+            02-chat        对话视图
+----------------------------------------------------------
+L2 业务层   05 心理测评     08 政策导航     10 家长专区
+            13 就医清单     16 一周计划     04 感官体验
+----------------------------------------------------------
+L3 AI 能力层 03-ai-core
+            通道选择 · SSE 流式 · Function Calling · RAG
+            引用溯源 · 停止/重生成 · 降级兜底
+----------------------------------------------------------
+L4 横切层   09 声线   11 设置   12 焦点   14 安全  15 日志
+----------------------------------------------------------
+L5 数据层   data/stats.json  --&gt;  js/data/stats.js
+            localStorage（主题/配置/历史/计划/留言）
+----------------------------------------------------------
+L6 平台层   sw.js 离线缓存 · manifest.json PWA
+----------------------------------------------------------
+
+依赖方向   L1 --&gt; L2 --&gt; L3 --&gt; L5   单向，无反向依赖、无循环
+横切调用   L4 被 L1-L3 按需调用，自身不依赖业务层
+加载顺序   00 &gt; 01 &gt; 02 &gt; 03 &gt; 04 &gt; 05 &gt; 06 &gt; stats &gt; 07 &gt; ... &gt; 16
 </code></pre>
-<h3>3.2 技术选型</h3>
+<p><strong>为什么这样分层</strong>：每一层只依赖它的下一层，改一层不会牵动别层。例如换掉图表实现（L1）不影响 RAG 检索（L3）；换掉大模型服务商（L3）不影响家长专区的题库（L2）。评委可以直接按这张图定位任意一行代码属于哪层。图内全部使用 ASCII 字符（<code>-</code> <code>|</code> <code>+</code>）绘制，不依赖制表符字形，因此在任何字体与页宽下都不会错位或溢出。</p>
+<h3>3.2 三条主要数据流</h3>
+<table>
+<tr><th>流</th><th>路径</th><th>说明</th></tr>
+<tr><td>对话流</td><td><code>02-chat</code> 输入 → <code>14-safety</code> 风险预检 → <code>10-family</code> 命中？ → <code>03-ai-core</code> 选通道 → 流式回写 → <code>09-voice</code> 朗读</td><td>每一跳都有兜底：风险命中先出安全卡；家长题库命中不调模型；接口失败转本地知识库</td></tr>
+<tr><td>视图流</td><td><code>07-nav</code> 或 <code>01-book</code> 触发 → <code>06-site-shell.switchView()</code> → 目标视图 <code>activate()</code> → Canvas 按需重绘</td><td>切视图时暂停视频与音频，避免后台播放</td></tr>
+<tr><td>配置流</td><td><code>11-settings</code> 写入 <code>&lt;html class&gt;</code> + localStorage → <code>theme:change</code> / <code>motion:change</code> 事件广播 → 订阅者（图表、Canvas、CSS 变量）响应</td><td>主题只有一个真相源（根元素 class），不用 JS 逐元素改样式</td></tr>
+</table>
+<h3>3.3 模块职责与对外接口</h3>
+<table>
+<tr><th>模块</th><th>行数</th><th>职责</th><th>对外接口</th></tr>
+<tr><td>00-boot</td><td>65</td><td>渲染前预应用主题/动效/字号，捕获全局异常，注册 SW</td><td>无（自执行）</td></tr>
+<tr><td>01-book</td><td>250</td><td>书页翻页骨架、页索引、动效开关的唯一判定</td><td><code>isMotionOff()</code> <code>total</code></td></tr>
+<tr><td>02-chat</td><td>1206</td><td>对话视图：消息渲染、打字机、附件、语音入口、发送键状态</td><td><code>botSay()</code> <code>chatMsgs</code> <code>chatting</code></td></tr>
+<tr><td>03-ai-core</td><td>879</td><td>AI 能力内核：通道选择、SSE 流式、工具调用、RAG、引用、降级</td><td><code>__aiInfo</code> <code>__aiStop</code> <code>__aiJSON</code> <code>__aiReady</code> <code>__aiStats</code></td></tr>
+<tr><td>04-sensory</td><td>128</td><td>感官体验短片播放与降噪/增益模拟</td><td><code>startSensorySim()</code></td></tr>
+<tr><td>05-tests-community</td><td>695</td><td>心理测评量表与 MBTI，历史记录</td><td><code>window.__test*</code></td></tr>
+<tr><td>06-site-shell</td><td>51</td><td>视图切换与板块级交互</td><td><code>switchView()</code></td></tr>
+<tr><td>07-nav-community</td><td>895</td><td>汉堡导航、数据看板 Canvas 三图、留言墙</td><td><code>renderDash()</code> <code>theme:change</code> 订阅</td></tr>
+<tr><td>08-policy</td><td>524</td><td>31 省 + 333 地级市二级导航、搜索、最近记录</td><td><code>window.__policy*</code></td></tr>
+<tr><td>09-voice</td><td>432</td><td>TTS 声线（女声/男声）、逐句跳读、语音识别输入</td><td><code>__starVoice</code></td></tr>
+<tr><td>10-family</td><td>508</td><td>家长专区 29 题循证应答 + 60 秒自评</td><td><code>__familyAnswer</code> <code>__familyScore</code> <code>__familyTopics</code></td></tr>
+<tr><td>11-settings</td><td>183</td><td>偏好设置中心：主题 / 动效 / 字号 / 音乐</td><td><code>__set</code> <code>__theme</code> <code>__motion</code></td></tr>
+<tr><td>12-modal</td><td>110</td><td>8 个浮层的焦点陷阱、ESC、焦点归还、滚动锁定</td><td><code>__modal</code></td></tr>
+<tr><td>13-clinic</td><td>231</td><td>就医准备清单生成器（可打印）</td><td><code>window.__clinic*</code></td></tr>
+<tr><td>14-safety</td><td>93</td><td>危机信息前置卡片（自伤/走失/极端情绪）</td><td><code>__safety</code></td></tr>
+<tr><td>15-misslog</td><td>86</td><td>未命中问题日志，驱动知识库迭代</td><td><code>__missLog</code></td></tr>
+<tr><td>16-plan</td><td>452</td><td>一周陪伴计划三步工作流与打卡闭环</td><td><code>__plan</code></td></tr>
+</table>
+<p><strong>合计</strong>：17 个模块 6888 行 JS + 2757 行 CSS + 1503 行 HTML = 11148 行，零第三方运行时依赖。</p>
+<h3>3.4 技术选型</h3>
 <table>
 <tr><th>模块</th><th>选型</th><th>理由</th></tr>
-<tr><td>前端</td><td>原生 HTML/CSS/JS（CSS 独立、JS 拆分 16 个模块）</td><td>免构建、零依赖、比赛友好，职责清晰</td></tr>
-<tr><td>AI 模型</td><td>多服务商可切换（后端中转 / DeepSeek / 智谱 / 通义 / 免费体验接口）</td><td>中文共情能力强、含免费额度、API 稳定</td></tr>
-<tr><td>图表</td><td>原生 Canvas 2D 自绘</td><td>零依赖、完全离线可用、交互式强、移动端适配好</td></tr>
-<tr><td>视频/图片/音频</td><td>外置独立文件 + 懒加载 + WebP</td><td>HTML 从 40MB 降至 0.11MB（另有 CSS 0.14MB），首屏加载大幅提升</td></tr>
+<tr><td>前端</td><td>原生 HTML/CSS/JS（CSS 独立、JS 拆分 17 个模块）</td><td>免构建、零依赖、评审可直接读源码，职责清晰</td></tr>
+<tr><td>AI 模型</td><td>多服务商可切换（服务端代理 / DeepSeek / 通义 / 免费体验接口）</td><td>中文共情能力强、含免费额度、任一不可用可降级</td></tr>
+<tr><td>图表</td><td>原生 Canvas 2D 自绘</td><td>零依赖、完全离线可用、主题切换即时重绘</td></tr>
+<tr><td>视频/图片/音频</td><td>外置独立文件 + 懒加载 + WebP</td><td>HTML 从 40MB 降至 0.11MB，首屏加载大幅提升</td></tr>
+<tr><td>数据</td><td>JSON 单一事实源 → 构建脚本生成 JS 兜底</td><td>file:// 与 http(s) 双环境都能读到同一份数据</td></tr>
 <tr><td>PWA</td><td>manifest.json + Service Worker（归档于 others/）</td><td>断网演示兜底；作用域受目录规范限制</td></tr>
+</table>
+<h3>3.5 工程取舍：为什么不上框架</h3>
+<p>这是本项目最容易被质疑的一点，因此把判断依据和代价一起写清楚。</p>
+<p><strong>结论</strong>：赛期内不迁移 React/Vue。不是不会，是四个具体理由压过了组件化的收益。</p>
+<table>
+<tr><th>维度</th><th>原生（本项目）</th><th>框架（Vite + React）</th><th>对本项目的意义</th></tr>
+<tr><td>首屏 JS 体积</td><td>0 KB 运行时（仅业务代码）</td><td>约 45–140 KB gzip 运行时</td><td>目标用户含低端安卓机与医院弱网，首屏每省 100KB 都是真实体验</td></tr>
+<tr><td>构建步骤</td><td>无，改完刷新即可</td><td>需 node_modules + 打包</td><td>评委克隆后双击 <code>index.html</code> 就能跑，无需 npm install</td></tr>
+<tr><td>离线可用</td><td>SW 缓存静态文件即可</td><td>需处理 chunk 分包与缓存策略</td><td>家长在地铁、候诊区断网时仍能对话（本地知识库）</td></tr>
+<tr><td>可审计性</td><td>F12 看到的即仓库源码</td><td>需 source map 才能对应</td><td>公益 + 健康信息，回答逻辑必须能逐行核对</td></tr>
+<tr><td>无障碍控制</td><td>直接操作真实 DOM，焦点可精确管理</td><td>虚拟 DOM + 合成事件，焦点与重排需额外验证</td><td>8 个浮层的焦点陷阱已实测通过，换框架要重验</td></tr>
+</table>
+<p><strong>用工程纪律替代框架约束</strong>，具体做了四件事：</p>
+<ol><li><strong>命名空间隔离</strong>：v12.6 起的模块统一 <code>(function(){ 'use strict'; … window.__x = …; })()</code>，跨模块只走显式接口，共 17 个 <code>window.__*</code> 命名空间</li><li><strong>单向依赖</strong>：业务模块只能调 AI 能力层，不能反向；横切模块不依赖业务</li><li><strong>静态检查</strong>：全部模块通过 <code>node --check</code>；零 <code>console.log</code> / 零 <code>TODO</code> / 零内联事件</li><li><strong>可回归</strong>：无头浏览器断言脚本（详见 6.2），改一次跑一次</li></ol>
+<p><strong>遗留技术债（如实列出）</strong>：</p>
+<table>
+<tr><th>债</th><th>现状</th><th>迁移路径</th></tr>
+<tr><td>早期模块共享全局作用域</td><td>02 / 03 / 06 等仍为顶层 <code>var</code>，未 IIFE 化</td><td>逐个包裹并显式导出，替换跨模块隐式引用</td></tr>
+<tr><td>CSS 单文件 2757 行</td><td>含深/浅两套主题覆盖块</td><td>按 <code>base / layout / component / theme</code> 拆分，用 <code>@layer</code> 管优先级</td></tr>
+<tr><td>无单元测试框架</td><td>用无头浏览器端到端断言代替</td><td>抽纯函数（检索、计分、解析）补 Node 单测</td></tr>
 </table>
 <hr>
 <h2>4. AI 技术方案</h2>
-<h3>4.1 双链路对话架构</h3>
+<h3>4.1 四层通道对话架构（v12.6 起）</h3>
 <pre><code>
 用户输入
-   │
-   ├── 尝试 DeepSeek API（60s 超时）
-   │       │
-   │       ├── 成功 → 流式返回 → 打字机渲染
-   │       │
-   │       └── 失败/超时/余额不足
-   │             │
-   │             ▼
-   ├── 本地 TOPIC_REPLIES（17 个科普话题精确回答）
-   │             │
-   │             ▼
-   ├── 本地 REPLY_BANK 计分匹配
-   │       │
-   │       ├── 命中条目 → 返回对应回答 + 引导语
-   │       │
-   │       └── 未命中 → 通用 FALLBACKS
-   │
-   └── 全程：思考态提示 + 错误友好处理
+   |
+   +-- ① 服务端代理（线上默认）  Key 在服务端，评委零配置
+   |        | 未配置 / 失败
+   |        v
+   +-- ② 自配 Key 直连          DeepSeek / 通义，CORS 实测放行
+   |        | 未配置 / 失败
+   |        v
+   +-- ③ 免费体验接口           公共接口，限流时可能失败
+   |        | 未配置 / 失败
+   |        v
+   +-- ④ 本地知识库             RAG 检索 --&gt; TOPIC_REPLIES（17 话题）
+                                     --&gt; REPLY_BANK --&gt; 通用兜底
+
+失败处理  ① 异常翻译成人话（超时 / 跨域 / 401 / 429 / 5xx）
+          ② 气泡明示降级原因    ③ 保留完整对话，不留白屏
 </code></pre>
+<p><strong>通道选择逻辑</strong>：<code>isHostedDemo()</code> 识别线上托管域名，首次访问且无本地配置时自动选 ① 或 ③；<code>file://</code> 与 <code>localhost</code> 不干预，开发者用自备 Key 直连调试。<code>REMOTE_PROXY</code> 常量留空即关闭代理通道，行为可完整回退。</p>
 <h3>4.2 本地知识库（RAG 兜底）</h3>
 <p>考虑到比赛现场可能断网、API 不可用，我们构建了<strong>本地兜底知识库</strong>：</p>
 <ul><li><strong>REPLY_BANK 条目数</strong>：145 组话题键（v12.1 起覆盖 23 类高频现实困境：经济压力、霸凌、丧亲哀伤、容貌焦虑、家暴等）</li><li><strong>覆盖人群</strong>：12 类</li><li>特教老师、医护、单亲家长、退休老人、中小学教师</li><li>应届生、焦虑抑郁人群、亲密关系困扰者、留守儿童</li><li>普通社会人士、自闭症青少年、自闭症儿童家人</li><li>压力大学生、职场人</li><li><strong>覆盖场景</strong>：60+ 细分情绪与问题</li></ul>
@@ -222,7 +266,7 @@ function replyFor(text) {
 <p><strong>链接治理（重要）</strong></p>
 <ul><li>省级：31 个省级残联域名逐条比对官方来源 + HTTP 实测，修正上海（新站 shdpf.org.cn）、陕西（仅 http）、新疆（www 前缀）等问题</li><li>市级：337 个地级行政区逐一探测「全拼 / 首字母缩写 + <code>www.{x}.gov.cn</code>」候选域名，<strong>只收录标题中同时出现城市名与"政府"字样的站点</strong>（共 244 个），据此排除了 <code>ts.gov.cn</code>（实为泰顺县）、<code>suzhou.gov.cn</code>（苏州市，非宿州）等同名误配；未收录的城市不展示猜测链接，改为提示通过省残联或 12345 获取本地信息</li></ul>
 <h3>5.7 偏好设置与无障碍（v12.0，v12.4 扩展）</h3>
-<ul><li>大字模式：真实字体放大（不只调行距），不破坏排版（v12.4 起并入设置面板并可持久化）</li><li>心理量表题目字体 36px、选项 25px，保证可读性</li><li><strong>偏好设置中心</strong>（<code>11-settings.js</code>，v12.4）：顶栏 + 右下角双入口「⚙ 设置」浮层，统一管理四项个性化调整——主题外观（深色·星夜 / 浅色·日光）、网页动态效果（开启全部动效 / 减少动效，快捷键 Shift+L）、字号大小（标准 / 大字）、背景音乐（与书页音乐按钮双向同步）；全部状态仅存 localStorage，刷新自动恢复，旧版低刺激存档（<code>xyn_low_stim</code>）自动迁移为 <code>xyn_motion</code></li><li><strong>浅色模式</strong>（v12.4）：<code>&lt;html class="theme-light"&gt;</code> 单一状态真相；日光纸白配色 + 深色墨字（正文对比度 ≥ 4.5:1），书页背景换晨光渐变，书首页标题垫毛玻璃胶囊保证插画上文字可读；数据看板 Canvas 图表监听 <code>theme:change</code> 事件以浅色配色重绘；约 400 行覆盖规则逐一适配全站组件</li><li><strong>网页动态效果（原低刺激模式）</strong>（<code>11-settings.js</code>）：状态唯一真相是 <code>&lt;html class="motion-off"&gt;</code>（原 <code>stim-low</code>），<code>00-boot.js</code> 在渲染前从 localStorage 预应用（首屏不闪动画）；减少动效时 CSS 将全部动画压到瞬时完成（<code>animation-duration:.001s</code>，保留最终帧避免元素停在透明态，换页叙事动画通过高优先级规则豁免），并显式关闭鼠标视差、弹幕滚动；JS 侧监听 <code>motion:change</code>（原 <code>stim:change</code>）自定义事件实现"减少即静音 BGM、恢复后按原开关状态继续"</li><li><strong>浮层焦点统一接管</strong>（<code>12-modal.js</code>）：零侵入设计——MutationObserver 监听 7 个浮层（AI 设置 / 家长专区 / 就医清单 / 心理测评 / 科普话题 / 感官体验 / 偏好设置）class 的 open/on 切换，自动完成焦点移入、Tab 循环锁定（首尾环绕）、ESC 关闭（点各浮层自己的关闭按钮保证业务状态一致）、焦点归还触发元素、body 滚动锁定；不修改任何业务模块的开关函数</li><li><strong>就医准备清单生成器</strong>（<code>13-clinic.js</code>）：5 组 25 项循证观察项（勾选 + 频率），localStorage 持久化可分天补充；生成结构化 A4 打印单（基本信息 → 最担心的事 → 分类清单含频率 → 时间线表格 → 已尝试方法 → 就诊提示），打印用 <code>visibility</code> 方案只输出清单层，不依赖 <code>display:none</code> 逐个隐藏</li><li><strong>情绪安全阀</strong>（<code>14-safety.js</code>）：<code>window.__safety.check(text)</code> 统一入口，区分家长语境（描述孩子行为 → child 卡片）与本人危机（self 卡片）；02-chat 与 03-ai-core 两处拦截点共用；60 秒节流；卡片静态无动画，兼容减少动效模式</li><li><strong>未命中问题日志</strong>（<code>15-misslog.js</code>）：本地知识库未接住的问题记入 <code>xyn_miss_log_v1</code>（10 分钟去重、上限 200 条），设置面板一键导出 CSV（文件写入 UTF-8 BOM 头，Excel 打开中文不乱码）——以真实用户提问反推知识库补充方向</li><li>高对比模式已按需求移除</li></ul>
+<ul><li>大字模式：真实字体放大（不只调行距），不破坏排版（v12.4 起并入设置面板并可持久化）</li><li>心理量表题目字体 36px、选项 25px，保证可读性</li><li><strong>偏好设置中心</strong>（<code>11-settings.js</code>，v12.4）：顶栏 + 右下角双入口「设置」浮层，统一管理四项个性化调整——主题外观（深色·星夜 / 浅色·日光）、网页动态效果（开启全部动效 / 减少动效，快捷键 Shift+L）、字号大小（标准 / 大字）、背景音乐（与书页音乐按钮双向同步）；全部状态仅存 localStorage，刷新自动恢复，旧版低刺激存档（<code>xyn_low_stim</code>）自动迁移为 <code>xyn_motion</code></li><li><strong>浅色模式</strong>（v12.4）：<code>&lt;html class="theme-light"&gt;</code> 单一状态真相；日光纸白配色 + 深色墨字（正文对比度 ≥ 4.5:1），书页背景换晨光渐变，书首页标题垫毛玻璃胶囊保证插画上文字可读；数据看板 Canvas 图表监听 <code>theme:change</code> 事件以浅色配色重绘；约 400 行覆盖规则逐一适配全站组件</li><li><strong>网页动态效果（原低刺激模式）</strong>（<code>11-settings.js</code>）：状态唯一真相是 <code>&lt;html class="motion-off"&gt;</code>（原 <code>stim-low</code>），<code>00-boot.js</code> 在渲染前从 localStorage 预应用（首屏不闪动画）；减少动效时 CSS 将全部动画压到瞬时完成（<code>animation-duration:.001s</code>，保留最终帧避免元素停在透明态，换页叙事动画通过高优先级规则豁免），并显式关闭鼠标视差、弹幕滚动；JS 侧监听 <code>motion:change</code>（原 <code>stim:change</code>）自定义事件实现"减少即静音 BGM、恢复后按原开关状态继续"</li><li><strong>浮层焦点统一接管</strong>（<code>12-modal.js</code>）：零侵入设计——MutationObserver 监听 7 个浮层（AI 设置 / 家长专区 / 就医清单 / 心理测评 / 科普话题 / 感官体验 / 偏好设置）class 的 open/on 切换，自动完成焦点移入、Tab 循环锁定（首尾环绕）、ESC 关闭（点各浮层自己的关闭按钮保证业务状态一致）、焦点归还触发元素、body 滚动锁定；不修改任何业务模块的开关函数</li><li><strong>就医准备清单生成器</strong>（<code>13-clinic.js</code>）：5 组 25 项循证观察项（勾选 + 频率），localStorage 持久化可分天补充；生成结构化 A4 打印单（基本信息 → 最担心的事 → 分类清单含频率 → 时间线表格 → 已尝试方法 → 就诊提示），打印用 <code>visibility</code> 方案只输出清单层，不依赖 <code>display:none</code> 逐个隐藏</li><li><strong>情绪安全阀</strong>（<code>14-safety.js</code>）：<code>window.__safety.check(text)</code> 统一入口，区分家长语境（描述孩子行为 → child 卡片）与本人危机（self 卡片）；02-chat 与 03-ai-core 两处拦截点共用；60 秒节流；卡片静态无动画，兼容减少动效模式</li><li><strong>未命中问题日志</strong>（<code>15-misslog.js</code>）：本地知识库未接住的问题记入 <code>xyn_miss_log_v1</code>（10 分钟去重、上限 200 条），设置面板一键导出 CSV（文件写入 UTF-8 BOM 头，Excel 打开中文不乱码）——以真实用户提问反推知识库补充方向</li><li>高对比模式已按需求移除</li></ul>
 <h3>5.8 数据看板数据层（v12.5）</h3>
 <ul><li><strong>唯一数据源 <code>others/data/stats.json</code></strong>：20 个数据点全部结构化，每点带「数值 + 类型（发布值 / 估算 / 差额推算）+ 来源 id + 推算依据」；患病率三点（Meta 分析 3.5‰ / 0—6 岁实测 1.8% / 规范引用 7‰）各自标注调查口径、并列呈现，不合并连线暗示趋势</li><li><strong>权威来源清单 10 条</strong>：WHO / CDC ADDM / 中国残联 / 新华社 / 卫健委规范 / 学术期刊等，看板下方可逐条展开，有官方原文链接的全部附链</li><li><strong>同步脚本 <code>others/tools/sync-stats.js</code></strong>：校验 JSON（长度 / 来源引用 / 饼图合计 / 估算必附依据）并生成 <code>others/js/data/stats.js</code> 注入页面；<code>--check</code> 模式校验同步</li><li><strong>三条更新路径</strong>：线上（http/https）自动 fetch 一次 JSON，只改 JSON 即时生效；本地跑脚本彻底同步；file:// 双击打开由 <code>&lt;script&gt;</code> 注入零网络请求，数据缺失时回退内置兜底——看板永不白屏</li><li><strong>UI</strong>：元信息条（数据截至 / 数据点数 / 复核周期 / 口径标签）、折线图悬停直接显示「数值 + 口径 + 来源」、深浅主题各自适配配色重绘</li></ul>
 <h3>5.9 AI 通道与降级设计（v12.6）</h3>
@@ -262,11 +306,11 @@ function replyFor(text) {
 <h3>5.12 模型选型对比（v12.8 实测口径）</h3>
 <table>
 <tr><th>服务商</th><th>模型</th><th>费用</th><th>浏览器直连（CORS 实测）</th><th>图片理解</th><th>项目内定位</th></tr>
-<tr><td>DeepSeek</td><td>deepseek-chat</td><td>约 ¥1-2 / 百万 tokens</td><td>✅ 放行</td><td>❌</td><td>主力通道：录制演示、现场答辩、个人使用</td></tr>
-<tr><td>通义千问</td><td>qwen-turbo / qwen-vl-plus</td><td>有免费额度</td><td>✅ 放行</td><td>✅</td><td>看图理解首选（浏览器可直连）</td></tr>
-<tr><td>智谱 GLM</td><td>glm-4-flash / glm-4v-flash</td><td>有免费额度</td><td>❌ 无 CORS 头，需代理</td><td>✅</td><td>备用（面板已标注"需代理"）</td></tr>
-<tr><td>pollinations</td><td>openai</td><td>免费</td><td>✅ 放行</td><td>❌</td><td>线上托管默认兜底（实测国内可用，200 / 3.7s）</td></tr>
-<tr><td>服务端代理</td><td>deepseek-chat</td><td>Worker 免费 10 万次/天</td><td>✅（由 Worker 加 CORS）</td><td>—</td><td>线上评委零配置通道（REMOTE_PROXY，当前预留未启用）</td></tr>
+<tr><td>DeepSeek</td><td>deepseek-chat</td><td>约 ¥1-2 / 百万 tokens</td><td>放行</td><td>不支持</td><td>主力通道：录制演示、现场答辩、个人使用</td></tr>
+<tr><td>通义千问</td><td>qwen-turbo / qwen-vl-plus</td><td>有免费额度</td><td>放行</td><td>支持</td><td>看图理解首选（浏览器可直连）</td></tr>
+<tr><td>智谱 GLM</td><td>glm-4-flash / glm-4v-flash</td><td>有免费额度</td><td>需代理（无 CORS 头）</td><td>支持</td><td>备用（面板已标注"需代理"）</td></tr>
+<tr><td>pollinations</td><td>openai</td><td>免费</td><td>放行</td><td>不支持</td><td>线上托管默认兜底（实测国内可用，200 / 3.7s）</td></tr>
+<tr><td>服务端代理</td><td>deepseek-chat</td><td>Worker 免费 10 万次/天</td><td>放行（由 Worker 补 CORS）</td><td>—</td><td>线上评委零配置通道（REMOTE_PROXY，当前预留未启用）</td></tr>
 </table>
 <p>选型依据：①覆盖"评委零配置 / 个人低成本 / 看图 / 离线兜底"四类场景互为补充；②全部走 OpenAI 兼容协议，同一套 <code>callAI</code> 适配；③浏览器直连能力经 OPTIONS 预检实测，不做想当然的假设。</p>
 <h3>5.13 Prompt 附录（v12.8）</h3>
@@ -278,7 +322,7 @@ function replyFor(text) {
 <blockquote>你在帮一位自闭症孩子的家长排"一周陪伴计划"，现在是第 2 步：判断还缺什么信息。只输出 JSON，不要任何解释文字，格式：{"questions":[{"q":"问题（22 字内，说人话）","type":"single","options":["选项1","选项2","选项3"]}]}。规则：2 到 3 道题；家长原话里已经说了的不要再问；不要问诊断结论或病因；每道题尽量给 3–4 个选项，实在无法选项化才用 "type":"text"；问题要能直接影响"这周做什么"。</blockquote>
 <hr>
 <h2>6. 测试与部署</h2>
-<h3>6.1 开发历程（从 v1 到 v12.8 完整迭代）</h3>
+<h3>6.1 开发历程（从 v1 到 v12.9 完整迭代）</h3>
 <p>项目从最初版本到现在持续迭代打磨：</p>
 <p><strong>v1 初版（9/30，10.6MB）</strong></p>
 <ul><li>基础星空动画 + 交互动画背景</li><li>首页主视觉、导航栏</li><li>初版科普内容框架</li></ul>
@@ -301,7 +345,7 @@ function replyFor(text) {
 <p><strong>v10（10/12，40.7MB）</strong></p>
 <ul><li>公益参与板块添加官方网站跳转链接（中国精协、中国残疾人福利基金会），新标签页打开</li><li>术语全站统一为"自闭症"</li><li>视频全面禁用自动播放，离开当前页面立即暂停并回到开头</li><li>心理量表题目字体增大到 36px</li><li>对话时取消自动跳转站内板块（页面保持稳定）</li><li>17 个科普话题专门长回答</li><li>背景音乐全局总开关修复</li><li>视频下方黄色文字改为真正超链接</li><li>体验视频加封面</li></ul>
 <p><strong>v11（10/25，0.45MB HTML + 12MB 外置资源）</strong></p>
-<ul><li><strong>安全</strong>：移除源码硬编码 API Key，默认切换免费体验接口（无需 Key）</li><li><strong>性能</strong>：全部 base64 资源外置 + 懒加载 + 大图压缩 + 重复视频去重，HTML 从 40.7MB 降至 0.45MB</li><li><strong>AI 升级</strong>：SSE 流式输出重写；真 Function Calling（tools 协议 + tool_calls 流式解析 + 二次请求）；RAG 向量检索（bigram 余弦 + 关键词混合）与检索可视化；知识库扩充至 21 条</li><li><strong>多模态</strong>：📷 图片上传看图理解（glm-4v-flash / qwen-vl-plus 自动切换）；🔊 TTS 朗读回复</li><li><strong>AI 安全</strong>：危机干预关键词兜底（12356 热线卡片优先响应）；降级明示</li><li><strong>交互</strong>：导航收敛为 5 个下拉分组 + 移动端汉堡菜单；数据看板折叠；问卷计分结果页</li><li><strong>创新</strong>：AI 星空寄语卡片（LLM 生成寄语 + Canvas 绘制可保存贺卡）</li></ul>
+<ul><li><strong>安全</strong>：移除源码硬编码 API Key，默认切换免费体验接口（无需 Key）</li><li><strong>性能</strong>：全部 base64 资源外置 + 懒加载 + 大图压缩 + 重复视频去重，HTML 从 40.7MB 降至 0.45MB</li><li><strong>AI 升级</strong>：SSE 流式输出重写；真 Function Calling（tools 协议 + tool_calls 流式解析 + 二次请求）；RAG 向量检索（bigram 余弦 + 关键词混合）与检索可视化；知识库扩充至 21 条</li><li><strong>多模态</strong>：图片上传看图理解（glm-4v-flash / qwen-vl-plus 自动切换）；TTS 朗读回复</li><li><strong>AI 安全</strong>：危机干预关键词兜底（12356 热线卡片优先响应）；降级明示</li><li><strong>交互</strong>：导航收敛为 5 个下拉分组 + 移动端汉堡菜单；数据看板折叠；问卷计分结果页</li><li><strong>创新</strong>：AI 星空寄语卡片（LLM 生成寄语 + Canvas 绘制可保存贺卡）</li></ul>
 <p><strong>v11.1（10/25）</strong></p>
 <ul><li>分享传播：补齐 Open Graph / Twitter Card 元信息与 1200×675 分享封面图</li><li>预连接：AI 接口域名 preconnect / dns-prefetch，降低首字延迟</li><li>资源瘦身：15 张大图转 WebP（2805KB → 2047KB），images 目录 6.7MB → 5MB</li></ul>
 <p><strong>v11.2（10/25，HTML 0.07MB + CSS 91KB + JS 8 模块）</strong></p>
@@ -321,9 +365,9 @@ function replyFor(text) {
 <p><strong>v12.3（10/31：BGM 全页通用 + Pages 上线）</strong></p>
 <ul><li>背景音乐全页通用：移除视频页自动静音特殊处理，翻页全程音乐不中断</li><li>GitHub Pages 在线演示上线：https://qwq-tr-qwq.github.io/Under-the-Same-Stars/ ；SW 缓存 v15</li></ul>
 <p><strong>v12.4（11/1，当前版本：浅色模式 + 偏好设置中心）</strong></p>
-<ul><li>新增浅色模式（☀ 浅色·日光）：日光纸白 + 深色墨字，正文对比度 ≥ 4.5:1；书页换晨光渐变、首页标题垫毛玻璃胶囊；Canvas 图表监听主题事件自动重绘为浅底深字；约 400 行覆盖规则逐组件适配，全站 10+ 页面逐页截图核验</li><li>新增偏好设置中心（<code>11-settings.js</code>，替代 <code>11-stim.js</code>）：主题外观 / 网页动态效果 / 字号大小 / 背景音乐四项统一入口，双「⚙ 设置」按钮，全部持久化；字号设置并入后可记忆选择</li><li>「低刺激」更名「网页动态效果」：语义改为「开启全部动效 / 减少动效」；类名 <code>stim-low</code>→<code>motion-off</code>、事件 <code>stim:change</code>→<code>motion:change</code>、存储 <code>xyn_low_stim</code>→<code>xyn_motion</code>（旧存档自动迁移）；换页叙事动画保留豁免、快捷键 Shift+L 保留</li><li>设置面板纳入 12-modal 焦点管理（浮层 6→7 个）；SW 缓存 v16</li><li>质量验证：无头浏览器端到端功能断言 14/14 通过（持久化、旧存档迁移、图表重绘、音乐同步、快捷键等），过程中修复快捷键 toggle 逻辑反转问题</li></ul>
+<ul><li>新增浅色模式（浅色·日光）：日光纸白 + 深色墨字，正文对比度 ≥ 4.5:1；书页换晨光渐变、首页标题垫毛玻璃胶囊；Canvas 图表监听主题事件自动重绘为浅底深字；约 400 行覆盖规则逐组件适配，全站 10+ 页面逐页截图核验</li><li>新增偏好设置中心（<code>11-settings.js</code>，替代 <code>11-stim.js</code>）：主题外观 / 网页动态效果 / 字号大小 / 背景音乐四项统一入口，双「设置」按钮，全部持久化；字号设置并入后可记忆选择</li><li>「低刺激」更名「网页动态效果」：语义改为「开启全部动效 / 减少动效」；类名 <code>stim-low</code>→<code>motion-off</code>、事件 <code>stim:change</code>→<code>motion:change</code>、存储 <code>xyn_low_stim</code>→<code>xyn_motion</code>（旧存档自动迁移）；换页叙事动画保留豁免、快捷键 Shift+L 保留</li><li>设置面板纳入 12-modal 焦点管理（浮层 6→7 个）；SW 缓存 v16</li><li>质量验证：无头浏览器端到端功能断言 14/14 通过（持久化、旧存档迁移、图表重绘、音乐同步、快捷键等），过程中修复快捷键 toggle 逻辑反转问题</li></ul>
 <p><strong>v12.5（11/1–11/3，当前版本：数据看板数据层 + 工程修正）</strong></p>
-<ul><li>数据看板升级为数据层：<code>others/data/stats.json</code> 唯一数据源 + <code>others/tools/sync-stats.js</code> 同步脚本，20 数据点 / 10 条权威来源，详见 5.8</li><li><strong>目录结构对齐大赛规范</strong>：根目录只保留 <code>index.html</code> + <code>css/</code> <code>html/</code> <code>images/</code> <code>others/</code> 五类，数据层文件收进 <code>others/data/</code>、<code>others/tools/</code></li><li><strong>修复右下角按钮重叠</strong>：对话页音乐/音量按钮与「⚙ 设置」悬浮按钮重叠 5px → 音乐盒上移并右缘对齐（稳定 21px 间距）</li><li><strong>工程修正</strong>：PWA manifest 改相对路径（GitHub Pages 子路径下图标 404 → 正常）；OG 分享标签从废弃旧域名改为 Pages 地址；keywords 去重补「孤独症」</li><li><strong>首屏瘦身</strong>：书首页 hero 两张 PNG（共 2.0MB）转为带透明通道 WebP（205KB，省 90%），深浅主题逐张截图核验无视觉差异；SW 缓存 v18</li></ul>
+<ul><li>数据看板升级为数据层：<code>others/data/stats.json</code> 唯一数据源 + <code>others/tools/sync-stats.js</code> 同步脚本，20 数据点 / 10 条权威来源，详见 5.8</li><li><strong>目录结构对齐大赛规范</strong>：根目录只保留 <code>index.html</code> + <code>css/</code> <code>html/</code> <code>images/</code> <code>others/</code> 五类，数据层文件收进 <code>others/data/</code>、<code>others/tools/</code></li><li><strong>修复右下角按钮重叠</strong>：对话页音乐/音量按钮与「设置」悬浮按钮重叠 5px → 音乐盒上移并右缘对齐（稳定 21px 间距）</li><li><strong>工程修正</strong>：PWA manifest 改相对路径（GitHub Pages 子路径下图标 404 → 正常）；OG 分享标签从废弃旧域名改为 Pages 地址；keywords 去重补「孤独症」</li><li><strong>首屏瘦身</strong>：书首页 hero 两张 PNG（共 2.0MB）转为带透明通道 WebP（205KB，省 90%），深浅主题逐张截图核验无视觉差异；SW 缓存 v18</li></ul>
 <p><strong>v12.8（11/5）：AI 可信度四件套（引用溯源 · 工具可视化 · 停止/重生成 · 检索评测）</strong></p>
 <ul><li>RAG 引用溯源：语料 24→50 条，Prompt 注入带编号条目，回答中 [n] 渲染为可点上标，点击展开"依据"折叠条并高亮原文</li><li>Function Calling 可视化：工具调用在气泡顶部显示"已调用 知识库检索（…）→ 命中 3 条"，可展开入参与返回明细</li><li>消息操作条：复制 / 重新生成（回退历史重发，不重复用户消息）；发送键对话中变为"停止"，中止后保留已输出内容并标注</li><li>RAG 检索评测：20 条口语问法，首轮 hit@3 70% → 关键词调优（6 条目 17 词）→ 复测 100%，全过程与数据写入 5.11</li><li>首屏 AI 入口：首页 hero 新增"和星语聊一聊"胶囊，一步进入对话</li><li>验证：无头浏览器 17/17 断言（含模拟 abort 的停止链路、tool-call 链路、浅色主题），零 JS 异常</li></ul>
 <p><strong>v12.7（11/5）：一周陪伴计划（三步规划工作流）</strong></p>
@@ -339,7 +383,7 @@ function replyFor(text) {
 <hr>
 <h2>7. 创新点</h2>
 <h3>7.1 技术创新</h3>
-<ol><li><strong>双链路 RAG 对话</strong>：在线大模型 + 本地知识库兜底，比赛现场断网也能演示</li><li><strong>向量 + 关键词混合检索</strong>：知识库做字符二元组向量化，余弦相似度与计分制关键词匹配混合排序，Top3 注入 System Prompt；检索命中数在思考态可视化（"已检索到 N 条站内科普资料"）</li><li><strong>Function Calling 站内工具调用</strong>：通过 OpenAI tools 协议定义 3 个工具（板块跳转 navigate_view / 知识库检索 search_knowledge / 感官体验 sensory_experience），大模型自主决策调用，前端执行后二次请求生成最终回复；流式响应中解析 tool_calls 增量</li><li><strong>SSE 流式输出</strong>：大模型回复逐 token 流式渲染，替换一次性返回，交互体验显著提升</li><li><strong>多模态集成</strong>：语音输入（Web Speech API）+ TTS 朗读（用户主动触发）+ 图片上传看图理解（视觉模型自动切换 glm-4v-flash / qwen-vl-plus）</li><li><strong>AI 安全兜底</strong>：危机干预关键词检测（自伤/轻生）优先于大模型直接本地响应，展示 12356 热线卡片；接口失败降级本地应答并明示</li><li><strong>完整降级链路</strong>：在线 API（流式）→ Function Calling → 本地 17 话题 → 本地知识库 → 通用兜底，多层保障</li></ol>
+<ol><li><strong>四层通道 + RAG 对话</strong>：服务端代理 / 自配 Key / 免费接口 / 本地知识库四级兜底，比赛现场断网也能完整演示</li><li><strong>向量 + 关键词混合检索</strong>：知识库做字符二元组向量化，余弦相似度与计分制关键词匹配混合排序，Top3 注入 System Prompt；检索命中数在思考态可视化（"已检索到 N 条站内科普资料"）</li><li><strong>Function Calling 站内工具调用</strong>：通过 OpenAI tools 协议定义 3 个工具（板块跳转 navigate_view / 知识库检索 search_knowledge / 感官体验 sensory_experience），大模型自主决策调用，前端执行后二次请求生成最终回复；流式响应中解析 tool_calls 增量</li><li><strong>SSE 流式输出</strong>：大模型回复逐 token 流式渲染，替换一次性返回，交互体验显著提升</li><li><strong>多模态集成</strong>：语音输入（Web Speech API）+ TTS 朗读（用户主动触发）+ 图片上传看图理解（视觉模型自动切换 glm-4v-flash / qwen-vl-plus）</li><li><strong>AI 安全兜底</strong>：危机干预关键词检测（自伤/轻生）优先于大模型直接本地响应，展示 12356 热线卡片；接口失败降级本地应答并明示</li><li><strong>完整降级链路</strong>：在线 API（流式）→ Function Calling → 本地 17 话题 → 本地知识库 → 通用兜底，多层保障</li></ol>
 <h3>7.2 应用创新</h3>
 <ol><li><strong>感官体验模拟</strong>：用真实场景视频让普通人"体会"自闭症儿童的世界</li><li><strong>多人群共情知识库</strong>：覆盖 12 类人群 60+ 场景，不只是家长</li><li><strong>AI 星空寄语卡片</strong>：大模型生成专属寄语 + Canvas 实时绘制星空贺卡，可保存分享，让科普成果可带走</li><li><strong>星空治愈视觉</strong>：二次元风格 + 星空动画，把沉重话题做温暖</li><li><strong>隐私优先</strong>：不用患儿真实照片，全部用插画和故事</li></ol>
 <h3>7.3 社会价值</h3>
@@ -347,15 +391,60 @@ function replyFor(text) {
 <hr>
 <h2>8. 性能与安全</h2>
 <h3>8.1 性能优化</h3>
-<ul><li><strong>资源全部外置</strong>：图片 / 视频 / 背景音乐从 base64 内嵌外置为独立文件，HTML 从 40MB 降至 0.11MB</li><li><strong>CSS / JS 分离</strong>：样式提取为 css/style.css，脚本拆分为 others/js/ 下 16 个模块，浏览器可并行下载与缓存</li><li><strong>图片懒加载</strong>：全部 <code>&lt;img&gt;</code> 添加 <code>loading="lazy" decoding="async"</code>，首屏只加载首屏资源</li><li><strong>图片 WebP 化</strong>：15 张大图转 WebP（2805KB → 2047KB）；书首页 hero 两张带透明通道 PNG 转 WebP（2.0MB → 205KB），images 目录 6.7MB → 2.6MB</li><li><strong>重复资源去重</strong>：校验 md5 后删除重复视频文件，节省约 10MB</li><li><strong>预连接</strong>：AI 接口域名 preconnect / dns-prefetch，降低首字延迟</li><li><strong>图表按需渲染</strong>：Canvas 图表在页面初始化时绘制，数据看板折叠为 <code>&lt;details&gt;</code> 不占首屏</li><li><strong>流式渲染</strong>：SSE 逐 token 更新 DOM，替代一次性大段插入，避免长回复卡顿</li><li><strong>打字机节流</strong>：避免高频 DOM 操作卡顿</li></ul>
+<ul><li><strong>资源全部外置</strong>：图片 / 视频 / 背景音乐从 base64 内嵌外置为独立文件，HTML 从 40MB 降至 0.11MB</li><li><strong>CSS / JS 分离</strong>：样式提取为 css/style.css，脚本拆分为 others/js/ 下 17 个模块，浏览器可并行下载与缓存</li><li><strong>图片懒加载</strong>：全部 <code>&lt;img&gt;</code> 添加 <code>loading="lazy" decoding="async"</code>，首屏只加载首屏资源</li><li><strong>图片 WebP 化</strong>：15 张大图转 WebP（2805KB → 2047KB）；书首页 hero 两张带透明通道 PNG 转 WebP（2.0MB → 205KB），images 目录 6.7MB → 2.6MB</li><li><strong>重复资源去重</strong>：校验 md5 后删除重复视频文件，节省约 10MB</li><li><strong>预连接</strong>：AI 接口域名 preconnect / dns-prefetch，降低首字延迟</li><li><strong>图表按需渲染</strong>：Canvas 图表在页面初始化时绘制，数据看板折叠为 <code>&lt;details&gt;</code> 不占首屏</li><li><strong>流式渲染</strong>：SSE 逐 token 更新 DOM，替代一次性大段插入，避免长回复卡顿</li><li><strong>打字机节流</strong>：避免高频 DOM 操作卡顿</li></ul>
 <h3>8.2 安全性</h3>
 <ul><li><strong>源码零密钥</strong>：API Key 不入库；个人使用通过设置面板配置（localStorage），正式部署使用 others/serverless/ 后端中转代理（Vercel Functions / Cloudflare Workers 示例 + .env.example 模板），真实 Key 只存服务端</li><li>本地兜底回答人工撰写，无安全风险</li><li>严重心理问题自动提示就医与 12356 热线（危机干预关键词优先于大模型响应）</li><li>不收集用户隐私数据（对话仅在浏览器内存）</li><li>公益链接使用 <code>target="_blank" rel="noopener"</code>，防钓鱼反向攻击</li><li>全局错误兜底：未捕获异常只展示友好提示，不泄露技术细节</li></ul>
+<h3>8.3 代码质量自检（v12.8 实测）</h3>
+<p>提交前对全仓做一次静态自检，结果如下（均为脚本实测，非人工声明）：</p>
+<table>
+<tr><th>检查项</th><th>方法</th><th>结果</th></tr>
+<tr><td>语法正确性</td><td><code>node --check</code> 逐个模块</td><td>17/17 通过</td></tr>
+<tr><td>调试残留</td><td>正则扫描 <code>console.log</code> / <code>console.debug</code> / <code>debugger</code></td><td>0 处</td></tr>
+<tr><td>未完成标记</td><td>扫描 <code>TODO</code> / <code>FIXME</code> / <code>XXX</code></td><td>0 处</td></tr>
+<tr><td>内联事件</td><td>扫描 <code>onclick=</code> 等 HTML 事件属性</td><td>0 处（全部 <code>addEventListener</code>）</td></tr>
+<tr><td>DOM id 唯一性</td><td>提取全部 <code>id="…"</code> 比对重复</td><td>0 处重复</td></tr>
+<tr><td>运行时异常</td><td>无头 Edge 加载全站，监听 <code>Runtime.exceptionThrown</code></td><td>18 个脚本零异常</td></tr>
+<tr><td>密钥泄漏</td><td>全仓及 git 历史扫描 <code>sk-[A-Za-z0-9]{20,}</code></td><td>0 处</td></tr>
+<tr><td>端到端断言</td><td>无头浏览器脚本</td><td>32 + 17 + 15 = 64 项通过</td></tr>
+<tr><td>横向溢出</td><td>375px 与 1440px 两档实测 <code>scrollWidth</code></td><td>0 溢出</td></tr>
+</table>
+<p><strong>规模</strong>：JS 6888 行 / CSS 2757 行 / HTML 1503 行，共 11148 行，第三方运行时依赖 <strong>0</strong>。</p>
 <hr>
 <h2>9. 总结与展望</h2>
 <h3>9.1 已完成</h3>
-<ul><li>完整的公益科普网站（科普 / 故事 / 数据 / 体验 / 对话 / 家庭 / 公益）</li><li>AI 心理对话（在线 + 本地兜底双链路）</li><li>数据可视化三图</li><li>感官体验模拟</li><li>响应式 + 无障碍</li><li>全站演示稳定（视频管控、音乐开关、无自动跳转）</li></ul>
+<ul><li>完整的公益科普网站（科普 / 故事 / 数据 / 体验 / 对话 / 家庭 / 公益）</li><li>AI 心理对话（四层通道 + 本地知识库兜底）</li><li>数据可视化三图</li><li>感官体验模拟</li><li>响应式 + 无障碍</li><li>全站演示稳定（视频管控、音乐开关、无自动跳转）</li></ul>
 <h3>9.2 未来工作</h3>
 <ul><li>接入更专业的心理干预资源</li><li>增加用户留言墙的后端持久化</li><li>多语言支持</li><li>结合更多多模态能力（AI 生成个性化故事）</li></ul>
+<hr>
+<h2>10. 可持续性与推广路径</h2>
+<p>公益项目的常见死法是"做完就停"。这一章说明它如何在比赛结束后继续存在。</p>
+<h3>10.1 成本结构</h3>
+<table>
+<tr><th>阶段</th><th>月成本</th><th>说明</th></tr>
+<tr><td>现状（纯静态）</td><td>0 元</td><td>GitHub Pages 托管 + 浏览器端本地知识库兜底，无服务器、无数据库、无 CDN 费用</td></tr>
+<tr><td>小规模（≤1 万次对话/月）</td><td>0–20 元</td><td>静态托管不变，AI 走服务端代理（Cloudflare Worker 免费额度 10 万次/天），模型费用按 token 计，DeepSeek 单轮约 0.002 元</td></tr>
+<tr><td>规模化（含留言持久化）</td><td>50–300 元</td><td>增加一个托管数据库与对象存储；AI 费用随用量线性增长，仍远低于人力成本</td></tr>
+</table>
+<p><strong>关键设计</strong>：AI 不是必需路径。断网、无 Key、接口故障时，50 条本地知识库 + 145 组话题应答仍能覆盖大多数提问——这让"没钱也能跑"成为结构性事实，而不是承诺。</p>
+<h3>10.2 四条可持续路径</h3>
+<table>
+<tr><th>路径</th><th>对象</th><th>做法</th><th>可行性判断</th></tr>
+<tr><td><strong>政府采购 / 残联与特校</strong></td><td>区县级残联、特殊教育学校、妇幼保健院</td><td>以"家长自助工具 + 筛查前科普"为定位，作为康复服务的补充材料采购或随救助项目发放</td><td>已有同类信息化采购先例；本项目零部署成本、可离线，适配基层网络条件</td></tr>
+<tr><td><strong>基金会与公益项目</strong></td><td>儿童救助、罕见病、助残类基金会</td><td>作为项目数字物料，按项目定制省市政策数据与机构名录</td><td>政策数据本身即是各机构反复维护的痛点，替换 <code>08-policy</code> 数据即可复用</td></tr>
+<tr><td><strong>开源社区</strong></td><td>特教老师、康复师、开发者</td><td>MIT 协议开放，接受知识库条目与政策数据贡献</td><td>语料以"条目"为单位，非技术人员也能提 PR；已有 <code>15-misslog</code> 记录真实未命中问题，形成迭代闭环</td></tr>
+<tr><td><strong>内容与文创</strong></td><td>公众</td><td>故事板块、公益证书、留言墙可独立传播，导流回站点</td><td>成本近零，是当前已实现的传播路径</td></tr>
+</table>
+<h3>10.3 三阶段推广</h3>
+<ol><li><strong>赛期（现在）</strong>：以参赛作品形式公开演示，收集家长与特教从业者的反馈，优先修正知识库中的错误表述</li><li><strong>赛后 3 个月</strong>：联系 1–2 家本地康复机构或特校试用，把"一周陪伴计划"作为家校协同工具落地，用真实使用数据替换当前的自评数据</li><li><strong>赛后 6–12 个月</strong>：提交开源，接入机构共建的政策与机构名录；若获得基金会支持，再考虑留言墙持久化与多语言</li></ol>
+<h3>10.4 主要风险与应对</h3>
+<table>
+<tr><th>风险</th><th>影响</th><th>应对</th></tr>
+<tr><td>AI 幻觉给出错误干预建议</td><td>高</td><td>System Prompt 硬约束"不编造数据、不承诺疗效"；RAG 引用可溯源到条目；就医与危机场景强制跳转安全卡与 12356 热线</td></tr>
+<tr><td>内容专业性不足</td><td>高</td><td>家长专区 29 题与就医清单 25 项已标注依据来源，仍需康复师/特教老师审阅（已知限制，见 6.4）</td></tr>
+<tr><td>依赖免费公共接口</td><td>中</td><td>四层通道 + 本地知识库兜底；接口失败明确提示原因而非静默降级</td></tr>
+<tr><td>隐私</td><td>中</td><td>对话与计划仅存浏览器 localStorage，不上传、不建账号；无埋点、无第三方统计</td></tr>
+<tr><td>单人维护难持续</td><td>中</td><td>零依赖架构降低维护门槛；知识库以数据条目形式外置，可多人协作</td></tr>
+</table>
 <hr>
 <p><strong>星夜入眠，愿每一颗星星都被温柔看见。</strong></p>
 </body>
