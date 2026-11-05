@@ -1,0 +1,8 @@
+name = "xyn-ai"
+main = "cloudflare-worker.js"
+compatibility_date = "2025-01-01"
+
+# 非敏感配置放这里；Key 与口令请用 `wrangler secret put`，不要写进本文件后提交
+[vars]
+AI_PROXY_ENDPOINT = "https://api.deepseek.com/chat/completions"
+AI_PROXY_MODEL = "deepseek-chat"

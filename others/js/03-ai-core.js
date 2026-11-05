@@ -17,19 +17,41 @@
   var aiKeyRow = document.getElementById('aiKeyRow');
   var aiEndpointRow = document.getElementById('aiEndpointRow');
 
+  // ===== 在线演示通道：静态托管（GitHub Pages / Gitee Pages 等）下走服务端代理 =====
+  // 部署 others/serverless/cloudflare-worker.js 后，把 Worker 地址填在下面（末尾不带斜杠）；留空则本通道不启用。
+  // 作用：Key 只存在服务端，评委打开线上站点零配置即可对话。
+  var REMOTE_PROXY = '';
+  // 代理口令（与 Worker 的 AI_PROXY_TOKEN 一致）。它不是密钥，只是防止接口被滥用的公共口令；留空表示 Worker 未设口令。
+  var REMOTE_TOKEN = '';
+
   var AI_PROVIDERS = {
     pollinations: { name: '免费体验接口（无需 Key，联网即用）', model: 'openai', endpoint: 'https://text.pollinations.ai/', key: false, vision: 'openai' },
-    proxy:        { name: '后端中转（推荐部署，Key 不落前端）', model: 'deepseek-chat', endpoint: '/api/ai', key: false, vision: null },
+    remote:       { name: '在线演示通道（服务端代理 · 无需 Key）', model: 'deepseek-chat', endpoint: REMOTE_PROXY, key: false, vision: null },
+    proxy:        { name: '后端中转（同域部署 /api/ai）', model: 'deepseek-chat', endpoint: '/api/ai', key: false, vision: null },
     deepseek:    { name: 'DeepSeek（推荐）', model: 'deepseek-chat', endpoint: 'https://api.deepseek.com/chat/completions', key: true, vision: null },
-    zhipu:       { name: '智谱 GLM', model: 'glm-4-flash', endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', key: true, vision: 'glm-4v-flash' },
+    zhipu:       { name: '智谱 GLM（浏览器直连受跨域限制，需代理）', model: 'glm-4-flash', endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', key: true, vision: 'glm-4v-flash' },
     qwen:        { name: '通义千问', model: 'qwen-turbo', endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', key: true, vision: 'qwen-vl-plus' },
     custom:      { name: '自定义（OpenAI 兼容）', model: '', endpoint: '', key: true, vision: null }
   };
   var aiCfg = { provider: 'pollinations', apiKey: '', model: 'openai', endpoint: 'https://text.pollinations.ai/', enabled: true };
+  var _savedCfg = null;
   try {
-    var _savedCfg = JSON.parse(localStorage.getItem('star_ai_cfg_v1') || 'null');
+    _savedCfg = JSON.parse(localStorage.getItem('star_ai_cfg_v1') || 'null');
     if(_savedCfg){ for(var _ck in aiCfg){ if(_savedCfg[_ck] !== undefined && _savedCfg[_ck] !== null) aiCfg[_ck] = _savedCfg[_ck]; } }
   } catch(e){}
+  function isHostedDemo(){
+    var h = String((typeof location !== 'undefined' && location.hostname) || '');
+    return /(^|\.)github\.io$/.test(h) || /(^|\.)gitee\.io$/.test(h) || /(^|\.)pages\.dev$/.test(h) || /(^|\.)vercel\.app$/.test(h) || /(^|\.)netlify\.app$/.test(h);
+  }
+  // 线上演示：首次访问自动走服务端代理（评审打开即用）；file:// 与 localhost 不受影响，仍可用自己的 Key 直连
+  if(!_savedCfg && REMOTE_PROXY && isHostedDemo()){
+    aiCfg = { provider: 'remote', apiKey: '', model: 'deepseek-chat', endpoint: REMOTE_PROXY, enabled: true };
+  }
+  // 代理地址以常量为准：避免旧存档里 endpoint 为空，请求打到相对路径
+  if(aiCfg.provider === 'remote'){
+    if(REMOTE_PROXY){ aiCfg.endpoint = REMOTE_PROXY; aiCfg.model = aiCfg.model || 'deepseek-chat'; }
+    else { aiCfg.provider = 'pollinations'; aiCfg.model = 'openai'; aiCfg.endpoint = 'https://text.pollinations.ai/'; }
+  }
   var chatHistory = [];
   try {
     var _hist = JSON.parse(localStorage.getItem('star_ai_history_v1') || '[]');
@@ -45,7 +67,25 @@
     '特别地，本站的主要服务对象是自闭症孩子的家长和家庭成员。凡是家长提出的照护问题，都要按这个路子回：①先承认照护本身的辛苦，别用"你要乐观""想开点""TA是天使"这类空话去堵人；②给2到3条今天回家就能做的具体做法，行为问题按"先保安全、再找诱因、最后做预防"的顺序说，语言和自理问题要给能立刻上手的操作，比如把话说短、用图卡、把目标拆小；③守住边界，不做诊断、不建议停药或吃保健品、不推荐具体商业机构、不承诺疗效，需要时建议去正规医院的儿童发育行为科或儿童精神科；④如果涉及孩子自伤、走失、被欺凌，或者家长自己出现轻生念头，先给求助渠道，120、110、12356，再谈别的。' +
     '家长说"我快撑不住了"时，不要急着讲方法，先让他知道这句话被听懂了，再说能分担的具体安排，比如喘息服务、家人分工、家长互助群。';
   function aiModeName(){ var p = AI_PROVIDERS[aiCfg.provider]; return p ? p.name : '自定义'; }
-  function aiKeyOk(){ return aiCfg.provider === 'pollinations' || aiCfg.provider === 'proxy' || (aiCfg.apiKey && aiCfg.apiKey.length >= 6); }
+  function aiKeyOk(){
+    if(aiCfg.provider === 'pollinations') return true;
+    if(aiCfg.provider === 'proxy') return true;
+    if(aiCfg.provider === 'remote') return !!REMOTE_PROXY;
+    return !!(aiCfg.apiKey && aiCfg.apiKey.length >= 6);
+  }
+  // 把底层错误翻译成人话：跨域、超时、限流、额度不足分别提示，避免一律"接口不可用"
+  function aiErrText(err){
+    var m = String((err && err.message) || err || '');
+    var n = String((err && err.name) || '');
+    if(/abort/i.test(n) || /aborted|timeout/i.test(m)) return '请求超时';
+    if(/Failed to fetch|fetch failed|NetworkError|Load failed|Network request failed/i.test(m)) return '网络不通，或接口未放行跨域';
+    if(/HTTP 401|HTTP 403/.test(m)) return 'Key 无效或没有权限';
+    if(/HTTP 404/.test(m)) return '接口地址不对（404）';
+    if(/HTTP 429/.test(m)) return '调用太频繁或额度已用尽';
+    if(/HTTP 5\d\d/.test(m)) return '服务端异常 ' + m.replace(/[^0-9]/g, '');
+    if(/空回复/.test(m)) return '返回为空，请重试';
+    return m ? m.slice(0, 40) : '未知错误';
+  }
   function paintAiStatus(){
     if(!aiStatusEl) return;
     var on = aiCfg.enabled && aiKeyOk();
@@ -129,7 +169,8 @@
     if(aiKeyOk() && aiCfg.provider !== 'proxy') headers['Authorization'] = 'Bearer ' + aiCfg.apiKey;
     var proxyToken = '';
     try{ proxyToken = localStorage.getItem('star_ai_proxy_token') || ''; }catch(e){}
-    if(aiCfg.provider === 'proxy' && proxyToken) headers['X-Proxy-Token'] = proxyToken;
+    if(!proxyToken) proxyToken = REMOTE_TOKEN;
+    if((aiCfg.provider === 'proxy' || aiCfg.provider === 'remote') && proxyToken) headers['X-Proxy-Token'] = proxyToken;
     var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 60000) : null;
     fetch(aiCfg.endpoint, {
@@ -387,7 +428,7 @@
     }
     // 多模态：检查当前服务商是否支持看图
     if(imageDataUrl && !(AI_PROVIDERS[aiCfg.provider] && AI_PROVIDERS[aiCfg.provider].vision)){
-      finishReply(think, '当前服务商（' + aiModeName() + '）暂不支持图片理解。可以点右上角 ⚙ 设置，切换到「智谱 GLM」或「通义千问」（都有免费额度），我就能看图啦～', '');
+      finishReply(think, '当前服务商（' + aiModeName() + '）暂不支持图片理解。可以点右上角 ⚙ 设置，切换到「通义千问」（有免费额度，且浏览器可直连），我就能看图啦～', '');
       return;
     }
     if(imageDataUrl && aiCfg.provider !== 'pollinations' && !/(v|vl|vision|4o)/i.test(aiCfg.model)){
@@ -396,12 +437,18 @@
     }
     var useTools = !imageDataUrl && aiCfg.provider !== 'pollinations';
     // 本地知识库兜底：若这条问题超出内置应答范围，在末尾提示接入大模型
-    var localFallback = function(){
+    var localFallback = function(err){
       var kwTool = detectTool(text);
       var kwBtns = kwTool ? [{ view: kwTool.view, label: '去「' + (VIEW_NAMES[kwTool.view] || kwTool.name) + '」看看' }] : null;
       var body = addFollowup(replyFor(text));
       if(typeof _replyUncovered !== 'undefined' && _replyUncovered) body += aiUpsellNote();
-      var note = (aiCfg.enabled && aiKeyOk()) ? '〔AI 接口暂时不可用，已切换本地知识库应答〕\n' : '';
+      // 降级时说明具体原因（超时/跨域/限流/额度），不暴露 Key 与接口细节
+      var note = '';
+      if(err && aiCfg.enabled && aiKeyOk()){
+        note = '〔AI 接口暂时不可用（' + aiErrText(err) + '），已切换本地知识库应答〕\n';
+      } else if(aiCfg.enabled && aiKeyOk()){
+        note = '〔AI 接口暂时不可用，已切换本地知识库应答〕\n';
+      }
       finishReply(think, body, note, { buttons: kwBtns });
     };
     if(!(aiCfg.enabled && aiKeyOk())){ localFallback(); return; }
@@ -418,7 +465,7 @@
           if(i >= toolCalls.length){
             callAI(msgs, function(finalText){
               finishReply(think, finalText, '', { streamed: true, buttons: pendingButtons });
-            }, function(err){ localFallback(); }, function(partial){ streamInto(think, partial); }, useTools);
+            }, function(err){ localFallback(err); }, function(partial){ streamInto(think, partial); }, useTools);
             return;
           }
           var tc = toolCalls[i];
@@ -439,11 +486,26 @@
       }
       finishReply(think, content, '', { streamed: true, buttons: kwBtns });
     }, function(err){
-      localFallback();
+      localFallback(err);
     }, function(partial){
       streamInto(think, partial);
     }, useTools);
   }
+
+  // ============ 对外暴露：通道诊断（设置面板「测试」与自动化检查共用） ============
+  window.__aiInfo = function(){
+    return {
+      provider: aiCfg.provider,
+      providerName: aiModeName(),
+      endpoint: aiCfg.endpoint,
+      model: aiCfg.model,
+      enabled: !!aiCfg.enabled,
+      keyOk: aiKeyOk(),
+      remoteConfigured: !!REMOTE_PROXY,
+      hostedDemo: isHostedDemo(),
+      online: (typeof navigator !== 'undefined') ? navigator.onLine !== false : true
+    };
+  };
 
   // ============ 对外暴露：星空寄语卡片生成（社区板块使用） ============
   window.starWishAI = function(theme, cb){

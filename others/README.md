@@ -17,7 +17,7 @@
 | 类别 | 技术 |
 |---|---|
 | 前端 | 原生 HTML5 + CSS3 + JavaScript（ES6+），JS 按功能模块化拆分（others/js/ 下 16 个模块） |
-| AI 集成 | 多服务商大模型接入（后端中转 / DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口，OpenAI 兼容协议），SSE 流式输出，Function Calling 工具调用 |
+| AI 集成 | 多服务商大模型接入（在线演示通道 / 后端中转 / DeepSeek / 智谱 GLM / 通义千问 / 免费体验接口，OpenAI 兼容协议），SSE 流式输出，Function Calling 工具调用 |
 | 多模态 | Web Speech API 语音识别 + TTS 朗读（6 种音色预设，含温柔女声 / 温润男声 / 低沉男声，可调语速与音调）；图片上传 + 视觉模型看图理解（glm-4v-flash / qwen-vl-plus 自动切换） |
 | RAG | 站内科普知识库：字符二元组向量化 + 余弦相似度检索，与计分制关键词匹配混合排序；本地 REPLY_BANK 145 组话题键兜底 + 17 个科普话题专门回答 |
 | AI 安全 | 危机干预关键词兜底（自伤/轻生 → 热线卡片优先响应）、接口失败自动降级本地应答并明示、全局错误兜底 toast |
@@ -26,7 +26,7 @@
 | PWA | manifest + Service Worker（按大赛目录规范归档于 others/，离线缓存是否生效取决于托管环境） |
 | 无障碍 | 键盘可达导航（Tab/回车/空格）、focus-visible 焦点环、图标按钮 aria-label、大字模式（设置面板可调） |
 | 响应式 | device-width 视口，PC / 移动端自适应，分组下拉导航 + 移动端汉堡菜单 |
-| 密钥安全 | 源码零密钥；提供 others/serverless/ 后端中转代理（Vercel / Cloudflare Workers）+ others/.env.example 模板 |
+| 密钥安全 | 源码零密钥；提供 others/serverless/ 后端中转代理（Cloudflare Worker / Vercel）+ 部署指南 `serverless/DEPLOY.md` + others/.env.example 模板 |
 
 ---
 
@@ -113,14 +113,17 @@
 
 ### 4.2 大模型在线集成（多服务商）
 - 默认：免费体验接口（pollinations，无需 Key，联网即用）
-- 可选：DeepSeek（`deepseek-chat`）/ 智谱 GLM（`glm-4-flash`，看图 `glm-4v-flash`）/ 通义千问（`qwen-turbo`，看图 `qwen-vl-plus`）/ 自定义 OpenAI 兼容接口
+- **在线演示通道（服务端代理）**：线上托管（GitHub Pages / Gitee Pages 等）首次访问自动走 Cloudflare Worker 代理，Key 只存在服务端环境变量，**评审打开即用、无需任何配置**；`file://` 与 `localhost` 不干预，仍可用自己的 Key 直连。部署见 `others/serverless/DEPLOY.md`
+- 可选：DeepSeek（`deepseek-chat`）/ 智谱 GLM（`glm-4-flash`，看图 `glm-4v-flash`，浏览器直连受跨域限制，需代理）/ 通义千问（`qwen-turbo`，看图 `qwen-vl-plus`）/ 自定义 OpenAI 兼容接口
 - System Prompt 要求：先共情再展开、不机械分点、针对具体事情回答、不预设用户身份年龄、信息不够时反问细节、结尾引导继续说
 - SSE 流式请求（`stream: true`）逐字渲染，超时 60s，max_tokens 1500
 - **API Key 一律由用户在设置面板中填写、仅存于浏览器 localStorage，源码与仓库中不出现任何真实 Key**
 
-### 4.3 双链路降级
+### 4.3 四级链路降级
 ```
-在线大模型（流式） → 超时/报错 → 界面明示"已切换本地知识库应答" → REPLY_BANK/TOPIC_REPLIES → 计分匹配 → 通用兜底
+服务端代理（评审零配置） → 用户自配 Key 直连 → 免费体验接口 → 本地知识库
+        ↓ 任一层失败
+界面明示具体原因（请求超时 / 跨域被拦 / Key 无效 / 频率或额度超限 / 服务端异常）→ 切到下一层
 ```
 
 ### 4.4 流式输出

@@ -55,7 +55,11 @@
   // ---- AI 设置界面 ----
   function fillProviderSel(){
     var html = '';
-    for(var k in AI_PROVIDERS){ html += '<option value="' + k + '">' + AI_PROVIDERS[k].name + '</option>'; }
+    for(var k in AI_PROVIDERS){
+      // 未部署代理时不显示"在线演示通道"，避免选到空地址
+      if(k === 'remote' && !REMOTE_PROXY) continue;
+      html += '<option value="' + k + '">' + AI_PROVIDERS[k].name + '</option>';
+    }
     aiProviderEl.innerHTML = html;
   }
   function syncAiForm(){
@@ -116,7 +120,7 @@
       aiTestStatus.textContent = '✓ 链路诊断通过：本地知识库 ✓ → ' + pname + ' ✓ 在线应答已就绪（回复：' + reply.slice(0, 30) + '）';
       aiTestStatus.className = 'set-test-status ok';
     }, function(err){
-      aiTestStatus.textContent = '△ ' + pname + ' 暂不可用（' + (err && err.message ? err.message : '网络异常') + '）。星语会自动降级到本地知识库继续应答——功能完整，只是知识面窄一些；也可换一个服务商或填入 API Key 重试。';
+      aiTestStatus.textContent = '△ ' + pname + ' 暂不可用（' + aiErrText(err) + '）。星语会自动降级到本地知识库继续应答——功能完整，只是知识面窄一些；也可换一个服务商或填入 API Key 重试。';
       aiTestStatus.className = 'set-test-status err';
     });
   }, false);

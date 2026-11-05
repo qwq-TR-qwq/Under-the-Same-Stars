@@ -15,9 +15,19 @@ export default {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': 'Content-Type, X-Proxy-Token',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS'
+          'Access-Control-Allow-Methods': 'POST, GET, OPTIONS'
         }
       });
+    }
+    // 健康检查：浏览器直接打开 Worker 地址即可确认部署成功（不泄露任何 Key）
+    if (request.method === 'GET') {
+      return json({
+        ok: true,
+        service: 'starry-night-ai-proxy',
+        model: env.AI_PROXY_MODEL || 'deepseek-chat',
+        keyConfigured: !!env.AI_PROXY_KEY,
+        tokenRequired: !!env.AI_PROXY_TOKEN
+      }, 200);
     }
     if (request.method !== 'POST') {
       return json({ error: { message: 'Method Not Allowed' } }, 405);
