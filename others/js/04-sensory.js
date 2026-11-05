@@ -58,7 +58,7 @@
     for(var k in AI_PROVIDERS){
       // 未部署代理时不显示"在线演示通道"，避免选到空地址
       if(k === 'remote' && !REMOTE_PROXY) continue;
-      html += '<option value="' + k + '">' + AI_PROVIDERS[k].name + '</option>';
+      html += '<option value="' + k + '">' + AI_PROVIDERS[k].name + provSuffix(k) + '</option>';
     }
     aiProviderEl.innerHTML = html;
   }
@@ -72,48 +72,85 @@
     var p = AI_PROVIDERS[aiCfg.provider];
     aiKeyRow.style.display = (p && p.key) ? '' : 'none';
     aiEndpointRow.style.display = aiCfg.provider === 'custom' ? '' : 'none';
-    paintProviderHint();
+    paintProviderCond();
   }
-  // ===== 服务商逐项说明：面板里直接讲清「这一项怎么用、现在能不能用」 =====
-  var aiHintEl = document.getElementById('aiProviderHint');
-  // 同域 /api/ai 是否存在：file:// 与纯静态托管没有后端函数，本机预览需自行起代理
+  // ===== 服务商可用条件：选项直接标注环境状态，点「可用条件」看条件清单 =====
+  var aiTipEl = document.getElementById('aiProviderTip');
+  var aiCondBtn = document.getElementById('aiProviderCond');
+  var aiTipPinned = false;
+  // 同域 /api/ai 是否存在：file:// 与纯静态托管没有后端函数
   function proxyEnvState(){
     var h = String((typeof location !== 'undefined' && location.hostname) || '');
     var p = String((typeof location !== 'undefined' && location.protocol) || '');
-    if(p === 'file:') return { lv:'no', why:'页面是直接用浏览器打开的本地文件（file://），没有同域后端' };
-    if(/(^|\.)(github\.io|gitee\.io)$/.test(h)) return { lv:'no', why:'当前是纯静态托管（' + h + '），服务器上不存在 /api/ai 这个路径' };
-    if(h === 'localhost' || h === '127.0.0.1' || h === '') return { lv:'maybe', why:'本机预览需要同时运行代理函数，否则 /api/ai 会 404' };
-    return { lv:'maybe', why:'请确认本站已部署 api/ai 代理函数——浏览器直接打开 /api/ai 应返回健康检查 JSON' };
+    if(p === 'file:') return { lv:'no', why:'页面是直接打开的本地文件（file://），没有同域后端' };
+    if(/(^|\.)(github\.io|gitee\.io)$/.test(h)) return { lv:'no', why:'纯静态托管（' + h + '）没有 /api/ai 这个路径' };
+    if(h === 'localhost' || h === '127.0.0.1' || h === '') return { lv:'maybe', why:'本机预览需要同时运行代理函数' };
+    return { lv:'maybe', why:'请确认已部署 api/ai 代理函数' };
   }
-  function paintProviderHint(){
-    if(!aiHintEl) return;
-    var key = aiProviderEl.value || aiCfg.provider, html = '';
-    if(key === 'proxy'){
+  function provSuffix(k){
+    if(k === 'proxy') return proxyEnvState().lv === 'no' ? ' · 当前环境不可用' : ' · 需已部署 /api/ai';
+    if(k === 'remote') return ' · 需填 REMOTE_PROXY';
+    return '';
+  }
+  function provCondHTML(k){
+    if(k === 'proxy'){
       var st = proxyEnvState();
-      html = '<b>后端中转（同域 /api/ai）</b>：页面全程不接触 Key——请求发到本站的 <code>/api/ai</code>，由服务端函数带上真实 Key 转发给模型，源码与前端都扫不到密钥。'
-        + '<br>启用条件：把 <code>others/serverless/vercel-api-ai.js</code> 复制为站点根目录的 <code>api/ai.js</code>，与页面一起部署到 Vercel / Netlify（会自动识别为函数），再在平台环境变量里配置 '
-        + '<code>AI_PROXY_KEY</code>（真实 Key）、<code>AI_PROXY_ENDPOINT</code>（上游地址，默认 DeepSeek）、<code>AI_PROXY_MODEL</code>、<code>AI_PROXY_TOKEN</code>（防滥用口令，不是密钥）。'
-        + '<br>当前环境：<span class="h-tag ' + (st.lv === 'no' ? 'warn' : 'info') + '">' + (st.lv === 'no' ? '不可用' : '待确认') + '</span>'
-        + st.why + '。选它但接口不存在时，星语会自动降级为本地知识库应答——看起来还在答，实际不是真模型。';
-    } else if(key === 'remote'){
-      html = '<b>在线演示通道（服务端代理 · 跨域）</b>：地址取自 <code>others/js/03-ai-core.js</code> 顶部的 <code>REMOTE_PROXY</code>，口令取自 <code>REMOTE_TOKEN</code>，适合把 Cloudflare Worker 部署在另一个域名上。'
-        + '<br>当前状态：' + (REMOTE_PROXY
-          ? '<span class="h-tag ok">已配置</span><code>' + REMOTE_PROXY + '</code>'
-          : '<span class="h-tag warn">未启用</span>顶部常量为空，本项不会出现在下拉列表里');
-    } else if(key === 'pollinations'){
-      html = '<b>免费体验接口（pollinations）</b>：不需要 Key，联网即可对话，评委打开线上站点就能直接体验。高峰期可能限流，失败时自动降级为本地知识库应答——适合演示，不适合指望它稳定。';
-    } else if(key === 'deepseek'){
-      html = '<b>DeepSeek（浏览器直连）</b>：请求直接发往 <code>api.deepseek.com</code>，Key 只存本机 localStorage、不进代码仓库。实测国内可直连，录演示视频 / 现场答辩用这一档最稳。'
-        + '<br>注意：Key 存在你自己的浏览器里，别把这份配置连同 Key 一起分享出去。';
-    } else if(key === 'zhipu'){
-      html = '<b>智谱 GLM（需代理）</b>：官方接口未返回 CORS 头，浏览器直连会被拦截。要用它请先把请求指向一个代理（选「后端中转」或「自定义」填代理地址），再由代理转发到 <code>open.bigmodel.cn</code>。';
-    } else if(key === 'qwen'){
-      html = '<b>通义千问（浏览器直连）</b>：<code>dashscope.aliyuncs.com</code> 允许跨域且有免费额度，可作 DeepSeek 的备用；发图片时自动切换到 <code>qwen-vl-plus</code> 看图解读。';
-    } else if(key === 'custom'){
-      html = '<b>自定义（OpenAI 兼容）</b>：填完整的 <code>/chat/completions</code> 地址与 Key，可接自建代理、其它厂商或中转站；模型名按服务商要求填写。';
+      return '<b>后端中转：什么情况下能用</b><ul>'
+        + '<li>站点与代理函数<b>同域</b>部署：根目录放 <code>api/ai.js</code>（Vercel / Netlify 自动识别为函数）</li>'
+        + '<li>服务端配好 <code>AI_PROXY_KEY</code>，可选 <code>AI_PROXY_ENDPOINT</code> / <code>AI_PROXY_MODEL</code> / <code>AI_PROXY_TOKEN</code></li>'
+        + '<li>浏览器打开 <code>你的域名/api/ai</code> 能返回健康检查 JSON</li>'
+        + '</ul><p>' + (st.lv === 'no'
+          ? '<span class="h-tag warn">当前不可用</span>' + st.why + '——选中后会 404，星语自动降级为本地知识库应答。</p>'
+          : '当前：' + st.why + '；条件不满足时同样会 404 并降级。</p>');
     }
-    aiHintEl.innerHTML = html;
-    aiHintEl.hidden = !html;
+    if(k === 'remote'){
+      return '<b>在线演示通道：什么情况下能用</b><ul>'
+        + '<li>Worker 已部署且地址可访问</li>'
+        + '<li><code>03-ai-core.js</code> 顶部 <code>REMOTE_PROXY</code> 已填该地址</li>'
+        + '<li>若 Worker 设了口令，<code>REMOTE_TOKEN</code> 要与之一致</li>'
+        + '</ul><p>' + (REMOTE_PROXY
+          ? '<span class="h-tag ok">已配置</span><code>' + REMOTE_PROXY + '</code>'
+          : '<span class="h-tag warn">未配置</span>常量为空，本项不会出现在下拉列表里') + '</p>';
+    }
+    if(k === 'pollinations'){
+      return '<b>免费体验接口：什么情况下能用</b><ul><li>页面能联网即可，不需要 Key</li>'
+        + '<li>高峰期可能限流，失败时自动降级为本地知识库</li></ul>';
+    }
+    if(k === 'deepseek'){
+      return '<b>DeepSeek：什么情况下能用</b><ul><li>已填入 platform.deepseek.com 的 Key</li>'
+        + '<li>浏览器可直连 <code>api.deepseek.com</code>（实测放行，国内可用）</li>'
+        + '<li>Key 只存本机 localStorage，换电脑或清缓存后需重填</li></ul>';
+    }
+    if(k === 'zhipu'){
+      return '<b>智谱 GLM：什么情况下能用</b><ul><li>官方接口没有 CORS 头，浏览器直连会被拦，必须先经代理</li>'
+        + '<li>已填入 open.bigmodel.cn 的 Key</li>'
+        + '<li>在「后端中转」或「自定义」里指向代理后使用</li></ul>';
+    }
+    if(k === 'qwen'){
+      return '<b>通义千问：什么情况下能用</b><ul><li>已填入 dashscope.console.aliyun.com 的 Key（有免费额度）</li>'
+        + '<li>浏览器可直连，适合作为备用通道</li></ul>';
+    }
+    if(k === 'custom'){
+      return '<b>自定义：什么情况下能用</b><ul><li>填入完整的 <code>/chat/completions</code> 地址</li>'
+        + '<li>填入该服务商要求的 Key 与模型名</li></ul>';
+    }
+    return '';
+  }
+  function showTip(){
+    if(!aiTipEl || !provCondHTML(aiProviderEl.value)) return;
+    aiTipEl.hidden = false;
+    aiCondBtn.setAttribute('aria-expanded', 'true');
+  }
+  function hideTip(force){
+    if(!aiTipEl) return;
+    if(aiTipPinned && !force) return;
+    aiTipEl.hidden = true;
+    aiCondBtn.setAttribute('aria-expanded', 'false');
+  }
+  function paintProviderCond(){
+    if(!aiTipEl) return;
+    aiTipEl.innerHTML = provCondHTML(aiProviderEl.value);
+    if(aiTipEl.hidden === false) showTip();
   }
   function openAiSettings(){ syncAiForm(); aiTestStatus.textContent = ''; aiTestStatus.className = 'set-test-status'; aiMask.classList.add('open'); }
   function closeAiSettings(){ aiMask.classList.remove('open'); }
@@ -125,8 +162,29 @@
     aiKeyRow.style.display = (p && p.key) ? '' : 'none';
     aiEndpointRow.style.display = aiProviderEl.value === 'custom' ? '' : 'none';
     if(p){ aiModelEl.value = p.model || ''; aiEndpointEl.value = p.endpoint || ''; }
-    paintProviderHint();
+    paintProviderCond();
   });
+  // 「可用条件」气泡：悬停即看，点击固定，点外部或 ESC 关闭
+  if(aiCondBtn){
+    aiCondBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      aiTipPinned = !aiTipPinned;
+      if(aiTipPinned){ showTip(); } else { hideTip(true); }
+    }, false);
+    aiCondBtn.addEventListener('mouseenter', function(){ paintProviderCond(); showTip(); }, false);
+    var provWrap = aiCondBtn.parentNode;
+    if(provWrap){
+      provWrap.addEventListener('mouseleave', function(){ hideTip(); }, false);
+    }
+    document.addEventListener('click', function(e){
+      if(aiTipPinned || !aiTipEl || aiTipEl.hidden) return;
+      if(aiCondBtn.contains(e.target) || aiTipEl.contains(e.target)) return;
+      hideTip(true);
+    }, false);
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && aiTipEl && !aiTipEl.hidden){ aiTipPinned = false; hideTip(true); }
+    }, false);
+  }
   aiSaveBtn.addEventListener('click', function(e){
     e.stopPropagation();
     aiCfg.provider = aiProviderEl.value;

@@ -740,7 +740,7 @@
         <div class="site-c"><b>无障碍优先</b><p>深/浅双主题正文对比度均 ≥ 4.5:1；8 个浮层统一焦点陷阱与 ESC 关闭；可一键减少动效、放大字号。</p><span class="star">人人可用</span></div>
       </div>
       <div class="site-ver">
-        <b>v12.11</b>
+        <b>v12.12</b>
         <span>17 个模块 · 11090 行代码 · 零第三方运行时依赖 · 2026 年 11 月</span>
         <em>完整架构与代码质量自检见《技术文档》第 3、8 章</em>
       </div>
@@ -1288,9 +1288,12 @@
               <div class="set-form">
                 <div class="set-row">
                   <label class="set-label" for="aiProvider">服务商<small>选择大模型接口</small></label>
-                  <select class="set-select" id="aiProvider"></select>
+                  <div class="prov-wrap">
+                    <select class="set-select" id="aiProvider"></select>
+                    <button class="prov-cond" id="aiProviderCond" type="button" aria-expanded="false" aria-controls="aiProviderTip">可用条件</button>
+                    <div class="prov-tip" id="aiProviderTip" role="tooltip" hidden></div>
+                  </div>
                 </div>
-                <div class="set-hint" id="aiProviderHint" aria-live="polite"></div>
                 <div class="set-row" id="aiKeyRow">
                   <label class="set-label" for="aiKey">API Key<small>仅保存在本机浏览器 localStorage，用于调用所选接口</small></label>
                   <input class="set-input" id="aiKey" type="password" placeholder="sk-…" autocomplete="off">
