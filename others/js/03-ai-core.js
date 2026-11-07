@@ -81,7 +81,7 @@
     if(/Failed to fetch|fetch failed|NetworkError|Load failed|Network request failed/i.test(m)) return '网络不通，或接口未放行跨域';
     if(/HTTP 401|HTTP 403/.test(m)) return 'Key 无效或没有权限';
     if(/HTTP 400/.test(m)) return '请求内容未被接口接受（常见原因：该模型不支持图片输入，或内容格式超出模型限制）';
-    if(/HTTP 404/.test(m)) return '接口地址不对（404）';
+    if(/HTTP 404/.test(m)) return '接口地址不对或模型名不存在（404），请到 ⚙ 设置检查这两项';
     if(/HTTP 429/.test(m)) return '调用太频繁或额度已用尽';
     if(/HTTP 5\d\d/.test(m)) return '服务端异常 ' + m.replace(/[^0-9]/g, '');
     if(/空回复/.test(m)) return '返回为空，请重试';
@@ -185,7 +185,11 @@
     var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     CUR_CTRL = ctrl;
     var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 60000) : null;
-    fetch(aiCfg.endpoint, {
+    // 请求地址：内置服务商一律用官方地址，不信任本地残留的 endpoint（防止换服务商后拿到旧地址报 404）；custom 才由用户自填
+    var reqUrl = aiCfg.endpoint;
+    var pvDef = AI_PROVIDERS[aiCfg.provider];
+    if(pvDef && aiCfg.provider !== 'custom' && pvDef.endpoint) reqUrl = pvDef.endpoint;
+    fetch(reqUrl, {
       method: 'POST', headers: headers, body: JSON.stringify(body),
       signal: ctrl ? ctrl.signal : undefined
     }).then(function(r){

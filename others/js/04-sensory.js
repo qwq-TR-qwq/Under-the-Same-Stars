@@ -193,6 +193,9 @@
     aiCfg.apiKey = aiKeyEl.value.replace(/^\s+|\s+$/g, '');
     aiCfg.model = aiModelEl.value.replace(/^\s+|\s+$/g, '');
     aiCfg.endpoint = aiEndpointEl.value.replace(/^\s+|\s+$/g, '');
+    // 内置服务商强制写回官方地址，清掉本地可能残留的旧地址（曾导致换通道后 404）
+    var pvDef = (typeof AI_PROVIDERS !== 'undefined') && AI_PROVIDERS[aiCfg.provider];
+    if(pvDef && aiCfg.provider !== 'custom' && pvDef.endpoint) aiCfg.endpoint = pvDef.endpoint;
     aiCfg.enabled = aiEnabledEl.checked;
     saveAiCfg(); paintAiStatus();
     aiTestStatus.textContent = '✓ 设置已保存';
