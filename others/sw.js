@@ -2,7 +2,7 @@
  * 策略：静态资源缓存优先（Cache First），HTML 与 AI 接口网络优先（Network First）。
  * 目的：断网/弱网时站点仍可完整演示（配合本地知识库兜底，实现真正的"离线可用"）。
  */
-var CACHE = 'starry-night-v34';
+var CACHE = 'starry-night-v35';
 var CORE = [
   './',
   '../index.html',

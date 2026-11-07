@@ -96,8 +96,8 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <tr><td>00-boot</td><td>65</td><td>渲染前预应用主题/动效/字号，捕获全局异常，注册 SW</td><td>无（自执行）</td></tr>
 <tr><td>01-book</td><td>250</td><td>书页翻页骨架、页索引、动效开关的唯一判定</td><td><code>isMotionOff()</code> <code>total</code></td></tr>
 <tr><td>02-chat</td><td>1206</td><td>对话视图：消息渲染、打字机、附件、语音入口、发送键状态</td><td><code>botSay()</code> <code>chatMsgs</code> <code>chatting</code></td></tr>
-<tr><td>03-ai-core</td><td>879</td><td>AI 能力内核：通道选择、SSE 流式、工具调用、RAG、引用、降级</td><td><code>__aiInfo</code> <code>__aiStop</code> <code>__aiJSON</code> <code>__aiReady</code> <code>__aiStats</code></td></tr>
-<tr><td>04-sensory</td><td>128</td><td>感官体验短片播放与降噪/增益模拟</td><td><code>startSensorySim()</code></td></tr>
+<tr><td>03-ai-core</td><td>919</td><td>AI 能力内核：通道选择、SSE 流式、工具调用、RAG、引用、降级</td><td><code>__aiInfo</code> <code>__aiStop</code> <code>__aiJSON</code> <code>__aiReady</code> <code>__aiStats</code></td></tr>
+<tr><td>04-sensory</td><td>252</td><td>感官体验短片播放与降噪/增益模拟</td><td><code>startSensorySim()</code></td></tr>
 <tr><td>05-tests-community</td><td>695</td><td>心理测评量表与 MBTI，历史记录</td><td><code>window.__test*</code></td></tr>
 <tr><td>06-site-shell</td><td>51</td><td>视图切换与板块级交互</td><td><code>switchView()</code></td></tr>
 <tr><td>07-nav-community</td><td>895</td><td>汉堡导航、数据看板 Canvas 三图、留言墙</td><td><code>renderDash()</code> <code>theme:change</code> 订阅</td></tr>
@@ -111,7 +111,7 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <tr><td>15-misslog</td><td>86</td><td>未命中问题日志，驱动知识库迭代</td><td><code>__missLog</code></td></tr>
 <tr><td>16-plan</td><td>452</td><td>一周陪伴计划三步工作流与打卡闭环</td><td><code>__plan</code></td></tr>
 </table>
-<p><strong>合计</strong>：17 个模块 6788 行 JS + 2784 行 CSS + 1517 行 HTML = 11089 行，零第三方运行时依赖（统计于 v12.9）。</p>
+<p><strong>合计</strong>：17 个模块 6952 行 JS + 2839 行 CSS + 1521 行 HTML = 11312 行，零第三方运行时依赖（统计于 v12.22）。</p>
 <h3>3.4 技术选型</h3>
 <table>
 <tr><th>模块</th><th>选型</th><th>理由</th></tr>
@@ -148,7 +148,7 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <pre><code>
 用户输入
    |
-   +-- ① 服务端代理（线上默认）  Key 在服务端，评委零配置
+   +-- ① 服务端代理（预留·当前未启用）Key 在服务端，绑定自有域名后即为"评委零配置"
    |        | 未配置 / 失败
    |        v
    +-- ② 自配 Key 直连          DeepSeek / 通义，CORS 实测放行
@@ -270,7 +270,7 @@ function replyFor(text) {
 <h3>5.8 数据看板数据层（v12.5）</h3>
 <ul><li><strong>唯一数据源 <code>others/data/stats.json</code></strong>：20 个数据点全部结构化，每点带「数值 + 类型（发布值 / 估算 / 差额推算）+ 来源 id + 推算依据」；患病率三点（Meta 分析 3.5‰ / 0—6 岁实测 1.8% / 规范引用 7‰）各自标注调查口径、并列呈现，不合并连线暗示趋势</li><li><strong>权威来源清单 10 条</strong>：WHO / CDC ADDM / 中国残联 / 新华社 / 卫健委规范 / 学术期刊等，看板下方可逐条展开，有官方原文链接的全部附链</li><li><strong>同步脚本 <code>others/tools/sync-stats.js</code></strong>：校验 JSON（长度 / 来源引用 / 饼图合计 / 估算必附依据）并生成 <code>others/js/data/stats.js</code> 注入页面；<code>--check</code> 模式校验同步</li><li><strong>三条更新路径</strong>：线上（http/https）自动 fetch 一次 JSON，只改 JSON 即时生效；本地跑脚本彻底同步；file:// 双击打开由 <code>&lt;script&gt;</code> 注入零网络请求，数据缺失时回退内置兜底——看板永不白屏</li><li><strong>UI</strong>：元信息条（数据截至 / 数据点数 / 复核周期 / 口径标签）、折线图悬停直接显示「数值 + 口径 + 来源」、深浅主题各自适配配色重绘</li></ul>
 <h3>5.9 AI 通道与降级设计（v12.6）</h3>
-<ul><li><strong>四层通道，按"评委能不能直接用"排序</strong>：服务端代理（线上默认，零配置）→ 用户自配 Key 直连 → 免费体验接口 → 本地知识库。前三层任一失败即自动落入下一层，最坏情况仍能完整对话</li><li><strong>线上自动切换</strong>：<code>isHostedDemo()</code> 识别 <code>*.github.io / *.gitee.io / *.pages.dev / *.vercel.app / *.netlify.app</code>，首次访问且无本地配置时自动选「在线演示通道」；<code>file://</code> 与 <code>localhost</code> 不干预，便于开发者用自备 Key 直连调试</li><li><strong>Key 不落前端</strong>：Cloudflare Worker 以环境变量持有上游 Key，前端只带一个防滥用口令（<code>X-Proxy-Token</code>），仓库内 <code>sk-</code> 扫描为零</li><li><strong>失败原因可读</strong>：<code>aiErrText()</code> 把底层异常翻译为「请求超时 / 网络不通或跨域被拦 / Key 无效 / 接口地址不对 / 频率或额度超限 / 服务端异常」，降级提示直接写明原因，不再一律显示"接口不可用"</li><li><strong>可回退</strong>：<code>REMOTE_PROXY</code> 常量留空即关闭代理通道，站点行为与此前版本完全一致</li><li><strong>验证</strong>：Node 侧以本地 SSE 模拟服务做通道断言 15/15 通过（默认通道选择、file:// 不劫持、口令透传、tools 透传、流式拼接、401 与断网文案）；无头 Edge 加载全站无 JS 异常</li></ul>
+<ul><li><strong>四层通道，按"评委能不能直接用"排序</strong>：服务端代理（预留，<code>REMOTE_PROXY</code> 留空即关闭）→ 用户自配 Key 直连 → 免费体验接口 → 本地知识库。前三层任一失败即自动落入下一层，最坏情况仍能完整对话</li><li><strong>线上自动切换（默认走免费接口）</strong>：<code>isHostedDemo()</code> 识别 <code>*.github.io / *.gitee.io / *.pages.dev / *.vercel.app / *.netlify.app</code>；<code>REMOTE_PROXY</code> 有值且访客无本地配置时才自动选「在线演示通道」，当前该常量为空，故线上首次访问落在「免费体验接口」（联网即用、无需 Key）；<code>file://</code> 与 <code>localhost</code> 不干预，便于开发者用自备 Key 直连调试</li><li><strong>Key 不落前端</strong>：Cloudflare Worker 以环境变量持有上游 Key，前端只带一个防滥用口令（<code>X-Proxy-Token</code>），仓库内 <code>sk-</code> 扫描为零</li><li><strong>失败原因可读</strong>：<code>aiErrText()</code> 把底层异常翻译为「请求超时 / 网络不通或跨域被拦 / Key 无效 / 接口地址不对 / 频率或额度超限 / 服务端异常」，降级提示直接写明原因，不再一律显示"接口不可用"</li><li><strong>可回退</strong>：<code>REMOTE_PROXY</code> 常量留空即关闭代理通道，站点行为与此前版本完全一致</li><li><strong>验证</strong>：Node 侧以本地 SSE 模拟服务做通道断言 15/15 通过（默认通道选择、file:// 不劫持、口令透传、tools 透传、流式拼接、401 与断网文案）；无头 Edge 加载全站无 JS 异常</li></ul>
 <h3>5.10 一周陪伴计划 · 三步规划工作流（v12.7）</h3>
 <p>把"AI 有没有规划能力"做成了看得见的产品流程，而不是停留在单轮问答：</p>
 <ul><li><strong>第 1 步 · 描述困境</strong>：家长用一句话说清当下最头疼的事（提供 6 个高频场景快捷填充）</li><li><strong>第 2 步 · AI 自主规划信息缺口</strong>：模型先输出"还需要确认什么"，生成 2–3 道追问（单选优先、无法选项化才用文本框），并明确告知"信息不够时不硬编方案"——这一步对应评分表 Agent/工作流维度的"规划与自主决策"</li><li><strong>第 3 步 · 生成计划卡</strong>：今天只做的一件小事 / 本周目标 / 三个避坑 / 何时该就医 / 排序依据，全部要求具体到动作与次数，禁止"多陪伴多鼓励"式空话</li><li><strong>闭环</strong>：计划卡逐日打卡（7 格 + 进度条），打卡满 2 天解锁"按执行情况调整"——第二轮 prompt 会带上完成率并要求"做到的保留、做不到的降难度"，形成"规划 → 执行 → 反馈 → 重规划"的 Agent 闭环</li><li><strong>工程</strong>：新增 <code>others/js/16-plan.js</code>（约 480 行）与 <code>__aiJSON()</code> 结构化调用出口（宽容 JSON 解析：剥离代码栏栅、截取首尾大括号、容忍尾逗号）；浮层纳入 12-modal 焦点陷阱；SW 缓存 v20</li><li><strong>兜底</strong>：本地规则库内置 8 类场景预设（公共场所崩溃 / 睡眠 / 语言萌出 / 融合上学 / 进食 / 情绪爆发 / 如厕 / 同伴社交），关键词命中即生成保守模板卡，并明确标注"本地模板"与"模型问法"两种来源</li><li><strong>验证</strong>：无头浏览器 32 项断言全通过（步骤流转、追问渲染、未答拦截、打卡计数与进度条、调整后版本号、刷新持久化、AI 失败双回落、1440/375 无横向溢出），深浅主题截图核验</li></ul>
@@ -302,7 +302,9 @@ function replyFor(text) {
 <tr><td>19</td><td>为这事我们两口子快吵翻了，互相埋怨</td><td>父母关系与婚姻压力</td><td>未命中</td><td>1</td></tr>
 <tr><td>20</td><td>他只喜欢记地铁线路，别的都不管</td><td>兴趣狭窄如何变成优势</td><td>1</td><td>1</td></tr>
 </table>
-<p><strong>引用溯源（同版本新增）</strong>：RAG 命中条目在注入 Prompt 时编号为 [1][2][3]，System 指令要求模型"依据某条资料作答时在对应句末标注编号"；前端把正文中的 [n] 渲染为可点击上标，点击展开气泡底部的"依据"折叠条并高亮对应条目原文——让"回答来自知识库还是模型编造"可以被评委逐句验证。</p><h4>5.11.1 上线后迭代：miss-log 驱动的语料补录（v12.10）</h4><p>检索评测证明的是"出厂时检索是准的"，上线之后靠的是运营闭环：星语每答不好一个问题（本地兜底命中为空或评分过低），都会被记录进「未命中清单」，家长可一键导出 CSV。首个真实案例：有家长问"去医院检查需要准备什么"——现有条目《就医沟通卡与就诊准备》内容相关但关键词是"看医生 / 就诊"这类书面语，与口语问法不重叠而未命中。处置方式与离线评测完全一致：新增专条《去医院检查要准备什么》（14 个口语关键词），并以 4 条同义问法复测，4/4 以最高分命中目标条目（首条得分 9.94，第二名仅 2.52）。语料由 50 条增至 51 条。"评测 → 上线 → 收集 miss → 补录 → 复测"的完整证据链，比一次性评测更能说明 RAG 系统的可持续性。</p>
+<p><strong>引用溯源（同版本新增）</strong>：RAG 命中条目在注入 Prompt 时编号为 [1][2][3]，System 指令要求模型"依据某条资料作答时在对应句末标注编号"；前端把正文中的 [n] 渲染为可点击上标，点击展开气泡底部的"依据"折叠条并高亮对应条目原文——让"回答来自知识库还是模型编造"可以被评委逐句验证。</p>
+<p><strong>5.11.1 上线后迭代：miss-log 驱动的语料补录（v12.10）</strong></p>
+<p>检索评测证明的是"出厂时检索是准的"，上线之后靠的是运营闭环：星语每答不好一个问题（本地兜底命中为空或评分过低），都会被记录进「未命中清单」，家长可一键导出 CSV。首个真实案例：有家长问"去医院检查需要准备什么"——现有条目《就医沟通卡与就诊准备》内容相关但关键词是"看医生 / 就诊"这类书面语，与口语问法不重叠而未命中。处置方式与离线评测完全一致：新增专条《去医院检查要准备什么》（14 个口语关键词），并以 4 条同义问法复测，4/4 以最高分命中目标条目（首条得分 9.94，第二名仅 2.52）。语料由 50 条增至 51 条。"评测 → 上线 → 收集 miss → 补录 → 复测"的完整证据链，比一次性评测更能说明 RAG 系统的可持续性。</p>
 <h3>5.12 模型选型对比（v12.8 实测口径）</h3>
 <table>
 <tr><th>服务商</th><th>模型</th><th>费用</th><th>浏览器直连（CORS 实测）</th><th>图片理解</th><th>项目内定位</th></tr>
@@ -373,9 +375,9 @@ function replyFor(text) {
 <p><strong>v12.7（11/5）：一周陪伴计划（三步规划工作流）</strong></p>
 <ul><li>对话页新增第二入口条「一周陪伴计划」：描述困境 → AI 自主判断信息缺口并追问 2–3 题 → 生成"今天一件事 / 本周目标 / 三个避坑 / 何时就医"计划卡</li><li>计划卡逐日打卡、按执行情况重排（打卡满 2 天解锁调整，第二轮带完成率与降难度指令）</li><li>新增 <code>16-plan.js</code> 模块与 <code>__aiJSON()</code> 结构化出口；本地规则库 8 类场景兜底，断网不留白屏</li><li>验证：无头浏览器 32/32 断言通过；SW 缓存 v20</li></ul>
 <p><strong>v12.6（11/5）：AI 在线演示通道（服务端代理）</strong></p>
-<ul><li>新增「在线演示通道」：线上托管默认走 Cloudflare Worker 代理，评审打开即用、无需填 Key；Key 只存在服务端，前端仅带防滥用口令</li><li>四级降级链重构：服务端代理 → 自配 Key → 免费接口 → 本地知识库；失败提示改为具体原因（超时 / 跨域 / 401 / 429 / 5xx）</li><li>新增 <code>others/serverless/wrangler.toml</code> 与 <code>DEPLOY.md</code> 部署指南；Worker 增加 GET 健康检查，可直接用浏览器验证部署状态</li><li>修正：智谱 GLM 浏览器直连受跨域限制，设置面板标注"需代理"；看图提示改推荐通义千问（可直连）</li><li>验证：通道断言 15/15 通过，无头 Edge 全站加载零 JS 异常；SW 缓存升级至 v19</li></ul>
+<ul><li>新增「在线演示通道」：线上托管走 Cloudflare Worker 代理，评审打开即用、无需填 Key；Key 只存在服务端，前端仅带防滥用口令（后续实测 <code>workers.dev</code> 在国内被 DNS 污染与 SNI 阻断，v12.13 起 <code>REMOTE_PROXY</code> 留空，线上首次访问回落「免费体验接口」；绑定自有域名后填回该常量即可启用）</li><li>四级降级链重构：服务端代理 → 自配 Key → 免费接口 → 本地知识库；失败提示改为具体原因（超时 / 跨域 / 401 / 429 / 5xx）</li><li>新增 <code>others/serverless/wrangler.toml</code> 与 <code>DEPLOY.md</code> 部署指南；Worker 增加 GET 健康检查，可直接用浏览器验证部署状态</li><li>修正：智谱 GLM 浏览器直连受跨域限制，设置面板标注"需代理"；看图提示改推荐通义千问（可直连）</li><li>验证：通道断言 15/15 通过，无头 Edge 全站加载零 JS 异常；SW 缓存升级至 v19</li></ul>
 <h3>6.2 测试覆盖</h3>
-<ul><li>✅ PC 端 Chrome / Edge 主流分辨率</li><li>✅ 移动端浏览器（device-width 视口、响应式断点、手势缩放）</li><li>✅ 离线状态：Service Worker 缓存 + 本地对话兜底，断网可完整演示</li><li>✅ API Key 失效 / 接口失败时自动降级到本地兜底（界面明示具体原因：超时 / 跨域 / 401 / 429）</li><li>✅ AI 通道选择与降级链路：Node + 本地 SSE 模拟服务断言 15/15 通过</li><li>✅ 一周陪伴计划三步工作流：无头浏览器 32/32 断言（流转 / 拦截 / 打卡 / 版本 / 持久化 / 双回落 / 溢出）</li><li>✅ RAG 引用 / 工具轨迹 / 停止 / 重新生成：无头浏览器 17/17 断言（含模拟 abort）</li><li>✅ RAG 检索评测：20 条口语问法 hit@3 = 20/20（调优后）</li><li>✅ 视频离开页面自动暂停并回到开头</li><li>✅ 对话时页面稳定，不自动跳转站内板块</li><li>✅ 键盘 Tab 可达全部导航，回车 / 空格可触发</li><li>✅ 音乐总开关可一键关闭</li><li>✅ 量表字体在手机端正常显示</li><li>✅ 所有按钮点击正常；全局错误兜底避免白屏</li></ul>
+<ul><li>[通过] PC 端 Chrome / Edge 主流分辨率</li><li>[通过] 移动端浏览器（device-width 视口、响应式断点、手势缩放）</li><li>[通过] 离线状态：Service Worker 缓存 + 本地对话兜底，断网可完整演示</li><li>[通过] API Key 失效 / 接口失败时自动降级到本地兜底（界面明示具体原因：超时 / 跨域 / 401 / 429）</li><li>[通过] AI 通道选择与降级链路：Node + 本地 SSE 模拟服务断言 15/15 通过</li><li>[通过] 一周陪伴计划三步工作流：无头浏览器 32/32 断言（流转 / 拦截 / 打卡 / 版本 / 持久化 / 双回落 / 溢出）</li><li>[通过] RAG 引用 / 工具轨迹 / 停止 / 重新生成：无头浏览器 17/17 断言（含模拟 abort）</li><li>[通过] RAG 检索评测：20 条口语问法 hit@3 = 20/20（调优后）</li><li>[通过] 视频离开页面自动暂停并回到开头</li><li>[通过] 对话时页面稳定，不自动跳转站内板块</li><li>[通过] 键盘 Tab 可达全部导航，回车 / 空格可触发</li><li>[通过] 音乐总开关可一键关闭</li><li>[通过] 量表字体在手机端正常显示</li><li>[通过] 所有按钮点击正常；全局错误兜底避免白屏</li></ul>
 <h3>6.3 部署</h3>
 <ul><li><strong>本地运行</strong>：双击 index.html 即可（保持 css/ images/ others/ 同级）</li><li><strong>线上地址</strong>：https://qwq-tr-qwq.github.io/Under-the-Same-Stars/ （GitHub Pages，随 main 分支自动部署）</li><li><strong>其他托管</strong>：GitHub Pages / Vercel / Cloudflare Pages 静态文件直接部署即可</li><li><strong>密钥安全</strong>：源码零密钥；个人使用在网页设置面板配置（存 localStorage）；正式部署建议使用 others/serverless/ 后端中转代理（Vercel Functions / Cloudflare Workers），真实 Key 只存服务端环境变量</li></ul>
 <h3>6.4 已知限制</h3>
@@ -408,7 +410,7 @@ function replyFor(text) {
 <tr><td>端到端断言</td><td>无头浏览器脚本</td><td>32 + 17 + 15 = 64 项通过</td></tr>
 <tr><td>横向溢出</td><td>375px 与 1440px 两档实测 <code>scrollWidth</code></td><td>0 溢出</td></tr>
 </table>
-<p><strong>规模</strong>：17 个模块 6788 行 JS / 2784 行 CSS / 1517 行 HTML，共 11089 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.9）。</p>
+<p><strong>规模</strong>：17 个模块 6952 行 JS / 2839 行 CSS / 1521 行 HTML，共 11312 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.22）。</p>
 <hr>
 <h2>9. 总结与展望</h2>
 <h3>9.1 已完成</h3>
