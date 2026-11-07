@@ -5,8 +5,8 @@
  *   2) Tab 在浮层内循环，不会跑到浮层背后的页面
  *   3) ESC 关闭（点各浮层自己的关闭按钮，业务状态不会错乱）
  *   4) 关闭时：解锁滚动 → 焦点归还触发按钮
- * 接入范围：AI设置 #aiMask / 家长专区 #familyMask / 测评 #testMask
- *           科普话题 #topicMask / 感官体验 #senseOverlay / 偏好设置 #setMask
+ * 接入范围：AI设置 #aiMask / 家长专区 #familyMask / 测评 #testMask / 就医清单 #clinicMask
+ *           科普话题 #topicMask / 感官体验 #senseOverlay / 偏好设置 #setMask / 一周计划 #planMask
  */
 (function () {
   'use strict';
