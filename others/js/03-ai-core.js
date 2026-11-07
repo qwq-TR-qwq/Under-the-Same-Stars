@@ -84,6 +84,10 @@
     var n = String((err && err.name) || '');
     if(/abort/i.test(n) || /aborted|timeout/i.test(m)) return '请求超时';
     if(/Failed to fetch|fetch failed|NetworkError|Load failed|Network request failed/i.test(m)) return '网络不通，或接口未放行跨域';
+    // 先看服务端返回的具体错误码/文案，比单看 HTTP 状态更准
+    if(/model.*(not exist|not found|does not exist)|model_not_found|Model Not Exist|invalid model/i.test(m)) return '模型名不存在或已下架，请到平台「模型广场」复制完整模型 ID';
+    if(/token is invalid|invalid_api_key|Authentication Fails|Incorrect API key|invalid_authentication/i.test(m)) return 'Key 无效（复制不完整，或这个 Key 不属于该平台）';
+    if(/insufficient|balance|arrears|FreeTierOnly|AllocationQuota|AccessDenied|Unpurchased|余额|欠费/i.test(m)) return '额度不足或没有该模型权限（免费额度已过期，需充值或换模型）';
     if(/HTTP 401/.test(m)) return 'Key 无效，或该平台不认这个 Key';
     if(/HTTP 403/.test(m)) return '没有这个模型的调用权限（免费额度已过期，或未开通按量付费）';
     if(/HTTP 400/.test(m)) return '请求内容未被接口接受（常见原因：该模型不支持图片输入，或内容格式超出模型限制）';
@@ -199,7 +203,13 @@
       method: 'POST', headers: headers, body: JSON.stringify(body),
       signal: ctrl ? ctrl.signal : undefined
     }).then(function(r){
-        if(!r.ok) throw new Error('HTTP ' + r.status);
+        if(!r.ok){
+          // 读出服务端原始报错，便于「链路诊断」显示具体原因（模型名/Key/余额/限流）
+          return r.text().then(function(t){
+            var s = String(t || '').replace(/\s+/g, ' ').slice(0, 200);
+            throw new Error('HTTP ' + r.status + (s ? ' · ' + s : ''));
+          });
+        }
         if(!r.body || !r.body.getReader){ return r.json().then(function(j){ parseNonStream(j); }); }
         var reader = r.body.getReader();
         var dec = new TextDecoder('utf-8');

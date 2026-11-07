@@ -2829,3 +2829,11 @@ html.theme-light .prov-tip .h-tag.warn{ color:#a3371f; background:rgba(200,80,50
   .prov-cond{ font-size:13px; padding:7px 12px; }
   .prov-tip{ right:auto; left:0; width:100%; max-width:100%; font-size:13.5px; padding:12px 14px; }
 }
+
+/* 链路诊断：显示服务端原始报错时改用小字左对齐，避免长文本撑爆面板 */
+.set-test-status.raw{
+  font-size:14px; line-height:1.75; letter-spacing:0; text-align:left;
+  overflow-wrap:anywhere; padding:10px 14px; border-radius:10px;
+  background:rgba(255,120,90,.07); border:1px solid rgba(255,140,110,.25);
+}
+html.theme-light .set-test-status.raw{ background:rgba(200,80,50,.06); border-color:rgba(200,80,50,.2); }

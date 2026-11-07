@@ -210,25 +210,43 @@
     aiTestStatus.textContent = '✓ 已清空对话记忆';
     aiTestStatus.className = 'set-test-status ok';
   }, false);
+  // 诊断用测试图：128×128 暖黄底 + 白色圆点，用来验证视觉通道是否真的收到图
+  var VISION_PROBE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAABF0lEQVR42u3cwRWDMBBDQVVMubQDLXABC+/k/Qo0t8SbXOehhcUEAAAIAAABACAAAAQAgAAAEAAAAgBAAAAIAAABACAAAAQAgAAAEAAAAgBAAAAIAAABACAAAAQAwIs9/ABYs/sPJbLt9D9hyP7rdxtkxPrFBhkxfTFDZq3fZwAAwMfrlxlk4vpNBhm6fo0BAACr1u8wAAAAwNz1CwwAAAAAAAAAAAAAAAAAAAAAAAAAAPBtKAAAAPwm7DdhAN4FeRfkZZy3od6GAnAf4D7AhYwbsc3WdyUJwJ2wS3kA/itCAAAIAAABACAAAAQAgAAAEAAAAgBAAAAIAAABACAAAAQAgAAAEAAAAgBAAAAIAAABACAAAPS8G7y8FAbvECEbAAAAAElFTkSuQmCC';
+  function errRaw(err){
+    var s = String((err && err.message) || err || '');
+    return s.length > 150 ? s.slice(0, 150) + '…' : s;
+  }
   aiTestBtn.addEventListener('click', function(e){
     e.stopPropagation();
-    var msgs = [{ role: 'system', content: '你是一个连接测试助手，请只回复两个字：在线' }, { role: 'user', content: '在吗' }];
-    // 链路诊断：显性展示四级兜底（本地知识库 → 免费接口 → 后端中转 → 自填 Key）里的当前层级
+    // 链路诊断：先测文本通道，再发一张真实图片测视觉通道，失败时把服务端原始报错一并显示
     var pname = AI_PROVIDERS[aiProviderEl.value] ? AI_PROVIDERS[aiProviderEl.value].name : '当前服务商';
     aiCfg.provider = aiProviderEl.value;
     aiCfg.apiKey = aiKeyEl.value.replace(/^\s+|\s+$/g, '');
     aiCfg.model = aiModelEl.value.replace(/^\s+|\s+$/g, '');
     aiCfg.endpoint = aiEndpointEl.value.replace(/^\s+|\s+$/g, '');
+    var pvTest = AI_PROVIDERS[aiCfg.provider];
+    if(pvTest && aiCfg.provider !== 'custom' && pvTest.endpoint) aiCfg.endpoint = pvTest.endpoint;
     aiCfg.enabled = aiEnabledEl.checked;
-    aiTestStatus.textContent = '① 本地知识库：✓ 就绪（未联网也能答）… 正在检测 ② ' + pname + ' …';
+    var txtMsgs = [{ role: 'system', content: '你是一个连接测试助手，请只回复两个字：在线' }, { role: 'user', content: '在吗' }];
+    aiTestStatus.textContent = '① 本地知识库 ✓ 就绪 · 正在测试文本通道（' + pname + '）…';
     aiTestStatus.className = 'set-test-status';
-    callAI(msgs, function(reply){
-      aiTestStatus.textContent = '✓ 链路诊断通过：本地知识库 ✓ → ' + pname + ' ✓ 在线应答已就绪（回复：' + reply.slice(0, 30) + '）';
-      aiTestStatus.className = 'set-test-status ok';
+    callAI(txtMsgs, function(reply){
+      aiTestStatus.textContent = '文本 ✓（回复：' + String(reply).slice(0, 12) + '）· 正在发一张测试图验证看图…';
+      var imgMsgs = [{ role: 'user', content: [
+        { type: 'text', text: '这张图是什么颜色？只答一个词。' },
+        { type: 'image_url', image_url: { url: VISION_PROBE } }
+      ] }];
+      callAI(imgMsgs, function(vr){
+        aiTestStatus.textContent = '✓ 全部通过：文本 ✓ · 看图 ✓（模型看到：' + String(vr).replace(/\s+/g, ' ').slice(0, 24) + '）';
+        aiTestStatus.className = 'set-test-status ok';
+      }, function(err2){
+        aiTestStatus.textContent = '△ 文本 ✓ · 看图 ✗：' + aiErrText(err2) + '｜服务端原始：' + errRaw(err2);
+        aiTestStatus.className = 'set-test-status err raw';
+      }, null, false);
     }, function(err){
-      aiTestStatus.textContent = '△ ' + pname + ' 暂不可用（' + aiErrText(err) + '）。星语会自动降级到本地知识库继续应答——功能完整，只是知识面窄一些；也可换一个服务商或填入 API Key 重试。';
-      aiTestStatus.className = 'set-test-status err';
-    });
+      aiTestStatus.textContent = '△ 文本通道失败：' + aiErrText(err) + '｜服务端原始：' + errRaw(err);
+      aiTestStatus.className = 'set-test-status err raw';
+    }, null, false);
   }, false);
 
   // ================================================================
