@@ -2,6 +2,18 @@
 
 本项目从 v1 到 v12 的完整迭代记录，按时间顺序排列。
 
+## [v12.17] - 2026-11-07
+
+### 修复：通义视觉模型改名导致 404 + 错误提示更具体
+
+- **实测**：用户提供的百炼 Key 有效（鉴权通过），但 `qwen-vl-plus` 返回 404 `model_not_found`——该模型名已下线，现行视觉模型为 `qwen3-vl-plus`；`qwen-turbo` 持续 429 `limit_requests`，`qwen3-vl-plus` 返回 403 `AccessDenied.Unpurchased`——账号免费额度已全部耗尽，任何模型都无法调用
+- **修复**：
+  - `AI_PROVIDERS.qwen.vision` 由 `qwen-vl-plus` 改为 `qwen3-vl-plus`；全站文档（README、技术文档 md/html、作品介绍、环境配置说明、关于页说明）同步
+  - 新增启动时模型名迁移 `MODEL_RENAME`：本地已保存的旧模型名（qwen-vl-plus / qwen-vl-max）自动换成 `qwen3-vl-plus`，避免升级后继续 404
+  - `aiErrText` 细分：401「Key 无效或该平台不认这个 Key」/ 403「没有调用权限（免费额度已过期或未开通按量付费）」/ 429「请求太频繁或配额次数已用尽」
+- **配套**：SW 缓存 v29 → v30；版本条 v12.17
+- **验证**：语法检查通过；模型可用性由真实请求确认（models 列表含 qwen3-vl-plus，调用返回 403 权限不足而非 404）
+
 ## [v12.16] - 2026-11-07
 
 ### 修复：换服务商后请求地址残留导致 404

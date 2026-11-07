@@ -30,7 +30,7 @@
     proxy:        { name: '后端中转（同域部署 /api/ai）', model: 'deepseek-chat', endpoint: '/api/ai', key: false, vision: null },
     deepseek:    { name: 'DeepSeek（推荐）', model: 'deepseek-chat', endpoint: 'https://api.deepseek.com/chat/completions', key: true, vision: null },
     zhipu:       { name: '智谱 GLM（浏览器直连受跨域限制，需代理）', model: 'glm-4-flash', endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', key: true, vision: 'glm-4v-flash' },
-    qwen:        { name: '通义千问', model: 'qwen-turbo', endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', key: true, vision: 'qwen-vl-plus' },
+    qwen:        { name: '通义千问', model: 'qwen-turbo', endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', key: true, vision: 'qwen3-vl-plus' },
     custom:      { name: '自定义（OpenAI 兼容）', model: '', endpoint: '', key: true, vision: '' }
   };
   var aiCfg = { provider: 'pollinations', apiKey: '', model: 'openai', endpoint: 'https://text.pollinations.ai/', enabled: true };
@@ -39,6 +39,11 @@
     _savedCfg = JSON.parse(localStorage.getItem('star_ai_cfg_v1') || 'null');
     if(_savedCfg){ for(var _ck in aiCfg){ if(_savedCfg[_ck] !== undefined && _savedCfg[_ck] !== null) aiCfg[_ck] = _savedCfg[_ck]; } }
   } catch(e){}
+  // 模型名迁移：平台下线/改名后旧模型名会返回 404，这里把历史配置里的旧名换成现行名
+  var MODEL_RENAME = { 'qwen-vl-plus': 'qwen3-vl-plus', 'qwen-vl-max': 'qwen3-vl-plus' };
+  if(aiCfg.model && MODEL_RENAME[String(aiCfg.model).toLowerCase()]){
+    aiCfg.model = MODEL_RENAME[String(aiCfg.model).toLowerCase()];
+  }
   function isHostedDemo(){
     var h = String((typeof location !== 'undefined' && location.hostname) || '');
     return /(^|\.)github\.io$/.test(h) || /(^|\.)gitee\.io$/.test(h) || /(^|\.)pages\.dev$/.test(h) || /(^|\.)vercel\.app$/.test(h) || /(^|\.)netlify\.app$/.test(h);
@@ -79,10 +84,11 @@
     var n = String((err && err.name) || '');
     if(/abort/i.test(n) || /aborted|timeout/i.test(m)) return '请求超时';
     if(/Failed to fetch|fetch failed|NetworkError|Load failed|Network request failed/i.test(m)) return '网络不通，或接口未放行跨域';
-    if(/HTTP 401|HTTP 403/.test(m)) return 'Key 无效或没有权限';
+    if(/HTTP 401/.test(m)) return 'Key 无效，或该平台不认这个 Key';
+    if(/HTTP 403/.test(m)) return '没有这个模型的调用权限（免费额度已过期，或未开通按量付费）';
     if(/HTTP 400/.test(m)) return '请求内容未被接口接受（常见原因：该模型不支持图片输入，或内容格式超出模型限制）';
     if(/HTTP 404/.test(m)) return '接口地址不对或模型名不存在（404），请到 ⚙ 设置检查这两项';
-    if(/HTTP 429/.test(m)) return '调用太频繁或额度已用尽';
+    if(/HTTP 429/.test(m)) return '请求太频繁，或免费额度/配额的请求次数已用尽';
     if(/HTTP 5\d\d/.test(m)) return '服务端异常 ' + m.replace(/[^0-9]/g, '');
     if(/空回复/.test(m)) return '返回为空，请重试';
     return m ? m.slice(0, 40) : '未知错误';
