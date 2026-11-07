@@ -69,6 +69,12 @@ class DocParser(HTMLParser):
             self.strong += 1
         elif tag == 'hr':
             self.flush(); self.blocks.append(('hr', None))
+        elif tag == 'img':
+            src = dict(attrs).get('src', '')
+            if src:
+                self.flush()
+                full = os.path.normpath(os.path.join(getattr(self, 'base', '.'), src))
+                self.blocks.append(('img', full if os.path.exists(full) else src))
 
     def handle_endtag(self, tag):
         if self.skip:
@@ -109,6 +115,7 @@ class DocParser(HTMLParser):
 
 def parse_html(path):
     p = DocParser()
+    p.base = os.path.dirname(os.path.abspath(path))
     p.feed(open(path, encoding='utf-8').read())
     p.flush()
     return p.blocks
@@ -180,6 +187,17 @@ def render(blocks, out_path, title):
                 pdf.ln(3)
             else:
                 pdf.ln(1.5)
+        elif kind == 'img':
+            img_path = str(payload)
+            if os.path.exists(img_path):
+                from PIL import Image as _PILImage
+                w0, h0 = _PILImage.open(img_path).size
+                disp_w = pdf.w - pdf.l_margin - pdf.r_margin
+                disp_h = disp_w * h0 / w0
+                if pdf.get_y() + disp_h + 6 > pdf.h - 18:
+                    pdf.add_page()
+                pdf.image(img_path, w=disp_w)
+                pdf.ln(3)
         elif kind == 'p':
             write_runs(pdf, payload, 10.5, 6.4)
         elif kind == 'li':

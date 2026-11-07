@@ -326,8 +326,8 @@ document.addEventListener('keydown', function(e){
   }
 }, false);
 
-// 默认进入网站首页
-switchView('home');
+// 默认进入网站首页（?view= 深链直达时不覆盖，见 06-site-shell）
+if (!window.__viewDeep) switchView('home');
 // 留言墙初始渲染（示例留言）
 mwRender();
 

@@ -20,6 +20,9 @@ pre{background:#f5f6fa;padding:15px;border-radius:6px;overflow-x:auto;font-size:
 code{background:#f0f2f8;padding:1px 5px;border-radius:3px;font-size:13px}
 pre code{background:none;padding:0}
 blockquote{border-left:4px solid #c9d4f2;margin:12px 0;padding:4px 14px;color:#5a6480;background:#f8f9fd}
+figure{margin:16px 0;text-align:center}
+figure img{max-width:100%;border:1px solid #dfe4ef;border-radius:6px}
+figcaption{font-size:13px;color:#5a6480;margin-top:6px}
 strong{color:#1f2430}
 """
 
@@ -61,6 +64,13 @@ def md2html(md):
             i += 1; continue
         if st == '---':
             out.append('<hr>'); i += 1; continue
+        mi = re.match(r'^!\[([^\]]*)\]\(([^)]+)\)\s*$', st)
+        if mi:
+            alt, src = mi.group(1), mi.group(2)
+            if not src.startswith('http'):
+                src = '../' + src
+            out.append(f'<figure><img src="{src}" alt="{alt}"><figcaption>{inline(alt)}</figcaption></figure>')
+            i += 1; continue
         m = re.match(r'^(#{1,4})\s+(.*)$', st)
         if m:
             lv = len(m.group(1))

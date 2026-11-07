@@ -20,12 +20,15 @@ pre{background:#f5f6fa;padding:15px;border-radius:6px;overflow-x:auto;font-size:
 code{background:#f0f2f8;padding:1px 5px;border-radius:3px;font-size:13px}
 pre code{background:none;padding:0}
 blockquote{border-left:4px solid #c9d4f2;margin:12px 0;padding:4px 14px;color:#5a6480;background:#f8f9fd}
+figure{margin:16px 0;text-align:center}
+figure img{max-width:100%;border:1px solid #dfe4ef;border-radius:6px}
+figcaption{font-size:13px;color:#5a6480;margin-top:6px}
 strong{color:#1f2430}
 </style>
 </head>
 <body>
 <h1>星夜入眠 · 关爱自闭症儿童公益科普网站 —— 作品介绍文档</h1>
-<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.24（正式参赛版）</p>
+<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.25（正式参赛版）</p>
 <hr>
 <h2>一、项目详情及使用方式</h2>
 <h3>1.1 项目背景</h3>
@@ -49,8 +52,10 @@ strong{color:#1f2430}
 <h3>2.6 演示稳定性与工程质量</h3>
 <p>针对比赛现场环境做了大量稳定化处理：全站视频不自动播放、离开页面即暂停；背景音乐全页通用可一键开关；TTS 朗读为用户主动触发、离开对话页即停；全局错误兜底 toast 杜绝白屏；PWA 离线缓存让断网也能完整演示。<strong>偏好设置中心</strong>统一管理主题外观 / 网页动态效果 / 字号 / 背景音乐：<strong>浅色模式</strong>（日光纸白 + 深色墨字，高对比）与<strong>网页动态效果</strong>（关动效/音乐/视差/弹幕，保留换页叙事动画）为感官敏感人群与明亮环境提供舒适版本。数据看板升级为<strong>可追溯数据层</strong>（唯一数据源 stats.json：20 个数据点 + 10 条权威来源，带口径与推算依据，线上改 JSON 即时生效、离线自动兜底）。工程上 HTML / CSS / JS 分层（HTML 0.11MB + css/style.css + others/js/ 17 个功能模块），免构建、双击即用，并已托管 GitHub Pages 在线演示。</p>
 <hr>
-<h2>三、Web 网页使用情况概述</h2>
-<h3>3.1 板块结构</h3>
+<h2>三、AI 技术落地使用情况概述</h2>
+<h3>3.1 AI 能力落地情况</h3>
+<ul><li><strong>真实大模型接入</strong>：OpenAI 兼容协议接入 DeepSeek / 智谱 GLM / 通义千问 / 硅基流动等多服务商，SSE 流式输出；接口失败自动降级本地应答并明示原因，比赛现场断网也能完整演示</li><li><strong>检索增强（RAG）</strong>：51 条自建科普语料 + 145 组共情话题键，字符二元组向量化与关键词计分混合排序；出厂检索评测 20 条口语问法 hit@3 = 100%（调优全过程见技术文档 5.11）</li><li><strong>工具调用（Function Calling）</strong>：AI 自主决策调用站内工具——板块跳转、知识库检索、感官体验模拟；调用轨迹以可展开条形式可视化，工具 / 入参 / 命中数一目了然</li><li><strong>上线后运营闭环</strong>：星语每答不好一个问题都会记入「未命中清单」，可一键导出 CSV；首个真实案例「去医院检查要准备什么」补录专条后 4/4 同义问法复测命中（首条得分 9.94）</li><li><strong>AI 链路健康诊断</strong>：设置面板两步自检——先测文本通道，再用内置测试图真发一次视觉请求；失败时显示服务端原始报错，并按 401 / 403 / 404 / 429 等给出中文可操作指引</li><li><strong>安全兜底</strong>：危机干预关键词优先响应 12356 热线卡片；看图轮次不挂无关「依据」；带图失败走专用兜底</li></ul>
+<h3>3.2 板块结构</h3>
 <table>
 <tr><th>板块</th><th>功能</th></tr>
 <tr><td>首页</td><td>主视觉、数据卡片、快捷入口、互动小问卷</td></tr>
@@ -64,7 +69,7 @@ strong{color:#1f2430}
 <tr><td>公益参与</td><td>志愿登记、官方网站跳转链接（新标签页）</td></tr>
 <tr><td>关于我们</td><td>项目介绍、免责声明、反馈表单</td></tr>
 </table>
-<h3>3.2 响应式</h3>
+<h3>3.3 响应式</h3>
 <ul><li>PC 端：多栏布局，完整展示</li><li>手机端：自适应单栏，支持手势缩放</li><li>所有按钮、图表、视频在手机端正常显示</li></ul>
 <hr>
 <h2>四、关键技术</h2>
@@ -76,7 +81,13 @@ strong{color:#1f2430}
 <ul><li><strong>打字机效果</strong>：AI 回答逐字显示</li><li><strong>思考态</strong>："星语正在思考..."状态提示 + 检索命中可视化</li><li><strong>语音进度交互</strong>：朗读时当前句高亮、气泡内进度条跟随，点击任意句从该句跳读</li><li><strong>图表联动</strong>：hover 图形和图例双向高亮</li><li><strong>视频控制</strong>：点击暂停/继续，离开页面自动暂停并回到开头</li><li><strong>音乐总开关</strong>：背景音乐全页通用（含视频页），一键开关 + 音量调节</li><li><strong>就医清单打印</strong>：结构化 A4 单页生成 + 浏览器打印输出（visibility 方案只打印清单层）</li><li><strong>AI 星空寄语卡片</strong>：LLM 生成寄语 + Canvas 绘制可保存贺卡</li></ul>
 <hr>
 <h2>五、项目相关图片/照片</h2>
-<p>项目视觉素材：</p>
+<p><strong>在线运行截图</strong>（深色·星夜主题，1366×860；在线演示支持 <code>?view=板块名</code> 直达对应页面）：</p>
+<figure><img src="../others/_checks/shots_jpg/home.jpg" alt="首页 · 星夜主视觉与三大分区入口"><figcaption>首页 · 星夜主视觉与三大分区入口</figcaption></figure>
+<figure><img src="../others/_checks/shots_jpg/chat.jpg" alt="星语对话 · AI 心理陪伴（话题导航 / 家长专区 / 一周陪伴计划）"><figcaption>星语对话 · AI 心理陪伴（话题导航 / 家长专区 / 一周陪伴计划）</figcaption></figure>
+<figure><img src="../others/_checks/shots_jpg/policy.jpg" alt="政策与救助 · 31 省 333 市二级选择与官方入口"><figcaption>政策与救助 · 31 省 333 市二级选择与官方入口</figcaption></figure>
+<figure><img src="../others/_checks/shots_jpg/community.jpg" alt="家长互助社群 · 星光留言墙"><figcaption>家长互助社群 · 星光留言墙</figcaption></figure>
+<figure><img src="../others/_checks/shots_jpg/science.jpg" alt="认识自闭症 · 翻页书页与科普插画"><figcaption>认识自闭症 · 翻页书页与科普插画</figcaption></figure>
+<p><strong>项目视觉素材</strong>：</p>
 <ul><li>星空动画背景（CSS + Canvas 实现）</li><li>故事插图（AI 生成，二次元风格，无水印）</li><li>电子证书背景（AI 生成，含两个比心小孩）</li><li>数据图表（原生 Canvas 渲染）</li><li>公益视频（嵌入 B 站公开视频，带封面）</li></ul>
 <p>所有视觉素材均为原创或使用公开授权素材，不涉及患儿真实照片。</p>
 <hr>
@@ -107,6 +118,7 @@ strong{color:#1f2430}
 <tr><td>v12.10-v12.14</td><td>未命中清单驱动的语料补录（50→51 条，4/4 复测命中）；服务商改为「选项级可用条件提示」；修复看图失败挂出无关依据、图片消息在非视觉模型下反复 400</td></tr>
 <tr><td>v12.15-v12.19</td><td>自定义（OpenAI 兼容）通道放行看图并补齐硅基流动接入指引；修复换服务商后请求地址残留 404、通义视觉模型改名 404；链路诊断升级为「文本 + 看图」双项自检，失败时显示服务端原始报错</td></tr>
 <tr><td>v12.20-v12.24</td><td>修复自定义通道发图被误替换为占位符；排查 HTML/JS 缓存不同步（面板版本徽标 + <code>window.__lastMsgs</code> 调试钩子 + 资源版本参数）；参赛材料一致性校准（行数口径 / 版本号 / 章节编号 / 服务端代理表述），文档 HTML 与 PDF 重新生成</td></tr>
+<tr><td>v12.25</td><td>作品介绍对齐大赛七项要求（第三章改为 AI 技术落地概述、第五章补 5 张运行截图）；新增 <code>?view=</code> 深链直达板块并修复默认首页覆盖深链的问题</td></tr>
 </table>
 <p>所有优化均为本项目自主完成，未基于任何开源项目二次开发。</p>
 <hr>

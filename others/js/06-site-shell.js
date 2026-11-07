@@ -31,6 +31,15 @@ function siteGo(goto){
   if(idx) show(parseInt(idx, 10));
 }
 
+// 支持 ?view=xxx 深链直达：评审 / 分享链接可直接落到指定板块（如 ?view=policy、?view=chat）
+(function () {
+  var v = '';
+  try { v = new URLSearchParams(location.search).get('view') || ''; } catch (e) {}
+  window.__viewDeep = v; // 供 07-nav 判断是否跳过「默认回首页」
+  if (!v) return;
+  if (v === 'chat' || siteViews.some(function (x) { return x.getAttribute('data-view') === v; })) switchView(v);
+})();
+
 // 导航栏链接（含键盘可达性：Tab 聚焦后回车/空格触发）
 siteLinks.forEach(function(l){
   l.addEventListener('click', function(e){
