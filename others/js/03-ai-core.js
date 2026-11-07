@@ -160,6 +160,8 @@
         msgs.push({ role: m.role, content: m.image ? ('[用户之前发过一张图片] ' + (m.content || '')) : m.content });
       }
     }
+    // 调试钩子：控制台 window.__lastMsgs 可查看实际发给模型的最后一条消息（排查看图链路用）
+    try{ window.__lastMsgs = msgs; }catch(e){}
     return msgs;
   }
   // ===== 大模型调用：SSE 流式输出 + tool_calls 解析 =====
