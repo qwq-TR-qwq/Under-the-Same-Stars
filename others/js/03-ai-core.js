@@ -146,7 +146,8 @@
     var sys = SYSTEM_PROMPT + (_lastReq && _lastReq.image ? '' : ragContext(_lastUserText));
     var msgs = [{ role: 'system', content: sys }];
     // 当前模型不支持看图时，历史里的图片自动降级为文字占位——否则会随每一轮请求反复触发 400
-    var canSee = !!(AI_PROVIDERS[aiCfg.provider] && AI_PROVIDERS[aiCfg.provider].vision);
+    // 判定须与 aiChat 预检一致（vision !== null）：custom 的 vision 是空串（由用户填的模型决定），不能按 truthy 误判为不支持
+    var canSee = !!(AI_PROVIDERS[aiCfg.provider] && AI_PROVIDERS[aiCfg.provider].vision !== null);
     var hist = chatHistory.slice(-30);
     for(var hi = 0; hi < hist.length; hi++){
       var m = hist[hi];
