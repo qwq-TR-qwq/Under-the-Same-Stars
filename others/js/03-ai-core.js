@@ -40,7 +40,7 @@
     if(_savedCfg){ for(var _ck in aiCfg){ if(_savedCfg[_ck] !== undefined && _savedCfg[_ck] !== null) aiCfg[_ck] = _savedCfg[_ck]; } }
   } catch(e){}
   // 模型名迁移：平台下线/改名后旧模型名会返回 404，这里把历史配置里的旧名换成现行名
-  var MODEL_RENAME = { 'qwen-vl-plus': 'qwen3-vl-plus', 'qwen-vl-max': 'qwen3-vl-plus' };
+  var MODEL_RENAME = { 'qwen-vl-plus': 'qwen3-vl-plus', 'qwen-vl-max': 'qwen3-vl-plus', 'qwen/qwen2.5-vl-7b-instruct': 'Qwen/Qwen3-VL-8B-Instruct' };
   if(aiCfg.model && MODEL_RENAME[String(aiCfg.model).toLowerCase()]){
     aiCfg.model = MODEL_RENAME[String(aiCfg.model).toLowerCase()];
   }
