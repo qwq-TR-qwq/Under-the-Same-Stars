@@ -132,7 +132,9 @@
     }
     if(k === 'custom'){
       return '<b>自定义：什么情况下能用</b><ul><li>填入完整的 <code>/chat/completions</code> 地址</li>'
-        + '<li>填入该服务商要求的 Key 与模型名</li></ul>';
+        + '<li>填入该服务商要求的 Key 与模型名</li>'
+        + '<li>推荐：硅基流动（新用户注册送额度）——地址 <code>https://api.siliconflow.cn/v1/chat/completions</code>，看图模型填 <code>Qwen/Qwen2.5-VL-7B-Instruct</code>（模型名含 VL 即可看图），纯聊天可用 <code>Qwen/Qwen3-8B</code></li>'
+        + '<li>想看图时模型名需含 vl / vision / 4o，否则星语会提示模型不支持图片</li></ul>';
     }
     return '';
   }

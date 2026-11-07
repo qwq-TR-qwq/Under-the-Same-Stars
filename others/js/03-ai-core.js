@@ -31,7 +31,7 @@
     deepseek:    { name: 'DeepSeek（推荐）', model: 'deepseek-chat', endpoint: 'https://api.deepseek.com/chat/completions', key: true, vision: null },
     zhipu:       { name: '智谱 GLM（浏览器直连受跨域限制，需代理）', model: 'glm-4-flash', endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', key: true, vision: 'glm-4v-flash' },
     qwen:        { name: '通义千问', model: 'qwen-turbo', endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', key: true, vision: 'qwen-vl-plus' },
-    custom:      { name: '自定义（OpenAI 兼容）', model: '', endpoint: '', key: true, vision: null }
+    custom:      { name: '自定义（OpenAI 兼容）', model: '', endpoint: '', key: true, vision: '' }
   };
   var aiCfg = { provider: 'pollinations', apiKey: '', model: 'openai', endpoint: 'https://text.pollinations.ai/', enabled: true };
   var _savedCfg = null;
@@ -619,12 +619,12 @@
       var famAns = window.__familyAnswer(text);
       if(famAns){ finishReply(think, famAns, ''); return; }
     }
-    // 多模态：检查当前服务商是否支持看图
-    if(imageDataUrl && !(AI_PROVIDERS[aiCfg.provider] && AI_PROVIDERS[aiCfg.provider].vision)){
+    // 多模态：检查当前服务商是否支持看图（custom 由用户填的模型决定，模型名含 vl/vision 即视为支持）
+    if(imageDataUrl && !(function(){ var pv = AI_PROVIDERS[aiCfg.provider]; return pv && pv.vision !== null; })()){
       finishReply(think, '当前服务商（' + aiModeName() + '）暂不支持图片理解。可以点右上角 ⚙ 设置，切换到「通义千问」（有免费额度，且浏览器可直连），我就能看图啦～', '');
       return;
     }
-    if(imageDataUrl && aiCfg.provider !== 'pollinations' && !/(v|vl|vision|4o)/i.test(aiCfg.model)){
+    if(imageDataUrl && aiCfg.provider !== 'pollinations' && aiCfg.provider !== 'custom' && !/(v|vl|vision|4o)/i.test(aiCfg.model)){
       aiCfg.model = AI_PROVIDERS[aiCfg.provider].vision;
       saveAiCfg(); paintAiStatus();
     }

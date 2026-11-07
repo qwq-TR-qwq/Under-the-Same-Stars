@@ -2,6 +2,20 @@
 
 本项目从 v1 到 v12 的完整迭代记录，按时间顺序排列。
 
+## [v12.15] - 2026-11-07
+
+### 调整：自定义通道放行看图 + 接入指引（硅基流动）
+
+- **背景**：用户阿里云百炼免费额度已全部过期（有效模型 0 / 过期 367），通义看图通道不可用；实测 pollinations 免费接口的匿名档模型已不支持图片输入（上游返回 "This model does not support image input"，模型列表仅剩 openai-fast 无视觉）
+- **实测**：阿里云 dashscope 与硅基流动（api.siliconflow.cn）的 CORS 预检均返回 `Access-Control-Allow-Origin: *`，浏览器可直连
+- **改动**（`03-ai-core.js`）：
+  - `AI_PROVIDERS.custom.vision` 由 `null` 改为 `''`——自定义通道不再被"服务商不支持看图"拦截，是否真能看图由用户填的模型名决定
+  - 看图模型名自动切换逻辑排除 `custom`（用户自己填的模型不自动改写；模型名含 vl/vision/4o 即放行）
+  - 服务商支持判定改为 `pv.vision !== null`，pollinations 与 custom 放行，deepseek/remote/proxy 仍拦截
+- **指引**（`04-sensory.js`）：「自定义」的可用条件气泡加入硅基流动接法（地址、看图模型 `Qwen/Qwen2.5-VL-7B-Instruct`、聊天模型 `Qwen/Qwen3-8B`、模型名需含 vl/vision/4o）
+- **配套**：SW 缓存 v27 → v28；版本条 v12.15
+- **验证**：两个 JS 语法检查通过
+
 ## [v12.14] - 2026-11-06
 
 ### 修复：看图失败时挂出与图片无关的「依据」
