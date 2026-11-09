@@ -522,6 +522,7 @@ body{
   background:var(--star); animation:pulse 1s ease-in-out infinite;
 }
 .msg.thinking .bubble{ color:#c9d4f5; }
+.think-timer{ display:inline-block; margin-left:10px; font-size:13px; letter-spacing:.5px; color:#8b97c6; font-weight:300; vertical-align:2px; }
 .msg .dot{
   display:inline-block; width:8px; height:8px; margin-right:6px; border-radius:50%;
   background:var(--star); animation:pulse 1.2s ease-in-out infinite;
@@ -2363,6 +2364,7 @@ html.theme-light .msg .bubble{ color:#2b3560; }
 html.theme-light .msg.bot .bubble{ background:rgba(43,48,90,.05); border-color:rgba(43,48,90,.14); }
 html.theme-light .msg.me .bubble{ background:rgba(255,214,120,.28); border-color:rgba(190,140,20,.45); color:#4a3608; }
 html.theme-light .msg.thinking .bubble{ color:#5d688f; }
+html.theme-light .think-timer{ color:#7c86ab; }
 html.theme-light .chat-inputbar{ border-top-color:rgba(43,48,90,.1); background:rgba(255,200,80,.06); }
 html.theme-light #chatInput{ color:#2b3050; background:rgba(255,255,255,.92); border-color:rgba(43,48,90,.2); }
 html.theme-light #chatInput::placeholder{ color:#8a90ab; }

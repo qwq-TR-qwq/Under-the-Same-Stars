@@ -28,7 +28,7 @@ strong{color:#1f2430}
 </head>
 <body>
 <h1>星夜入眠 —— 关爱自闭症儿童公益科普网站技术文档</h1>
-<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.26（正式参赛版）</p>
+<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.27（正式参赛版）</p>
 <hr>
 <h2>目录</h2>
 <ol><li>项目概述</li><li>需求分析</li><li>系统架构设计</li><li>AI 技术方案</li><li>核心功能实现</li><li>测试与部署</li><li>创新点</li><li>性能与安全</li><li>总结与展望</li><li>可持续性与推广路径</li></ol>
@@ -98,8 +98,8 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <tr><th>模块</th><th>行数</th><th>职责</th><th>对外接口</th></tr>
 <tr><td>00-boot</td><td>65</td><td>渲染前预应用主题/动效/字号，捕获全局异常，注册 SW</td><td>无（自执行）</td></tr>
 <tr><td>01-book</td><td>250</td><td>书页翻页骨架、页索引、动效开关的唯一判定</td><td><code>isMotionOff()</code> <code>total</code></td></tr>
-<tr><td>02-chat</td><td>1206</td><td>对话视图：消息渲染、打字机、附件、语音入口、发送键状态</td><td><code>botSay()</code> <code>chatMsgs</code> <code>chatting</code></td></tr>
-<tr><td>03-ai-core</td><td>925</td><td>AI 能力内核：通道选择、SSE 流式、工具调用、RAG、引用、降级</td><td><code>__aiInfo</code> <code>__aiStop</code> <code>__aiJSON</code> <code>__aiReady</code> <code>__aiStats</code></td></tr>
+<tr><td>02-chat</td><td>1214</td><td>对话视图：消息渲染、打字机、附件、语音入口、发送键状态</td><td><code>botSay()</code> <code>chatMsgs</code> <code>chatting</code></td></tr>
+<tr><td>03-ai-core</td><td>935</td><td>AI 能力内核：通道选择、SSE 流式、工具调用、RAG、引用、降级</td><td><code>__aiInfo</code> <code>__aiStop</code> <code>__aiJSON</code> <code>__aiReady</code> <code>__aiStats</code></td></tr>
 <tr><td>04-sensory</td><td>252</td><td>感官体验短片播放与降噪/增益模拟</td><td><code>startSensorySim()</code></td></tr>
 <tr><td>05-tests-community</td><td>695</td><td>心理测评量表与 MBTI，历史记录</td><td><code>window.__test*</code></td></tr>
 <tr><td>06-site-shell</td><td>60</td><td>视图切换与板块级交互</td><td><code>switchView()</code></td></tr>
@@ -114,7 +114,7 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <tr><td>15-misslog</td><td>86</td><td>未命中问题日志，驱动知识库迭代</td><td><code>__missLog</code></td></tr>
 <tr><td>16-plan</td><td>452</td><td>一周陪伴计划三步工作流与打卡闭环</td><td><code>__plan</code></td></tr>
 </table>
-<p><strong>合计</strong>：17 个模块 6967 行 JS + 2839 行 CSS + 1521 行 HTML = 11327 行，零第三方运行时依赖（统计于 v12.26）。</p>
+<p><strong>合计</strong>：17 个模块 6987 行 JS + 2841 行 CSS + 1521 行 HTML = 11347 行，零第三方运行时依赖（统计于 v12.27）。</p>
 <h3>3.4 技术选型</h3>
 <table>
 <tr><th>模块</th><th>选型</th><th>理由</th></tr>
@@ -327,7 +327,7 @@ function replyFor(text) {
 <blockquote>你在帮一位自闭症孩子的家长排"一周陪伴计划"，现在是第 2 步：判断还缺什么信息。只输出 JSON，不要任何解释文字，格式：{"questions":[{"q":"问题（22 字内，说人话）","type":"single","options":["选项1","选项2","选项3"]}]}。规则：2 到 3 道题；家长原话里已经说了的不要再问；不要问诊断结论或病因；每道题尽量给 3–4 个选项，实在无法选项化才用 "type":"text"；问题要能直接影响"这周做什么"。</blockquote>
 <hr>
 <h2>6. 测试与部署</h2>
-<h3>6.1 开发历程（从 v1 到 v12.26 完整迭代）</h3>
+<h3>6.1 开发历程（从 v1 到 v12.27 完整迭代）</h3>
 <p>项目从最初版本到现在持续迭代打磨：</p>
 <p><strong>v1 初版（9/30，10.6MB）</strong></p>
 <ul><li>基础星空动画 + 交互动画背景</li><li>首页主视觉、导航栏</li><li>初版科普内容框架</li></ul>
@@ -393,6 +393,8 @@ function replyFor(text) {
 <ul><li>作品介绍第三章改为「AI 技术落地使用情况概述」并新增 AI 能力落地小节；第五章补 5 张线上运行截图（文档生成器增加图片支持）</li><li>新增 <code>?view=</code> 深链直达板块；修复 <code>07-nav-community.js</code> 启动时无条件回首页覆盖深链的问题</li><li>行数 11312 → 11321（<code>06-site-shell</code> 51 → 60）</li></ul>
 <p><strong>v12.26（11/9：修复点「停止」后无法继续对话）</strong></p>
 <ul><li>修复：流式输出中点「停止」（或 60 秒超时中断）后按钮卡在「停止」、无法再发送——<code>pump()</code> 读取循环的 Promise 未接回外层 <code>.catch</code>，abort 引发的 <code>reader.read()</code> 拒绝成为 unhandled rejection，<code>fail()</code> 不执行、<code>chatting</code> 永远为 true；已补上 <code>.catch</code> 链，停止后正确收尾（保留已输出内容 + 标注「已停止生成」）</li><li>行数 11321 → 11327（<code>03-ai-core</code> 919 → 925）</li></ul>
+<p><strong>v12.27（11/9：长等待可感知 + 空回复自动重试）</strong></p>
+<ul><li>思考气泡新增等待秒数计时（首字到达即消失）；超过 30 秒提示「可再等等，或点停止后重试 / 换服务商」——第三方模型首字可能要十几秒，此前只有三个点、用户无从判断是否卡死</li><li>「返回为空」自动重试一次：免费 / 自定义接口偶发 200 空响应，此前直接降级本地知识库并提示手动重试；现自动重发一次（仅一次，避免循环）再降级</li><li>行数 11327 → 11347（<code>02-chat</code> 1206 → 1214、<code>03-ai-core</code> 925 → 935、CSS 2839 → 2841）</li></ul>
 <h3>6.2 测试覆盖</h3>
 <ul><li>[通过] PC 端 Chrome / Edge 主流分辨率</li><li>[通过] 移动端浏览器（device-width 视口、响应式断点、手势缩放）</li><li>[通过] 离线状态：Service Worker 缓存 + 本地对话兜底，断网可完整演示</li><li>[通过] API Key 失效 / 接口失败时自动降级到本地兜底（界面明示具体原因：超时 / 跨域 / 401 / 429）</li><li>[通过] AI 通道选择与降级链路：Node + 本地 SSE 模拟服务断言 15/15 通过</li><li>[通过] 一周陪伴计划三步工作流：无头浏览器 32/32 断言（流转 / 拦截 / 打卡 / 版本 / 持久化 / 双回落 / 溢出）</li><li>[通过] RAG 引用 / 工具轨迹 / 停止 / 重新生成：无头浏览器 17/17 断言（含模拟 abort）</li><li>[通过] RAG 检索评测：20 条口语问法 hit@3 = 20/20（调优后）</li><li>[通过] 视频离开页面自动暂停并回到开头</li><li>[通过] 对话时页面稳定，不自动跳转站内板块</li><li>[通过] 键盘 Tab 可达全部导航，回车 / 空格可触发</li><li>[通过] 音乐总开关可一键关闭</li><li>[通过] 量表字体在手机端正常显示</li><li>[通过] 所有按钮点击正常；全局错误兜底避免白屏</li></ul>
 <h3>6.3 部署</h3>
@@ -427,7 +429,7 @@ function replyFor(text) {
 <tr><td>端到端断言</td><td>无头浏览器脚本</td><td>32 + 17 + 15 = 64 项通过</td></tr>
 <tr><td>横向溢出</td><td>375px 与 1440px 两档实测 <code>scrollWidth</code></td><td>0 溢出</td></tr>
 </table>
-<p><strong>规模</strong>：17 个模块 6967 行 JS / 2839 行 CSS / 1521 行 HTML，共 11327 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.26）。</p>
+<p><strong>规模</strong>：17 个模块 6987 行 JS / 2841 行 CSS / 1521 行 HTML，共 11347 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.27）。</p>
 <hr>
 <h2>9. 总结与展望</h2>
 <h3>9.1 已完成</h3>

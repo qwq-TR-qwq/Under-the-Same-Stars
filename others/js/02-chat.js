@@ -653,7 +653,15 @@
   function botThink(){
     var wrap = document.createElement('div');
     wrap.className = 'msg bot thinking';
-    wrap.innerHTML = '<div class="ava">' + avaSvg(true) + '</div><div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+    wrap.innerHTML = '<div class="ava">' + avaSvg(true) + '</div><div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="think-timer"></span></div>';
+    // 等待首字计时：第三方模型首字可能要十几秒，让用户知道没卡死（首个字到达后由流式渲染清掉）
+    var tEl = wrap.querySelector('.think-timer');
+    var t0 = Date.now();
+    var iv = setInterval(function(){
+      if(!wrap.parentNode || !tEl.parentNode){ clearInterval(iv); return; }
+      var s = Math.round((Date.now() - t0) / 1000);
+      tEl.textContent = ' ' + s + 's' + (s >= 30 ? ' · 响应较慢，可再等等，或点「停止」后重试 / 换服务商' : '');
+    }, 1000);
     chatMsgs.appendChild(wrap);
     scrollMsgs();
     return wrap;

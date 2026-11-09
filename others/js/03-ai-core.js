@@ -301,6 +301,16 @@
       })
       .catch(function(err){ if(timer) clearTimeout(timer); if(CUR_CTRL === ctrl) CUR_CTRL = null; fail(err); });
   }
+  // 空回复自动重试一次：免费/自定义接口偶发返回 200 但内容为空，直接降级体验差（只重试一次，避免循环）
+  function callAIRetryEmpty(messages, done, fail, onDelta, useTools, attempted){
+    callAI(messages, done, function(err){
+      if(!attempted && err && /空回复/.test(String((err && err.message) || ''))){
+        callAIRetryEmpty(messages, done, fail, onDelta, useTools, true);
+        return;
+      }
+      fail(err);
+    }, onDelta, useTools);
+  }
   // ===== 流式渲染：把增量文本写入思考气泡 =====
   function streamInto(think, partial){
     if(!think || !think.parentNode || !partial) return;
@@ -690,13 +700,13 @@
     // 静默预检索：命中结果只作为回答依据，不在气泡里显示检索提示（保持原始思考动画）
     _lastHits = (_lastReq && _lastReq.image) ? [] : searchKB(text);
     var pendingButtons = [];
-    callAI(msgs, function(content, toolCalls){
+    callAIRetryEmpty(msgs, function(content, toolCalls){
       if(toolCalls && toolCalls.length){
         // Function Calling：执行工具 → 回填结果 → 二次请求生成最终回复
         msgs.push({ role: 'assistant', content: content || '', tool_calls: toolCalls });
         (function runTools(i){
           if(i >= toolCalls.length){
-            callAI(msgs, function(finalText){
+            callAIRetryEmpty(msgs, function(finalText){
               finishReply(think, finalText, '', { streamed: true, buttons: pendingButtons });
             }, function(err){ if(isAbort(err)){ stoppedFinish(); return; } localFallback(err); }, function(partial){ received = partial; streamInto(think, partial); }, useTools);
             return;
@@ -766,7 +776,7 @@
       { role: 'system', content: '你为公益科普网站《星夜入眠》生成星空贺卡上的寄语。根据用户给的关键词或心情，写一句温柔、有力量、适合印在星空卡片上的中文寄语。要求：不超过40个字，只输出寄语本身，不要引号、不要解释、不要称呼。风格：温暖、诗意但不做作，可以联系"星星、夜晚、光"的意象。' },
       { role: 'user', content: '关键词/心情：' + (theme || '随机的温柔祝福') }
     ];
-    callAI(msgs, function(content, toolCalls){
+    callAIRetryEmpty(msgs, function(content, toolCalls){
       var out = (content || '').replace(/^\s+|\s+$/g, '').replace(/^["「']|["」']$/g, '').slice(0, 60);
       cb(out || null);
     }, function(err){ cb(null); }, null, false);
