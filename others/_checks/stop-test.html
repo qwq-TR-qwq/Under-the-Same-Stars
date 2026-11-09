@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>stop-test running</title></head>
+<body style="font-family:monospace; white-space:pre-wrap; background:#111; color:#0f0; font-size:12px;" id="out">starting…</body>
+<iframe id="fr" style="width:1100px;height:700px"></iframe>
+<script>
+(function(){
+  var out = document.getElementById('out');
+  var fr = document.getElementById('fr');
+  var lines = [];
+  function log(s){ lines.push(s); out.textContent = lines.join('\n'); document.title = 'STOPTEST:' + lines.join('|'); }
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function poll(fn, gap, tries){
+    gap = gap || 100; tries = tries || 200;
+    return new Promise(function(res){
+      var n = 0;
+      var iv = setInterval(function(){
+        n++;
+        var ok = false;
+        try{ ok = fn(); }catch(e){}
+        if(ok || n >= tries){ clearInterval(iv); res(n * gap); }
+      }, gap);
+    });
+  }
+
+  fr.src = '../../index.html?view=chat';
+  fr.addEventListener('load', function(){
+    if(fr._armed) return;
+    fr._armed = true;
+    var w0 = fr.contentWindow;
+    w0.localStorage.setItem('star_ai_cfg_v1', JSON.stringify({
+      provider:'custom', apiKey:'sk-test', model:'test-model',
+      endpoint:'/mock/v1/chat/completions', enabled:true
+    }));
+    w0.localStorage.removeItem('star_ai_history_v1');
+    fr.contentWindow.location.reload();
+    fr.addEventListener('load', function(){
+      var w = fr.contentWindow, d = fr.contentDocument;
+      var errors = [];
+      w.addEventListener('error', function(e){ errors.push('PAGE_ERR: ' + e.message + ' @' + e.lineno); });
+      w.addEventListener('unhandledrejection', function(e){ errors.push('UNHANDLED: ' + e.reason); });
+      var origStop = w.__aiStop;
+      w.__aiStop = function(){ var r = origStop(); log('>> __aiStop() 返回=' + r); return r; };
+      // 钩住 fetch 记录请求结果
+      var origFetch = w.fetch;
+      w.fetch = function(u, opt){
+        log('>> fetch: ' + u);
+        return origFetch.apply(w, arguments).then(function(r){
+          log('<< fetch ' + u + ' → HTTP ' + r.status);
+          return r;
+        }, function(e){
+          log('<< fetch ' + u + ' → ERR ' + (e && e.name) + ': ' + (e && e.message));
+          throw e;
+        });
+      };
+      setTimeout(run, 500);
+      function stats(){ try{ return JSON.stringify(w.__aiStats()); }catch(e){ return 'n/a'; } }
+      function run(){
+        var inp = d.getElementById('chatInput'), btn = d.getElementById('chatSend');
+        // 第 1 轮：等流式内容真的出现（气泡文字 >= 8 字）再点停止
+        inp.value = '你好呀';
+        btn.click();
+        log('T0 已发送');
+        poll(function(){
+          var t = d.querySelector('#chatMsgs .msg.bot .bubble .txt');
+          return t && t.textContent.length >= 8;
+        }).then(function(ms){
+          log('T1 流式内容已出现(+' + ms + 'ms): [' + d.querySelector('#chatMsgs .msg.bot .bubble .txt').textContent.slice(0,12) + '…] btn=[' + btn.textContent.trim() + ']');
+          btn.click();   // 停止
+          return poll(function(){ return btn.textContent.indexOf('发') >= 0; }, 100, 60);
+        }).then(function(ms){
+          log('T2 停止后 ' + ms + 'ms: btn=[' + btn.textContent.trim() + '] stats=' + stats());
+          // 第 2 轮：再发送，验证能正常对话
+          inp.value = '再说一句';
+          btn.click();
+          return sleep(300);
+        }).then(function(){
+          log('T3 再发送后: btn=[' + btn.textContent.trim() + ']');
+          return poll(function(){ return btn.textContent.indexOf('发') >= 0; }, 100, 200);
+        }).then(function(ms){
+          log('T4 第二轮完成(+' + ms + 'ms): btn=[' + btn.textContent.trim() + ']');
+          var last = d.querySelectorAll('#chatMsgs .msg.bot .bubble .txt');
+          log('最后一条AI: [' + (last.length ? last[last.length-1].textContent.slice(0,30) : '无') + ']');
+          log('errors: ' + (errors.length ? errors.join(' ;; ') : '(无)'));
+          log('DONE');
+        });
+      }
+    });
+  });
+})();
+</script>
+</html>

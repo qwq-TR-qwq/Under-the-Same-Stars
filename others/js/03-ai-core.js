@@ -291,7 +291,13 @@
             if(timer){ clearTimeout(timer); timer = setTimeout(function(){ ctrl.abort(); }, 60000); }
             return pump();
           });
-        })();
+        })().catch(function(err){
+          // 修复：点「停止」/ 60s 超时触发 abort 时，挂起的 reader.read() 会以 AbortError 拒绝。
+          // 此前 pump 的 Promise 没接回外链，拒绝无人处理 → fail 不执行 → chatting 卡在 true，无法再发送。
+          if(timer) clearTimeout(timer);
+          if(CUR_CTRL === ctrl) CUR_CTRL = null;
+          fail(err);
+        });
       })
       .catch(function(err){ if(timer) clearTimeout(timer); if(CUR_CTRL === ctrl) CUR_CTRL = null; fail(err); });
   }
