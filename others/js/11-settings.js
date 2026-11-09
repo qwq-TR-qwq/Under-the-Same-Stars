@@ -129,7 +129,8 @@
 
   function init() {
     mask = document.getElementById('setMask');
-    var openBtns = [document.getElementById('settingsBtn'), document.getElementById('settingsFab')];
+    // v12.28：移除右下角悬浮设置按钮（#settingsFab），只保留顶栏「⚙ 设置」，两处入口重复
+    var openBtns = [document.getElementById('settingsBtn')];
     openBtns.forEach(function (b) {
       if (!b) return;
       b.addEventListener('click', function (e) { e.stopPropagation(); openPanel(); }, false);
