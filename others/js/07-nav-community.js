@@ -1,8 +1,13 @@
-// 汉堡菜单与移动端分组展开
+// 汉堡菜单与导航分组下拉（桌面点击切换 + 移动端展开，v12.30 修复收不回）
 (function(){
   var burger = document.getElementById('navBurger');
   var box = document.getElementById('siteLinks');
   if(!burger || !box) return;
+  var finePointer = false;
+  try{ finePointer = window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches; }catch(e){}
+  function closeGroups(){
+    box.querySelectorAll('.nav-group').forEach(function(x){ x.classList.remove('open','sup'); });
+  }
   burger.addEventListener('click', function(e){
     e.stopPropagation();
     box.classList.toggle('open');
@@ -13,11 +18,29 @@
     e.stopPropagation();
     var g = gb.parentNode;
     var was = g.classList.contains('open');
-    box.querySelectorAll('.nav-group').forEach(function(x){ x.classList.remove('open'); });
-    if(!was) g.classList.add('open');
+    closeGroups();
+    if(!was){ g.classList.add('open'); }
+    else if(finePointer){ g.classList.add('sup'); }  // 桌面端鼠标仍悬停，抑制 hover 立即重开
   }, false);
+  // 点击菜单项跳转后收起所有分组
+  box.querySelectorAll('.nav-drop a').forEach(function(a){
+    a.addEventListener('click', closeGroups);
+  });
+  // 鼠标离开分组后解除 hover 抑制
+  box.querySelectorAll('.nav-group').forEach(function(g){
+    g.addEventListener('mouseleave', function(){ g.classList.remove('sup'); });
+  });
+  // 点击导航以外区域：收起移动端面板与所有下拉
+  // 用捕获阶段监听：品牌 logo / 跳转按钮等 stopPropagation 的元素也能触发收回（v12.30）
   document.addEventListener('click', function(e){
-    if(!box.contains(e.target) && e.target !== burger) box.classList.remove('open');
+    if(!box.contains(e.target) && e.target !== burger){
+      box.classList.remove('open');
+      closeGroups();
+    }
+  }, true);
+  // ESC 收起
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ box.classList.remove('open'); closeGroups(); }
   }, false);
 })();
 // 品牌 / 迷你返回

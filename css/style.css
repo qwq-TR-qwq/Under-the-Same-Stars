@@ -1069,6 +1069,8 @@ body.book-on .site-nav{ transform:translateY(-110%); opacity:0; pointer-events:n
 .nav-drop a{ display:block; text-align:center; font-size:14px; padding:8px 14px; letter-spacing:1.5px; }
 @media (hover:hover) and (pointer:fine){
   .nav-group:hover .nav-drop{ opacity:1; visibility:visible; transform:translate(-50%, 0); }
+  /* 点击收回后的抑制：鼠标仍悬停时不立即重开，移开即恢复（v12.30） */
+  .nav-group.sup:hover .nav-drop{ opacity:0; visibility:hidden; transform:translate(-50%, 8px); }
 }
 .nav-group.open .nav-drop{ opacity:1; visibility:visible; transform:translate(-50%, 0); }
 .nav-burger{
