@@ -114,7 +114,7 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <tr><td>15-misslog</td><td>86</td><td>未命中问题日志，驱动知识库迭代</td><td><code>__missLog</code></td></tr>
 <tr><td>16-plan</td><td>452</td><td>一周陪伴计划三步工作流与打卡闭环</td><td><code>__plan</code></td></tr>
 </table>
-<p><strong>合计</strong>：17 个模块 6989 行 JS + 2834 行 CSS + 1518 行 HTML = 11338 行，零第三方运行时依赖（统计于 v12.28）。</p>
+<p><strong>合计</strong>：17 个模块 6986 行 JS + 2834 行 CSS + 1518 行 HTML = 11338 行，零第三方运行时依赖（统计于 v12.28）。</p>
 <h3>3.4 技术选型</h3>
 <table>
 <tr><th>模块</th><th>选型</th><th>理由</th></tr>
@@ -269,7 +269,7 @@ function replyFor(text) {
 <p><strong>链接治理（重要）</strong></p>
 <ul><li>省级：31 个省级残联域名逐条比对官方来源 + HTTP 实测，修正上海（新站 shdpf.org.cn）、陕西（仅 http）、新疆（www 前缀）等问题</li><li>市级：337 个地级行政区逐一探测「全拼 / 首字母缩写 + <code>www.{x}.gov.cn</code>」候选域名，<strong>只收录标题中同时出现城市名与"政府"字样的站点</strong>（共 244 个），据此排除了 <code>ts.gov.cn</code>（实为泰顺县）、<code>suzhou.gov.cn</code>（苏州市，非宿州）等同名误配；未收录的城市不展示猜测链接，改为提示通过省残联或 12345 获取本地信息</li></ul>
 <h3>5.7 偏好设置与无障碍（v12.0，v12.4 扩展）</h3>
-<ul><li>大字模式：真实字体放大（不只调行距），不破坏排版（v12.4 起并入设置面板并可持久化）</li><li>心理量表题目字体 36px、选项 25px，保证可读性</li><li><strong>偏好设置中心</strong>（<code>11-settings.js</code>，v12.4）：顶栏 + 右下角双入口「设置」浮层，统一管理四项个性化调整——主题外观（深色·星夜 / 浅色·日光）、网页动态效果（开启全部动效 / 减少动效，快捷键 Shift+L）、字号大小（标准 / 大字）、背景音乐（与书页音乐按钮双向同步）；全部状态仅存 localStorage，刷新自动恢复，旧版低刺激存档（<code>xyn_low_stim</code>）自动迁移为 <code>xyn_motion</code></li><li><strong>浅色模式</strong>（v12.4）：<code>&lt;html class="theme-light"&gt;</code> 单一状态真相；日光纸白配色 + 深色墨字（正文对比度 ≥ 4.5:1），书页背景换晨光渐变，书首页标题垫毛玻璃胶囊保证插画上文字可读；数据看板 Canvas 图表监听 <code>theme:change</code> 事件以浅色配色重绘；约 400 行覆盖规则逐一适配全站组件</li><li><strong>网页动态效果（原低刺激模式）</strong>（<code>11-settings.js</code>）：状态唯一真相是 <code>&lt;html class="motion-off"&gt;</code>（原 <code>stim-low</code>），<code>00-boot.js</code> 在渲染前从 localStorage 预应用（首屏不闪动画）；减少动效时 CSS 将全部动画压到瞬时完成（<code>animation-duration:.001s</code>，保留最终帧避免元素停在透明态，换页叙事动画通过高优先级规则豁免），并显式关闭鼠标视差、弹幕滚动；JS 侧监听 <code>motion:change</code>（原 <code>stim:change</code>）自定义事件实现"减少即静音 BGM、恢复后按原开关状态继续"</li><li><strong>浮层焦点统一接管</strong>（<code>12-modal.js</code>）：零侵入设计——MutationObserver 监听 8 个浮层（AI 设置 / 家长专区 / 就医清单 / 心理测评 / 科普话题 / 感官体验 / 偏好设置 / 一周陪伴计划）class 的 open/on 切换，自动完成焦点移入、Tab 循环锁定（首尾环绕）、ESC 关闭（点各浮层自己的关闭按钮保证业务状态一致）、焦点归还触发元素、body 滚动锁定；不修改任何业务模块的开关函数</li><li><strong>就医准备清单生成器</strong>（<code>13-clinic.js</code>）：5 组 25 项循证观察项（勾选 + 频率），localStorage 持久化可分天补充；生成结构化 A4 打印单（基本信息 → 最担心的事 → 分类清单含频率 → 时间线表格 → 已尝试方法 → 就诊提示），打印用 <code>visibility</code> 方案只输出清单层，不依赖 <code>display:none</code> 逐个隐藏</li><li><strong>情绪安全阀</strong>（<code>14-safety.js</code>）：<code>window.__safety.check(text)</code> 统一入口，区分家长语境（描述孩子行为 → child 卡片）与本人危机（self 卡片）；02-chat 与 03-ai-core 两处拦截点共用；60 秒节流；卡片静态无动画，兼容减少动效模式</li><li><strong>未命中问题日志</strong>（<code>15-misslog.js</code>）：本地知识库未接住的问题记入 <code>xyn_miss_log_v1</code>（10 分钟去重、上限 200 条），设置面板一键导出 CSV（文件写入 UTF-8 BOM 头，Excel 打开中文不乱码）——以真实用户提问反推知识库补充方向</li><li>高对比模式已按需求移除</li></ul>
+<ul><li>大字模式：真实字体放大（不只调行距），不破坏排版（v12.4 起并入设置面板并可持久化）</li><li>心理量表题目字体 36px、选项 25px，保证可读性</li><li><strong>偏好设置中心</strong>（<code>11-settings.js</code>，v12.4；v12.28 起统一为顶栏单入口，右下角悬浮入口已移除）：顶栏「设置」浮层统一管理四项个性化调整——主题外观（深色·星夜 / 浅色·日光）、网页动态效果（开启全部动效 / 减少动效，快捷键 Shift+L）、字号大小（标准 / 大字）、背景音乐（与书页音乐按钮双向同步）；全部状态仅存 localStorage，刷新自动恢复，旧版低刺激存档（<code>xyn_low_stim</code>）自动迁移为 <code>xyn_motion</code></li><li><strong>浅色模式</strong>（v12.4）：<code>&lt;html class="theme-light"&gt;</code> 单一状态真相；日光纸白配色 + 深色墨字（正文对比度 ≥ 4.5:1），书页背景换晨光渐变，书首页标题垫毛玻璃胶囊保证插画上文字可读；数据看板 Canvas 图表监听 <code>theme:change</code> 事件以浅色配色重绘；约 400 行覆盖规则逐一适配全站组件</li><li><strong>网页动态效果（原低刺激模式）</strong>（<code>11-settings.js</code>）：状态唯一真相是 <code>&lt;html class="motion-off"&gt;</code>（原 <code>stim-low</code>），<code>00-boot.js</code> 在渲染前从 localStorage 预应用（首屏不闪动画）；减少动效时 CSS 将全部动画压到瞬时完成（<code>animation-duration:.001s</code>，保留最终帧避免元素停在透明态，换页叙事动画通过高优先级规则豁免），并显式关闭鼠标视差、弹幕滚动；JS 侧监听 <code>motion:change</code>（原 <code>stim:change</code>）自定义事件实现"减少即静音 BGM、恢复后按原开关状态继续"</li><li><strong>浮层焦点统一接管</strong>（<code>12-modal.js</code>）：零侵入设计——MutationObserver 监听 8 个浮层（AI 设置 / 家长专区 / 就医清单 / 心理测评 / 科普话题 / 感官体验 / 偏好设置 / 一周陪伴计划）class 的 open/on 切换，自动完成焦点移入、Tab 循环锁定（首尾环绕）、ESC 关闭（点各浮层自己的关闭按钮保证业务状态一致）、焦点归还触发元素、body 滚动锁定；不修改任何业务模块的开关函数</li><li><strong>就医准备清单生成器</strong>（<code>13-clinic.js</code>）：5 组 25 项循证观察项（勾选 + 频率），localStorage 持久化可分天补充；生成结构化 A4 打印单（基本信息 → 最担心的事 → 分类清单含频率 → 时间线表格 → 已尝试方法 → 就诊提示），打印用 <code>visibility</code> 方案只输出清单层，不依赖 <code>display:none</code> 逐个隐藏</li><li><strong>情绪安全阀</strong>（<code>14-safety.js</code>）：<code>window.__safety.check(text)</code> 统一入口，区分家长语境（描述孩子行为 → child 卡片）与本人危机（self 卡片）；02-chat 与 03-ai-core 两处拦截点共用；60 秒节流；卡片静态无动画，兼容减少动效模式</li><li><strong>未命中问题日志</strong>（<code>15-misslog.js</code>）：本地知识库未接住的问题记入 <code>xyn_miss_log_v1</code>（10 分钟去重、上限 200 条），设置面板一键导出 CSV（文件写入 UTF-8 BOM 头，Excel 打开中文不乱码）——以真实用户提问反推知识库补充方向</li><li>高对比模式已按需求移除</li></ul>
 <h3>5.8 数据看板数据层（v12.5）</h3>
 <ul><li><strong>唯一数据源 <code>others/data/stats.json</code></strong>：20 个数据点全部结构化，每点带「数值 + 类型（发布值 / 估算 / 差额推算）+ 来源 id + 推算依据」；患病率三点（Meta 分析 3.5‰ / 0—6 岁实测 1.8% / 规范引用 7‰）各自标注调查口径、并列呈现，不合并连线暗示趋势</li><li><strong>权威来源清单 10 条</strong>：WHO / CDC ADDM / 中国残联 / 新华社 / 卫健委规范 / 学术期刊等，看板下方可逐条展开，有官方原文链接的全部附链</li><li><strong>同步脚本 <code>others/tools/sync-stats.js</code></strong>：校验 JSON（长度 / 来源引用 / 饼图合计 / 估算必附依据）并生成 <code>others/js/data/stats.js</code> 注入页面；<code>--check</code> 模式校验同步</li><li><strong>三条更新路径</strong>：线上（http/https）自动 fetch 一次 JSON，只改 JSON 即时生效；本地跑脚本彻底同步；file:// 双击打开由 <code>&lt;script&gt;</code> 注入零网络请求，数据缺失时回退内置兜底——看板永不白屏</li><li><strong>UI</strong>：元信息条（数据截至 / 数据点数 / 复核周期 / 口径标签）、折线图悬停直接显示「数值 + 口径 + 来源」、深浅主题各自适配配色重绘</li></ul>
 <h3>5.9 AI 通道与降级设计（v12.6）</h3>
@@ -318,7 +318,17 @@ function replyFor(text) {
 <tr><td>服务端代理</td><td>deepseek-chat</td><td>Worker 免费 10 万次/天</td><td>放行（由 Worker 补 CORS）</td><td>—</td><td>线上评委零配置通道（REMOTE_PROXY，当前预留未启用）</td></tr>
 </table>
 <p>选型依据：①覆盖"评委零配置 / 个人低成本 / 看图 / 离线兜底"四类场景互为补充；②全部走 OpenAI 兼容协议，同一套 <code>callAI</code> 适配；③浏览器直连能力经 OPTIONS 预检实测，不做想当然的假设。</p>
-<h3>5.13 Prompt 附录（v12.8）</h3>
+<h3>5.13 流式交互健壮性（v12.26–v12.28）</h3>
+<p>第三方大模型的流式输出有三类"非错误但体验塌陷"的边界，均已针对性处理：</p>
+<table>
+<tr><th>场景</th><th>此前表现</th><th>现在</th></tr>
+<tr><td>首字迟迟不来（十几秒）</td><td>只有三个跳动点，用户无法判断是在算还是卡死，最坏干等 60 秒超时</td><td>气泡旁显示「已等待 Ns」逐秒计时，首字到达即消失；满 30 秒追加提示「响应较慢，可再等等，或点停止后重试 / 换服务商」</td></tr>
+<tr><td>中途点「停止」</td><td>按钮永久卡在「停止」，输入框有字也发不出去，只能刷新页面</td><td><code>abort</code> 引发的读取拒绝被 <code>pump()</code> 链捕获，走统一收尾：保留已输出内容并标注「已停止生成」，按钮恢复「发送」</td></tr>
+<tr><td>接口返回 200 但内容为空</td><td>直接降级本地知识库并提示「返回为空，请重试」</td><td>自动原样重发一次（仅一次，防循环），两次皆空才降级</td></tr>
+</table>
+<p>关键实现：<code>callAI()</code> 的 SSE 读取循环以 <code>pump()</code> 递归推进，其返回的 Promise 必须接回外层 <code>.catch</code>——否则 <code>AbortController.abort()</code> 只让挂起的 <code>reader.read()</code> 拒绝，而该拒绝无人处理，收尾逻辑（恢复按钮 / 定稿已输出内容 / 清空在途标记）整段被跳过，表现为"对话卡死"。同理，60 秒无响应超时走的也是这条中断路径。</p>
+<p><strong>验证方式</strong>：<code>others/_checks/</code> 下留有一套可复现的自动化测试——<code>mock_server.py</code> 提供 6 秒慢速 SSE 模拟端点，<code>stop-cdp-test.js</code> 通过 Chrome DevTools Protocol 驱动真实浏览器完成「发送 → 流式中途停止 → 再次发送」全流程。修复前跑出 <code>FAIL</code>（<code>stopping:true / inflight:true</code> 卡死、第二轮发不出），修复后 <code>PASS</code>，作为回归用例保留。</p>
+<h3>5.14 Prompt 附录（v12.8）</h3>
 <p><strong>A. 星语对话 System Prompt</strong>（节选全文，位于 <code>others/js/03-ai-core.js</code>）：</p>
 <blockquote>你是"星语"，一个温柔、真诚、有生活经验的心理与生活陪伴助手，来自公益科普互动页《以星为灯 · 照亮来自星星的孩子》。你要针对用户具体说的事情深入回答，不要泛泛而谈……回答要求：①开头先用一两句接住他具体的情绪和事情；②围绕他说的具体事情展开，给 2-3 条真的能落地的建议，用聊天语气自然说出来，不要机械分点；③篇幅 200-400 字；④信息不够先问清楚再给建议；⑤结尾轻轻引导他接着说。……特别地，本站的主要服务对象是自闭症孩子的家长：①先承认照护本身的辛苦，不用"你要乐观"这类空话堵人；②给今天回家就能做的具体做法，行为问题按"先保安全、再找诱因、最后做预防"的顺序；③不做诊断、不建议停药或吃保健品、不推荐具体商业机构、不承诺疗效；④涉及孩子自伤、走失、被欺凌或家长轻生念头，先给 120 / 110 / 12356 求助渠道。</blockquote>
 <p><strong>B. RAG 注入指令</strong>（ragContext，随命中的 [1][2][3] 编号条目一起注入）：</p>
@@ -431,7 +441,7 @@ function replyFor(text) {
 <tr><td>端到端断言</td><td>无头浏览器脚本</td><td>32 + 17 + 15 = 64 项通过</td></tr>
 <tr><td>横向溢出</td><td>375px 与 1440px 两档实测 <code>scrollWidth</code></td><td>0 溢出</td></tr>
 </table>
-<p><strong>规模</strong>：17 个模块 6989 行 JS / 2834 行 CSS / 1518 行 HTML，共 11338 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.28）。</p>
+<p><strong>规模</strong>：17 个模块 6986 行 JS / 2834 行 CSS / 1518 行 HTML，共 11338 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.28）。</p>
 <hr>
 <h2>9. 总结与展望</h2>
 <h3>9.1 已完成</h3>
