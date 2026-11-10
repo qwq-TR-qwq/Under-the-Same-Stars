@@ -28,7 +28,7 @@ strong{color:#1f2430}
 </head>
 <body>
 <h1>星夜入眠 —— 关爱自闭症儿童公益科普网站技术文档</h1>
-<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.28（正式参赛版）</p>
+<p><strong>赛道</strong>：2026 传智杯 AI WEB 网页开发挑战赛<br><strong>方向</strong>：AI 健康与生活服务 · 心理健康对话系统<br><strong>版本</strong>：v12.29（正式参赛版）</p>
 <hr>
 <h2>目录</h2>
 <ol><li>项目概述</li><li>需求分析</li><li>系统架构设计</li><li>AI 技术方案</li><li>核心功能实现</li><li>测试与部署</li><li>创新点</li><li>性能与安全</li><li>总结与展望</li><li>可持续性与推广路径</li></ol>
@@ -99,7 +99,7 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <tr><td>00-boot</td><td>65</td><td>渲染前预应用主题/动效/字号，捕获全局异常，注册 SW</td><td>无（自执行）</td></tr>
 <tr><td>01-book</td><td>250</td><td>书页翻页骨架、页索引、动效开关的唯一判定</td><td><code>isMotionOff()</code> <code>total</code></td></tr>
 <tr><td>02-chat</td><td>1214</td><td>对话视图：消息渲染、打字机、附件、语音入口、发送键状态</td><td><code>botSay()</code> <code>chatMsgs</code> <code>chatting</code></td></tr>
-<tr><td>03-ai-core</td><td>935</td><td>AI 能力内核：通道选择、SSE 流式、工具调用、RAG、引用、降级</td><td><code>__aiInfo</code> <code>__aiStop</code> <code>__aiJSON</code> <code>__aiReady</code> <code>__aiStats</code></td></tr>
+<tr><td>03-ai-core</td><td>947</td><td>AI 能力内核：通道选择、SSE 流式、工具调用、RAG、引用、降级</td><td><code>__aiInfo</code> <code>__aiStop</code> <code>__aiJSON</code> <code>__aiReady</code> <code>__aiStats</code></td></tr>
 <tr><td>04-sensory</td><td>252</td><td>感官体验短片播放与降噪/增益模拟</td><td><code>startSensorySim()</code></td></tr>
 <tr><td>05-tests-community</td><td>695</td><td>心理测评量表与 MBTI，历史记录</td><td><code>window.__test*</code></td></tr>
 <tr><td>06-site-shell</td><td>60</td><td>视图切换与板块级交互</td><td><code>switchView()</code></td></tr>
@@ -114,7 +114,7 @@ L6 平台层   sw.js 离线缓存 · manifest.json PWA
 <tr><td>15-misslog</td><td>86</td><td>未命中问题日志，驱动知识库迭代</td><td><code>__missLog</code></td></tr>
 <tr><td>16-plan</td><td>452</td><td>一周陪伴计划三步工作流与打卡闭环</td><td><code>__plan</code></td></tr>
 </table>
-<p><strong>合计</strong>：17 个模块 6986 行 JS + 2834 行 CSS + 1518 行 HTML = 11338 行，零第三方运行时依赖（统计于 v12.28）。</p>
+<p><strong>合计</strong>：17 个模块 6998 行 JS + 2834 行 CSS + 1518 行 HTML = 11350 行，零第三方运行时依赖（统计于 v12.29）。</p>
 <h3>3.4 技术选型</h3>
 <table>
 <tr><th>模块</th><th>选型</th><th>理由</th></tr>
@@ -325,6 +325,7 @@ function replyFor(text) {
 <tr><td>首字迟迟不来（十几秒）</td><td>只有三个跳动点，用户无法判断是在算还是卡死，最坏干等 60 秒超时</td><td>气泡旁显示「已等待 Ns」逐秒计时，首字到达即消失；满 30 秒追加提示「响应较慢，可再等等，或点停止后重试 / 换服务商」</td></tr>
 <tr><td>中途点「停止」</td><td>按钮永久卡在「停止」，输入框有字也发不出去，只能刷新页面</td><td><code>abort</code> 引发的读取拒绝被 <code>pump()</code> 链捕获，走统一收尾：保留已输出内容并标注「已停止生成」，按钮恢复「发送」</td></tr>
 <tr><td>接口返回 200 但内容为空</td><td>直接降级本地知识库并提示「返回为空，请重试」</td><td>自动原样重发一次（仅一次，防循环），两次皆空才降级</td></tr>
+<tr><td>请求超时（60 秒无响应 / 免费通道超限）</td><td>气泡显示「（已停止生成，这条还没开始输出）」，用户并未点停止</td><td>超时与用户停止分离：显示「请求超时」与重试指引（v12.29）</td></tr>
 </table>
 <p>关键实现：<code>callAI()</code> 的 SSE 读取循环以 <code>pump()</code> 递归推进，其返回的 Promise 必须接回外层 <code>.catch</code>——否则 <code>AbortController.abort()</code> 只让挂起的 <code>reader.read()</code> 拒绝，而该拒绝无人处理，收尾逻辑（恢复按钮 / 定稿已输出内容 / 清空在途标记）整段被跳过，表现为"对话卡死"。同理，60 秒无响应超时走的也是这条中断路径。</p>
 <p><strong>验证方式</strong>：<code>others/_checks/</code> 下留有一套可复现的自动化测试——<code>mock_server.py</code> 提供 6 秒慢速 SSE 模拟端点，<code>stop-cdp-test.js</code> 通过 Chrome DevTools Protocol 驱动真实浏览器完成「发送 → 流式中途停止 → 再次发送」全流程。修复前跑出 <code>FAIL</code>（<code>stopping:true / inflight:true</code> 卡死、第二轮发不出），修复后 <code>PASS</code>，作为回归用例保留。</p>
@@ -337,7 +338,7 @@ function replyFor(text) {
 <blockquote>你在帮一位自闭症孩子的家长排"一周陪伴计划"，现在是第 2 步：判断还缺什么信息。只输出 JSON，不要任何解释文字，格式：{"questions":[{"q":"问题（22 字内，说人话）","type":"single","options":["选项1","选项2","选项3"]}]}。规则：2 到 3 道题；家长原话里已经说了的不要再问；不要问诊断结论或病因；每道题尽量给 3–4 个选项，实在无法选项化才用 "type":"text"；问题要能直接影响"这周做什么"。</blockquote>
 <hr>
 <h2>6. 测试与部署</h2>
-<h3>6.1 开发历程（从 v1 到 v12.28 完整迭代）</h3>
+<h3>6.1 开发历程（从 v1 到 v12.29 完整迭代）</h3>
 <p>项目从最初版本到现在持续迭代打磨：</p>
 <p><strong>v1 初版（9/30，10.6MB）</strong></p>
 <ul><li>基础星空动画 + 交互动画背景</li><li>首页主视觉、导航栏</li><li>初版科普内容框架</li></ul>
@@ -407,6 +408,8 @@ function replyFor(text) {
 <ul><li>思考气泡新增等待秒数计时（首字到达即消失）；超过 30 秒提示「可再等等，或点停止后重试 / 换服务商」——第三方模型首字可能要十几秒，此前只有三个点、用户无从判断是否卡死</li><li>「返回为空」自动重试一次：免费 / 自定义接口偶发 200 空响应，此前直接降级本地知识库并提示手动重试；现自动重发一次（仅一次，避免循环）再降级</li><li>行数 11327 → 11347（<code>02-chat</code> 1206 → 1214、<code>03-ai-core</code> 925 → 935、CSS 2839 → 2841）</li></ul>
 <p><strong>v12.28（11/9：去除重复的设置入口）</strong></p>
 <ul><li>移除右下角悬浮「设置」按钮（<code>#settingsFab</code> + <code>.a11y-fab</code> 样式），只保留顶栏设置按钮——两个入口打开的是同一个偏好面板，视觉重复</li><li>行数 11347 → 11338（HTML 1521 → 1518、CSS 2841 → 2834、<code>11-settings</code> 183 → 184）</li></ul>
+<p><strong>v12.29（11/10：修复请求超时被误报成「已停止生成」）</strong></p>
+<ul><li>修复：未点「停止」却出现「（已停止生成，这条还没开始输出）」——<code>isAbort()</code> 把所有 AbortError 都当成用户停止，而 pollinations 通道 6 秒预检超时与主通道 60 秒无响应超时也会主动 <code>abort()</code>，超时中断被误显示为停止文案</li><li>修复：两处定时器中断改走明确的「请求超时」错误（含重试 / 换服务商指引），只有用户真点「停止」才显示「已停止生成」</li><li>优化：pollinations 免费通道响应上限 6 秒 → 20 秒（6 秒过于激进，慢而有效的回答常被掐断）</li><li>回归测试：<code>others/_checks/timeout-cdp-test.js</code> + 模拟端点 <code>/hang</code>（永不响应），修复前 FAIL（误报「已停止生成」）、修复后 PASS；<code>03-ai-core</code> 935 → 947</li></ul>
 <h3>6.2 测试覆盖</h3>
 <ul><li>[通过] PC 端 Chrome / Edge 主流分辨率</li><li>[通过] 移动端浏览器（device-width 视口、响应式断点、手势缩放）</li><li>[通过] 离线状态：Service Worker 缓存 + 本地对话兜底，断网可完整演示</li><li>[通过] API Key 失效 / 接口失败时自动降级到本地兜底（界面明示具体原因：超时 / 跨域 / 401 / 429）</li><li>[通过] AI 通道选择与降级链路：Node + 本地 SSE 模拟服务断言 15/15 通过</li><li>[通过] 一周陪伴计划三步工作流：无头浏览器 32/32 断言（流转 / 拦截 / 打卡 / 版本 / 持久化 / 双回落 / 溢出）</li><li>[通过] RAG 引用 / 工具轨迹 / 停止 / 重新生成：无头浏览器 17/17 断言（含模拟 abort）</li><li>[通过] RAG 检索评测：20 条口语问法 hit@3 = 20/20（调优后）</li><li>[通过] 视频离开页面自动暂停并回到开头</li><li>[通过] 对话时页面稳定，不自动跳转站内板块</li><li>[通过] 键盘 Tab 可达全部导航，回车 / 空格可触发</li><li>[通过] 音乐总开关可一键关闭</li><li>[通过] 量表字体在手机端正常显示</li><li>[通过] 所有按钮点击正常；全局错误兜底避免白屏</li></ul>
 <h3>6.3 部署</h3>
@@ -441,7 +444,7 @@ function replyFor(text) {
 <tr><td>端到端断言</td><td>无头浏览器脚本</td><td>32 + 17 + 15 = 64 项通过</td></tr>
 <tr><td>横向溢出</td><td>375px 与 1440px 两档实测 <code>scrollWidth</code></td><td>0 溢出</td></tr>
 </table>
-<p><strong>规模</strong>：17 个模块 6986 行 JS / 2834 行 CSS / 1518 行 HTML，共 11338 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.28）。</p>
+<p><strong>规模</strong>：17 个模块 6998 行 JS / 2834 行 CSS / 1518 行 HTML，共 11350 行，第三方运行时依赖 <strong>0</strong>（统计于 v12.29）。</p>
 <hr>
 <h2>9. 总结与展望</h2>
 <h3>9.1 已完成</h3>

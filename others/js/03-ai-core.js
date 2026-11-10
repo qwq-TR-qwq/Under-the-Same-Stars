@@ -169,7 +169,8 @@
     if(aiCfg.provider === 'pollinations'){
       var ctrlP = (typeof AbortController !== 'undefined') ? new AbortController() : null;
       CUR_CTRL = ctrlP;
-      var timerP = ctrlP ? setTimeout(function(){ ctrlP.abort(); }, 6000) : null;
+      var timedOutP = false;   // 超时中断标记：与「用户点停止」区分（v12.29）
+      var timerP = ctrlP ? setTimeout(function(){ timedOutP = true; ctrlP.abort(); }, 20000) : null;
       fetch(aiCfg.endpoint || 'https://text.pollinations.ai/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -184,7 +185,12 @@
           var out = (txt || '').replace(/^\s+|\s+$/g, '');
           if(!out) throw new Error('空回复');
           done(out, null);
-        }).catch(function(err){ if(timerP) clearTimeout(timerP); if(CUR_CTRL === ctrlP) CUR_CTRL = null; fail(err); });
+        }).catch(function(err){
+          if(timerP) clearTimeout(timerP); if(CUR_CTRL === ctrlP) CUR_CTRL = null;
+          // 超时触发的 abort 不是用户停止：转为明确的超时错误，避免误显示「已停止生成」（v12.29）
+          if(timedOutP){ fail(new Error('请求超时：免费接口 20 秒未返回内容，请点「重新生成」重试，或在设置中换服务商')); return; }
+          fail(err);
+        });
       return;
     }
     var body = { model: aiCfg.model, messages: messages, temperature: 0.75, max_tokens: 1500, stream: true };
@@ -197,7 +203,8 @@
     if((aiCfg.provider === 'proxy' || aiCfg.provider === 'remote') && proxyToken) headers['X-Proxy-Token'] = proxyToken;
     var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     CUR_CTRL = ctrl;
-    var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 60000) : null;
+    var timedOut = false;    // 超时中断标记：与「用户点停止」区分（v12.29）
+    var timer = ctrl ? setTimeout(function(){ timedOut = true; ctrl.abort(); }, 60000) : null;
     // 请求地址：内置服务商一律用官方地址，不信任本地残留的 endpoint（防止换服务商后拿到旧地址报 404）；custom 才由用户自填
     var reqUrl = aiCfg.endpoint;
     var pvDef = AI_PROVIDERS[aiCfg.provider];
@@ -288,7 +295,7 @@
             if(res.done){ try{ handleChunk(); }catch(e){} finalize(); return; }
             buf += dec.decode(res.value, { stream: true });
             handleChunk();
-            if(timer){ clearTimeout(timer); timer = setTimeout(function(){ ctrl.abort(); }, 60000); }
+            if(timer){ clearTimeout(timer); timer = setTimeout(function(){ timedOut = true; ctrl.abort(); }, 60000); }
             return pump();
           });
         })().catch(function(err){
@@ -296,10 +303,15 @@
           // 此前 pump 的 Promise 没接回外链，拒绝无人处理 → fail 不执行 → chatting 卡在 true，无法再发送。
           if(timer) clearTimeout(timer);
           if(CUR_CTRL === ctrl) CUR_CTRL = null;
+          if(timedOut){ fail(new Error('请求超时：60 秒未收到模型响应，请点「重新生成」重试，或在设置中换服务商')); return; }
           fail(err);
         });
       })
-      .catch(function(err){ if(timer) clearTimeout(timer); if(CUR_CTRL === ctrl) CUR_CTRL = null; fail(err); });
+      .catch(function(err){
+        if(timer) clearTimeout(timer); if(CUR_CTRL === ctrl) CUR_CTRL = null;
+        if(timedOut){ fail(new Error('请求超时：60 秒未收到模型响应，请点「重新生成」重试，或在设置中换服务商')); return; }
+        fail(err);
+      });
   }
   // 空回复自动重试一次：免费/自定义接口偶发返回 200 但内容为空，直接降级体验差（只重试一次，避免循环）
   function callAIRetryEmpty(messages, done, fail, onDelta, useTools, attempted){

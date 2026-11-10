@@ -12,6 +12,14 @@ class H(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers','*'); self.send_header('Access-Control-Allow-Methods','*')
         self.end_headers()
     def do_POST(self):
+        if '/hang' in self.path:
+            # 永不响应：用于「请求超时」回归测试（客户端 abort 断开即结束）
+            try:
+                while True:
+                    time.sleep(1)
+            except Exception:
+                pass
+            return
         if '/chat/completions' not in self.path:
             self.send_response(404); self.end_headers(); return
         ln = int(self.headers.get('Content-Length') or 0)
